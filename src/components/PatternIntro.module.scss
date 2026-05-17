@@ -1,0 +1,304 @@
+@use 'styles/vars' as *;
+@use 'styles/mix' as *;
+
+.page {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 40px 28px 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+
+  @include sm-down {
+    padding: 26px 16px 60px;
+  }
+}
+
+.head {
+  .kicker {
+    @include mono(11px);
+    letter-spacing: 0.16em;
+    color: $fg-ghost;
+  }
+
+  h1 {
+    margin-top: 8px;
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+
+    @include sm-down {
+      font-size: 30px;
+    }
+  }
+
+  .tagline {
+    margin-top: 10px;
+    max-width: 620px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: $lime;
+    text-wrap: pretty;
+  }
+}
+
+.story {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 760px;
+
+  p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: $fg-soft;
+    text-wrap: pretty;
+  }
+
+  code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: $ink-750;
+    color: $fg;
+    font-family: $font-mono;
+    font-size: 12.5px;
+  }
+
+  em {
+    font-style: italic;
+    color: $fg;
+  }
+}
+
+/* -------------------------------------------------------------------- demo */
+
+.demo {
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  border: 1px solid $hair;
+  background: $ink-900;
+  overflow: hidden;
+}
+
+.demoHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  @include hair(b);
+
+  .demoTitle {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .demoHint {
+    color: $fg-trace;
+    @include mono(10.5px);
+
+    @include sm-down {
+      display: none;
+    }
+  }
+}
+
+.lower {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  @include hair(t);
+
+  @include md-down {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pseudo {
+  padding: 14px 0 16px;
+  @include hair(r);
+
+  @include md-down {
+    border-right: none;
+    border-bottom: 1px solid $hair;
+  }
+
+  .paneLabel {
+    padding: 0 18px 10px;
+    @include kicker;
+  }
+}
+
+.line {
+  display: flex;
+  gap: 14px;
+  padding: 2.5px 18px;
+  font-family: $font-mono;
+  font-size: 13px;
+  line-height: 1.6;
+  border-left: 2px solid transparent;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  .num {
+    width: 14px;
+    text-align: right;
+    color: $fg-trace;
+    user-select: none;
+  }
+
+  .src {
+    color: $fg-muted;
+    white-space: pre;
+  }
+
+  &.hot {
+    background: rgba(205, 255, 87, 0.07);
+    border-left-color: $lime;
+
+    .src {
+      color: $fg;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------- sections */
+
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+
+  @include md-down {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+
+  .rampCount {
+    color: $fg-faint;
+    @include mono(11px);
+  }
+}
+
+.signals {
+  padding: 18px 20px;
+  border-radius: 14px;
+  border: 1px solid $hair;
+  background: $ink-850;
+}
+
+.signal {
+  display: flex;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: $fg-soft;
+  text-wrap: pretty;
+
+  .tick {
+    color: $lime;
+    flex: 0 0 auto;
+  }
+}
+
+.ramp {
+  padding: 18px 20px;
+  border-radius: 14px;
+  border: 1px solid $hair;
+  background: $ink-850;
+}
+
+.rampRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 10px;
+  margin: 0 -10px;
+  border-radius: 9px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: $ink-800;
+  }
+}
+
+.rampIndex {
+  width: 14px;
+  text-align: right;
+  color: $fg-trace;
+  @include mono(11px);
+}
+
+.light {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  border-radius: 4px;
+  border: 1px solid $hair-strong;
+  color: transparent;
+  font-size: 9px;
+
+  &.on {
+    background: $lime;
+    border-color: $lime;
+    color: $ink-900;
+  }
+}
+
+.rampTitle {
+  flex: 1;
+  font-size: 13px;
+  color: $fg-soft;
+  @include truncate;
+
+  &.done {
+    color: $fg-faint;
+  }
+}
+
+.diff {
+  @include mono(10px);
+
+  &.easy {
+    color: $easy;
+  }
+  &.medium {
+    color: $medium;
+  }
+  &.hard {
+    color: $hard;
+  }
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  margin-top: 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(205, 255, 87, 0.22);
+  background: rgba(205, 255, 87, 0.09);
+  color: $lime;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.18s;
+
+  &:hover {
+    background: rgba(205, 255, 87, 0.15);
+  }
+}

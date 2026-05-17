@@ -1,0 +1,109 @@
+@use 'styles/vars' as *;
+@use 'styles/mix' as *;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.title {
+  @include mono(10.5px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $fg-ghost;
+}
+
+/* ------------------------------------------------------------------ stack */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 108px;
+  min-height: 56px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px dashed $hair-strong;
+  background: rgba(255, 255, 255, 0.012);
+
+  &.flip {
+    flex-direction: column-reverse;
+  }
+}
+
+.stackItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-weight: 600;
+  animation: pop 0.26s $spring both;
+  @include mono(13px);
+  transition:
+    background 0.25s,
+    border-color 0.25s,
+    color 0.25s;
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  color: $fg-trace;
+  @include mono(11px);
+}
+
+.floor {
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: $hair-strong;
+  margin-top: 2px;
+}
+
+/* -------------------------------------------------------------------- map */
+
+.map {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 620px;
+  min-height: 34px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px dashed $hair-strong;
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid;
+  animation: pop 0.24s $spring both;
+  @include mono(12px);
+  transition:
+    background 0.25s,
+    border-color 0.25s,
+    color 0.25s;
+
+  .arrow {
+    color: $fg-trace;
+    font-size: 10px;
+  }
+
+  .val {
+    font-weight: 600;
+  }
+}

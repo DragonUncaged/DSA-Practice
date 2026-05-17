@@ -1,0 +1,132 @@
+@use 'styles/vars' as *;
+@use 'styles/mix' as *;
+
+.wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.columns {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+
+  @include md-down {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}
+
+.col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+
+  + .col {
+    @include hair(l);
+
+    @include md-down {
+      border-left: none;
+      @include hair(t);
+    }
+  }
+}
+
+.colHead {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: $ink-900;
+  @include hair(b);
+
+  .name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .badge {
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid $hair;
+    background: $ink-750;
+    color: $fg-dim;
+    @include mono(10px);
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .ops {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    @include mono(11.5px);
+
+    .num {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .word {
+      color: $fg-ghost;
+    }
+  }
+}
+
+.stageSlot {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  @include md-down {
+    min-height: 380px;
+  }
+}
+
+/* stamped over a column that has already finished while the other grinds on */
+.finished {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(205, 255, 87, 0.3);
+  background: rgba(205, 255, 87, 0.1);
+  color: $lime;
+  white-space: nowrap;
+  animation: rise 0.3s $glide both;
+  @include mono(11px);
+}
+
+.verdict {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 11px 20px;
+  background: $ink-950;
+  text-align: center;
+  text-wrap: pretty;
+  font-size: 13px;
+  color: $fg-muted;
+  @include hair(t);
+
+  strong {
+    color: $lime;
+    font-weight: 600;
+  }
+}

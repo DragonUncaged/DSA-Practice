@@ -1,0 +1,179 @@
+@use 'styles/vars' as *;
+@use 'styles/mix' as *;
+
+$cell-radius: 12px;
+$move: 0.4s;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+}
+
+.title {
+  @include mono(10.5px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $fg-ghost;
+}
+
+.scroller {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 2px 0;
+}
+
+.stage {
+  position: relative;
+  margin: 0 auto;
+}
+
+.band {
+  position: absolute;
+  top: -6px;
+  border-radius: 14px;
+  border: 1px dashed;
+  pointer-events: none;
+  transition:
+    left $move $glide,
+    width $move $glide,
+    border-color 0.3s,
+    background 0.3s;
+
+  .bandLabel {
+    position: absolute;
+    top: -9px;
+    left: 12px;
+    padding: 0 6px;
+    background: $ink-950;
+    @include mono(9.5px);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+}
+
+.cell {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $cell-radius;
+  border: 1px solid;
+  font-family: $font-mono;
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    left $move $glide,
+    top 0.34s $glide,
+    height 0.34s $glide,
+    background 0.28s,
+    border-color 0.28s,
+    color 0.28s,
+    opacity 0.28s,
+    transform 0.34s $spring,
+    box-shadow 0.32s;
+
+  &.bar {
+    border-radius: 6px 6px 3px 3px;
+    align-items: flex-start;
+    padding-top: 5px;
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+}
+
+/* value printed above a short bar, so tiny bars stay readable */
+.barCap {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+  @include mono(10.5px);
+  transition:
+    left $move $glide,
+    bottom 0.34s $glide,
+    color 0.28s,
+    opacity 0.28s;
+}
+
+.water {
+  position: absolute;
+  border-radius: 4px;
+  border-top: 2px solid $accent-b;
+  background: linear-gradient(180deg, rgba(86, 199, 255, 0.24), rgba(86, 199, 255, 0.06));
+  pointer-events: none;
+  transition:
+    left 0.42s $glide,
+    width 0.42s $glide,
+    height 0.42s $glide,
+    bottom 0.42s $glide;
+}
+
+.waterLabel {
+  position: absolute;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(86, 199, 255, 0.14);
+  border: 1px solid rgba(86, 199, 255, 0.35);
+  color: $accent-b;
+  white-space: nowrap;
+  font-weight: 600;
+  @include mono(11px);
+  transition:
+    left 0.42s $glide,
+    bottom 0.42s $glide;
+}
+
+.index {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+  @include mono(10.5px);
+  transition:
+    left $move $glide,
+    color 0.28s,
+    opacity 0.28s;
+}
+
+.note {
+  position: absolute;
+  text-align: center;
+  color: $fg-faint;
+  pointer-events: none;
+  @include mono(9.5px);
+  @include truncate;
+  transition: left $move $glide;
+}
+
+.pointer {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  transition:
+    left 0.42s $glide,
+    opacity 0.24s;
+
+  .arrow {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 7px solid;
+  }
+
+  .chip {
+    padding: 2px 9px;
+    border-radius: 6px;
+    border: 1px solid;
+    white-space: nowrap;
+    font-weight: 600;
+    @include mono(11px);
+  }
+}

@@ -1,0 +1,81 @@
+@use 'vars' as *;
+
+/// The 1px edge used on every panel in the app.
+@mixin hair($sides: all) {
+  @if $sides == all {
+    border: 1px solid $hair;
+  } @else if $sides == t {
+    border-top: 1px solid $hair;
+  } @else if $sides == b {
+    border-bottom: 1px solid $hair;
+  } @else if $sides == l {
+    border-left: 1px solid $hair;
+  } @else if $sides == r {
+    border-right: 1px solid $hair;
+  }
+}
+
+/// Small all-caps section label.
+@mixin kicker {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $fg-ghost;
+}
+
+@mixin mono($size: 12px) {
+  font-family: $font-mono;
+  font-size: $size;
+}
+
+/// Raised surface - cards, inputs, chips.
+@mixin panel($bg: $ink-800, $radius: 10px) {
+  background: $bg;
+  border: 1px solid $hair;
+  border-radius: $radius;
+}
+
+/// Standard focus ring; every interactive element gets one.
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 2px solid $lime;
+    outline-offset: 2px;
+  }
+}
+
+@mixin truncate {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/// Faint graph paper behind a visualization stage.
+@mixin stage-grid($cell: 44px) {
+  background-color: $ink-950;
+  background-image:
+    radial-gradient(circle at 50% 40%, rgba(205, 255, 87, 0.05), transparent 58%),
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size:
+    auto,
+    $cell $cell,
+    $cell $cell;
+}
+
+@mixin lg-down {
+  @media (max-width: #{$bp-lg}) {
+    @content;
+  }
+}
+@mixin md-down {
+  @media (max-width: #{$bp-md}) {
+    @content;
+  }
+}
+@mixin sm-down {
+  @media (max-width: #{$bp-sm}) {
+    @content;
+  }
+}

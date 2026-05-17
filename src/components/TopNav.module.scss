@@ -1,0 +1,104 @@
+@use 'styles/vars' as *;
+@use 'styles/mix' as *;
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 60px;
+  padding: 0 28px;
+  background: rgba(9, 9, 11, 0.86);
+  backdrop-filter: blur(14px);
+  @include hair(b);
+
+  @include sm-down {
+    gap: 14px;
+    padding: 0 16px;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .glyph {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: $lime;
+    color: $ink-900;
+    font-weight: 700;
+    @include mono(13px);
+  }
+
+  .word {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.link {
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 13px;
+  color: $fg-dim;
+  transition:
+    background 0.18s,
+    color 0.18s;
+  @include focus-ring;
+
+  &:hover {
+    color: $fg;
+  }
+
+  &.on {
+    background: $ink-700;
+    color: $fg;
+  }
+}
+
+.spacer {
+  flex: 1;
+}
+
+.streak {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 8px;
+  border: 1px solid $hair;
+  background: $ink-800;
+  color: $fg-muted;
+  white-space: nowrap;
+  @include mono(11.5px);
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $lime;
+  }
+
+  &.cold .dot {
+    background: $fg-trace;
+  }
+
+  @include sm-down {
+    display: none;
+  }
+}

@@ -1,0 +1,386 @@
+@use 'styles/vars' as *;
+@use 'styles/mix' as *;
+
+.page {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 40px 28px 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @include sm-down {
+    padding: 26px 16px 60px;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+
+  .kicker {
+    @include mono(11px);
+    letter-spacing: 0.16em;
+    color: $fg-ghost;
+  }
+
+  h1 {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-top: 8px;
+
+    @include sm-down {
+      font-size: 30px;
+    }
+  }
+
+  p {
+    max-width: 520px;
+    margin-top: 10px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: $fg-dim;
+    text-wrap: pretty;
+
+    .hl {
+      color: $lime;
+    }
+  }
+}
+
+.headStats {
+  display: flex;
+  gap: 10px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 104px;
+  padding: 13px 17px;
+  border-radius: 12px;
+  border: 1px solid $hair;
+  background: $ink-850;
+
+  .statLabel {
+    font-size: 10.5px;
+    color: $fg-faint;
+  }
+
+  .statValue {
+    @include mono(22px);
+
+    &.lime {
+      color: $lime;
+    }
+  }
+}
+
+.diffGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @include sm-down {
+    grid-template-columns: 1fr;
+  }
+}
+
+.diffCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid $hair;
+  background: $ink-850;
+
+  .diffTop {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+
+    .name {
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+
+    .count {
+      color: $fg-faint;
+      @include mono(11.5px);
+    }
+  }
+
+  .track {
+    height: 4px;
+    border-radius: 4px;
+    background: $ink-700;
+    overflow: hidden;
+
+    .fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.35s $glide;
+    }
+  }
+}
+
+/* ----------------------------------------------------------------- filters */
+
+.filters {
+  position: sticky;
+  top: 60px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  background: $ink-950;
+  flex-wrap: wrap;
+  @include hair(b);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  max-width: 280px;
+  min-width: 170px;
+  height: 34px;
+  padding: 0 11px;
+  border-radius: 9px;
+  border: 1px solid $hair;
+  background: $ink-800;
+
+  &:focus-within {
+    border-color: $hair-strong;
+  }
+
+  .icon {
+    color: $fg-ghost;
+    font-size: 12px;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: $fg;
+
+    &::placeholder {
+      color: $fg-ghost;
+    }
+  }
+}
+
+.segmented {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  border: 1px solid $hair;
+  background: $ink-800;
+
+  .seg {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    color: $fg-faint;
+    transition: all 0.18s;
+    @include focus-ring;
+
+    &:hover {
+      color: $fg-soft;
+    }
+
+    &.on {
+      background: $ink-600;
+      color: $fg;
+    }
+  }
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 9px;
+  border: 1px solid $hair;
+  background: $ink-800;
+  color: $fg-dim;
+  font-size: 12.5px;
+  transition: all 0.18s;
+  @include focus-ring;
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $fg-trace;
+    transition: background 0.18s;
+  }
+
+  &:hover {
+    border-color: $hair-strong;
+  }
+
+  &.on {
+    border-color: rgba(205, 255, 87, 0.24);
+    background: rgba(205, 255, 87, 0.09);
+    color: $lime;
+
+    .dot {
+      background: $lime;
+    }
+  }
+}
+
+.shown {
+  margin-left: auto;
+  color: $fg-ghost;
+  @include mono(11.5px);
+}
+
+/* ------------------------------------------------------------------ groups */
+
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 4px 9px;
+
+  .name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .rule {
+    flex: 1;
+    height: 1px;
+    background: $hair;
+  }
+
+  .count {
+    color: $fg-ghost;
+    @include mono(11px);
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: $ink-850;
+  transition:
+    border-color 0.16s,
+    background 0.16s;
+
+  &.live:hover {
+    border-color: $hair-strong;
+    background: $ink-800;
+  }
+
+  &.soon {
+    opacity: 0.72;
+    cursor: default;
+  }
+}
+
+.check {
+  /* a status light, not a control — solved is earned in Practice */
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border-radius: 5px;
+  border: 1px solid $hair-strong;
+  background: transparent;
+  color: transparent;
+  font-size: 10px;
+  transition: all 0.18s;
+
+  &.on {
+    background: $lime;
+    border-color: $lime;
+    color: $ink-900;
+  }
+}
+
+.rowTitle {
+  flex: 1;
+  font-size: 13.5px;
+  color: $fg-soft;
+  @include truncate;
+
+  &.done {
+    color: $fg-faint;
+  }
+
+  .cleanMark {
+    color: $lime;
+    font-size: 9px;
+    vertical-align: 2px;
+  }
+}
+
+.diffLabel {
+  width: 60px;
+  text-align: right;
+  @include mono(11px);
+
+  &.easy {
+    color: $easy;
+  }
+  &.medium {
+    color: $medium;
+  }
+  &.hard {
+    color: $hard;
+  }
+}
+
+.arrow {
+  width: 14px;
+  text-align: right;
+  color: $fg-ghost;
+  @include mono(12px);
+
+  &.off {
+    color: #2a2c31;
+  }
+}
+
+.emptyState {
+  padding: 60px 0;
+  text-align: center;
+  color: $fg-ghost;
+  font-size: 13.5px;
+}

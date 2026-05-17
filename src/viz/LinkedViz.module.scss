@@ -1,0 +1,112 @@
+@use 'styles/vars' as *;
+@use 'styles/mix' as *;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+}
+
+.title {
+  @include mono(10.5px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $fg-ghost;
+}
+
+.scroller {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 2px;
+}
+
+.stage {
+  position: relative;
+  margin: 0 auto;
+}
+
+.edges {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+
+  path,
+  line {
+    /* Chrome tweens `d`, so a re-linked list animates its arrows swinging
+       across instead of snapping. Elsewhere it degrades to an instant swap. */
+    transition:
+      d 0.42s $glide,
+      stroke 0.3s,
+      opacity 0.3s;
+  }
+}
+
+.node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  font-family: $font-mono;
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    left 0.42s $glide,
+    top 0.42s $glide,
+    background 0.28s,
+    border-color 0.28s,
+    color 0.28s,
+    opacity 0.28s,
+    transform 0.3s $spring,
+    box-shadow 0.3s;
+
+  &.box {
+    border-radius: 10px;
+  }
+
+  &.circle {
+    border-radius: 50%;
+  }
+}
+
+.nullCap {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  color: $fg-trace;
+  @include mono(13px);
+  transition: left 0.42s $glide;
+}
+
+.pointer {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  transition:
+    left 0.42s $glide,
+    opacity 0.24s;
+
+  .arrow {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 7px solid;
+  }
+
+  .chip {
+    padding: 2px 9px;
+    border-radius: 6px;
+    border: 1px solid;
+    white-space: nowrap;
+    font-weight: 600;
+    @include mono(11px);
+  }
+}

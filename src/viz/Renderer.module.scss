@@ -1,0 +1,9 @@
+@use 'styles/vars' as *;
+
+.combo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  max-width: 100%;
+}

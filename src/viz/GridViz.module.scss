@@ -1,0 +1,76 @@
+@use 'styles/vars' as *;
+@use 'styles/mix' as *;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+}
+
+.title {
+  @include mono(10.5px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $fg-ghost;
+}
+
+.scroller {
+  max-width: 100%;
+  overflow: auto;
+  padding: 4px;
+}
+
+.table {
+  display: inline-grid;
+  gap: 4px;
+}
+
+.corner {
+  width: 100%;
+}
+
+.colLabel,
+.rowLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $fg-trace;
+  @include mono(10px);
+}
+
+.rowLabel {
+  justify-content: flex-end;
+  padding-right: 6px;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  border: 1px solid;
+  font-family: $font-mono;
+  font-weight: 600;
+  line-height: 1;
+  position: relative;
+  transition:
+    background 0.3s,
+    border-color 0.3s,
+    color 0.3s,
+    opacity 0.3s,
+    transform 0.3s $spring,
+    box-shadow 0.3s;
+
+  &.cursor {
+    transform: scale(1.1);
+    z-index: 2;
+  }
+
+  /* glyph mode drops the text and reads purely as a map */
+  &.glyph {
+    border-radius: 5px;
+    font-size: 0;
+  }
+}

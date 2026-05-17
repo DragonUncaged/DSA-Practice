@@ -1,0 +1,501 @@
+@use 'styles/vars' as *;
+@use 'styles/mix' as *;
+
+/* ------------------------------------------------------------------ stage */
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 18px 24px;
+  overflow: auto;
+  @include stage-grid;
+}
+
+.viz {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.readout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 660px;
+}
+
+.badge {
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-weight: 600;
+  white-space: nowrap;
+  animation: pop 0.22s $spring both;
+  @include mono(14px);
+}
+
+.note {
+  text-align: center;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: $fg-muted;
+  text-wrap: pretty;
+  min-height: 2.6em;
+}
+
+.emptyStage {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  color: $fg-ghost;
+  text-align: center;
+}
+
+/* -------------------------------------------------------------- transport */
+
+.transport {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  padding: 0 20px;
+  background: $ink-900;
+  @include hair(t);
+
+  @include md-down {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 14px;
+    gap: 10px;
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid $hair;
+  background: $ink-800;
+  color: $fg-muted;
+  font-size: 12px;
+  transition:
+    border-color 0.18s,
+    color 0.18s,
+    background 0.18s;
+  @include focus-ring;
+
+  &:hover:not(:disabled) {
+    border-color: $hair-strong;
+    color: $fg;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &.play {
+    width: 42px;
+    border: none;
+    background: $lime;
+    color: $ink-900;
+    font-weight: 700;
+
+    &:hover:not(:disabled) {
+      background: $lime-bright;
+    }
+  }
+
+  &.wide {
+    width: auto;
+    padding: 0 11px;
+    font-size: 11.5px;
+    color: $fg-dim;
+  }
+}
+
+.scrub {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 32px;
+  cursor: pointer;
+  @include focus-ring;
+
+  .tick {
+    flex: 1;
+    min-width: 1px;
+    border-radius: 2px;
+    transition:
+      height 0.22s $glide,
+      background 0.22s;
+  }
+}
+
+.stepLabel {
+  min-width: 66px;
+  text-align: right;
+  color: $fg-dim;
+  @include mono(11.5px);
+}
+
+.opCount {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 0 10px;
+  height: 26px;
+  border-radius: 7px;
+  background: $ink-800;
+  border: 1px solid $hair;
+  @include mono(11.5px);
+
+  .opNum {
+    color: $lime;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .opWord {
+    color: $fg-ghost;
+  }
+}
+
+.segmented {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 8px;
+  background: $ink-800;
+  border: 1px solid $hair;
+
+  .seg {
+    padding: 4px 9px;
+    border-radius: 5px;
+    color: $fg-faint;
+    transition:
+      background 0.18s,
+      color 0.18s;
+    @include mono(11px);
+    @include focus-ring;
+
+    &:hover {
+      color: $fg-soft;
+    }
+
+    &.on {
+      background: $ink-600;
+      color: $fg;
+    }
+  }
+}
+
+/* --------------------------------------------------------------- code pane */
+
+.codeWrap {
+  flex: 0 0 auto;
+  display: flex;
+  min-height: 0;
+  height: 218px;
+  background: $ink-900;
+  @include hair(t);
+
+  @include md-down {
+    height: auto;
+    flex-direction: column;
+  }
+}
+
+.codeCol {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.paneHead {
+  flex: 0 0 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  .paneTitle {
+    @include kicker;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+}
+
+.codeBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 9px 0;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  height: 21px;
+  padding-right: 16px;
+  font-family: $font-mono;
+  font-size: 12.5px;
+  transition: background 0.22s;
+
+  .bar {
+    width: 3px;
+    height: 100%;
+    border-radius: 0 2px 2px 0;
+    transition: background 0.22s;
+    user-select: none;
+  }
+
+  .num {
+    width: 18px;
+    text-align: right;
+    font-size: 11px;
+    transition: color 0.22s;
+    user-select: none;
+  }
+
+  .src {
+    white-space: pre;
+    transition: color 0.22s;
+  }
+
+  &.hot {
+    background: rgba(205, 255, 87, 0.07);
+
+    .bar {
+      background: $lime;
+    }
+
+    .num {
+      color: $lime;
+    }
+
+    .src {
+      color: $lime-pale;
+    }
+  }
+
+  &:not(.hot) {
+    .bar {
+      background: transparent;
+    }
+
+    .num {
+      color: $fg-trace;
+    }
+
+    .src {
+      color: $fg-dim;
+    }
+  }
+}
+
+.copyBtn {
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid $hair;
+  background: $ink-800;
+  color: $fg-dim;
+  transition: all 0.18s;
+  @include mono(10.5px);
+  @include focus-ring;
+
+  &:hover {
+    color: $fg;
+    border-color: $hair-strong;
+  }
+
+  &.did {
+    border-color: rgba(205, 255, 87, 0.32);
+    background: rgba(205, 255, 87, 0.1);
+    color: $lime;
+  }
+}
+
+/* ------------------------------------------------------------- fog of code */
+
+.fogCtl {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 7px;
+  border: 1px solid $hair;
+  background: $ink-800;
+}
+
+.fogSeg {
+  padding: 3px 8px;
+  border-radius: 5px;
+  color: $fg-faint;
+  transition:
+    background 0.18s,
+    color 0.18s;
+  @include mono(10px);
+  @include focus-ring;
+
+  &:hover {
+    color: $fg-soft;
+  }
+
+  &.on {
+    background: rgba(205, 255, 87, 0.11);
+    color: $lime;
+  }
+}
+
+.watchCount {
+  color: $fg-ghost;
+  white-space: nowrap;
+  @include mono(10.5px);
+}
+
+.approach {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 9px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(205, 255, 87, 0.03);
+  animation: rise 0.24s $glide both;
+
+  .approachTag {
+    flex: 0 0 auto;
+    padding: 2px 8px;
+    border-radius: 5px;
+    border: 1px solid rgba(205, 255, 87, 0.22);
+    background: rgba(205, 255, 87, 0.08);
+    color: $lime;
+    white-space: nowrap;
+    @include mono(10.5px);
+  }
+
+  p {
+    font-size: 12px;
+    line-height: 1.55;
+    color: $fg-muted;
+    text-wrap: pretty;
+  }
+}
+
+.fogNote {
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 11.5px;
+  color: $fg-ghost;
+  text-wrap: pretty;
+
+  strong {
+    color: $fg-dim;
+    font-weight: 600;
+  }
+}
+
+/* redaction bar standing in for a fogged line of code */
+.maskBar {
+  display: inline-block;
+  height: 9px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.07),
+    rgba(255, 255, 255, 0.07) 5px,
+    rgba(255, 255, 255, 0.035) 5px,
+    rgba(255, 255, 255, 0.035) 10px
+  );
+  vertical-align: middle;
+
+  /* the algorithm's own moves shimmer faintly — these are the earnable lines */
+  &.maskAlgo {
+    background: repeating-linear-gradient(
+      -45deg,
+      rgba(205, 255, 87, 0.13),
+      rgba(205, 255, 87, 0.13) 5px,
+      rgba(205, 255, 87, 0.05) 5px,
+      rgba(205, 255, 87, 0.05) 10px
+    );
+  }
+}
+
+/* a line freshly earned by watching pops into place */
+.earned {
+  animation: rise 0.3s $glide both;
+}
+
+/* -------------------------------------------------------------- state pane */
+
+.statePane {
+  flex: 0 0 238px;
+  display: flex;
+  flex-direction: column;
+  @include hair(l);
+
+  @include md-down {
+    flex: 0 0 auto;
+    border-left: none;
+    @include hair(t);
+  }
+}
+
+.stateBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 11px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.varRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  @include mono(12px);
+
+  .varName {
+    color: $fg-faint;
+    @include truncate;
+  }
+
+  .varValue {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    @include truncate;
+  }
+}
+
+.stateEmpty {
+  color: $fg-trace;
+  @include mono(11.5px);
+}
