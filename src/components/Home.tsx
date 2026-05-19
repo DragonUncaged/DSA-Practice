@@ -31,6 +31,9 @@ export function Home() {
             <Link href="/practice" className={s.primary}>
               Start Blind 75 <span>&rarr;</span>
             </Link>
+            <Link href="/sde" className={s.altTrack}>
+              or the SDE Sheet
+            </Link>
           </div>
         </div>
 

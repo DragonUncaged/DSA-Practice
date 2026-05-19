@@ -26,6 +26,12 @@ Three tabs per problem:
 All 75 problems are traced. `/selftest` runs every trace and every reference
 solution against its own test table and reports anything broken.
 
+Two tracks share the same trace library: the Blind 75 (`/practice`, fully
+traced) and Striver's SDE Sheet (`/sde`, 27 days / ~190 problems — rows whose
+problem is already traced link into the player, the rest light up as traces
+land). Solved state is per problem, so finishing Two Sum ticks it on both
+sheets.
+
 Before the problems, `/patterns` teaches the moves: 14 pattern intros (hashing,
 two pointers, sliding window, stack, binary search, DFS on trees, BFS, graphs,
 backtracking, DP, intervals, heaps, tries, bits), each with a toy demo animated

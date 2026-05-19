@@ -1,0 +1,371 @@
+import type { Difficulty } from '@/lib/types'
+import { PROBLEMS, type SheetEntry } from './index'
+
+/**
+ * Striver's SDE Sheet (takeuforward.org) — 27 days of interview problems.
+ *
+ * Rows carry an optional third element: the id of one of our traced problems.
+ * A row with an id (or whose slugified title matches a trace) lights up and
+ * links into the player; the rest are listed and light up as traces land,
+ * exactly how the Blind 75 sheet grew.
+ */
+
+type Row = [string, Difficulty] | [string, Difficulty, string]
+
+const SDE: [string, Row[]][] = [
+  [
+    'Day 1 · Arrays',
+    [
+      ['Set Matrix Zeroes', 'Medium', 'set-matrix-zeroes'],
+      ["Pascal's Triangle", 'Easy'],
+      ['Next Permutation', 'Medium'],
+      ["Maximum Subarray (Kadane's)", 'Medium', 'maximum-subarray'],
+      ["Sort an Array of 0s, 1s and 2s", 'Medium'],
+      ['Best Time to Buy and Sell Stock', 'Easy', 'best-time-to-buy-and-sell-stock'],
+    ],
+  ],
+  [
+    'Day 2 · Arrays II',
+    [
+      ['Rotate Image', 'Medium', 'rotate-image'],
+      ['Merge Intervals', 'Medium', 'merge-intervals'],
+      ['Merge Two Sorted Arrays Without Extra Space', 'Medium'],
+      ['Find the Duplicate Number', 'Medium'],
+      ['Repeat and Missing Number', 'Medium'],
+      ['Count Inversions in an Array', 'Hard'],
+    ],
+  ],
+  [
+    'Day 3 · Arrays III',
+    [
+      ['Search a 2D Matrix', 'Medium'],
+      ['Pow(x, n)', 'Medium'],
+      ['Majority Element (> n/2)', 'Easy'],
+      ['Majority Element II (> n/3)', 'Medium'],
+      ['Unique Paths', 'Medium', 'unique-paths'],
+      ['Reverse Pairs', 'Hard'],
+    ],
+  ],
+  [
+    'Day 4 · Arrays IV',
+    [
+      ['Two Sum', 'Easy', 'two-sum'],
+      ['4Sum', 'Medium'],
+      ['Longest Consecutive Sequence', 'Medium', 'longest-consecutive-sequence'],
+      ['Largest Subarray with Zero Sum', 'Medium'],
+      ['Count Subarrays with Given XOR', 'Medium'],
+      [
+        'Longest Substring Without Repeating Characters',
+        'Medium',
+        'longest-substring-without-repeating-characters',
+      ],
+    ],
+  ],
+  [
+    'Day 5 · Linked List',
+    [
+      ['Reverse a Linked List', 'Easy', 'reverse-a-linked-list'],
+      ['Middle of the Linked List', 'Easy'],
+      ['Merge Two Sorted Lists', 'Easy', 'merge-two-sorted-lists'],
+      ['Remove Nth Node From End of List', 'Medium', 'remove-nth-node-from-end-of-list'],
+      ['Add Two Numbers as Lists', 'Medium'],
+      ['Delete a Node in O(1)', 'Easy'],
+    ],
+  ],
+  [
+    'Day 6 · Linked List II',
+    [
+      ['Intersection of Two Linked Lists', 'Easy'],
+      ['Detect Cycle in a Linked List', 'Easy', 'detect-cycle-in-a-linked-list'],
+      ['Reverse Nodes in k-Group', 'Hard'],
+      ['Palindrome Linked List', 'Easy'],
+      ['Starting Point of the Cycle', 'Medium'],
+      ['Flattening a Linked List', 'Medium'],
+    ],
+  ],
+  [
+    'Day 7 · Linked List & Arrays',
+    [
+      ['Rotate a Linked List', 'Medium'],
+      ['Copy List with Random Pointer', 'Medium'],
+      ['3Sum', 'Medium', '3sum'],
+      ['Trapping Rain Water', 'Hard'],
+      ['Remove Duplicates from Sorted Array', 'Easy'],
+      ['Max Consecutive Ones', 'Easy'],
+    ],
+  ],
+  [
+    'Day 8 · Greedy',
+    [
+      ['N Meetings in One Room', 'Easy'],
+      ['Minimum Number of Platforms', 'Medium'],
+      ['Job Sequencing Problem', 'Medium'],
+      ['Fractional Knapsack', 'Medium'],
+      ['Minimum Number of Coins', 'Easy'],
+      ['Activity Selection', 'Easy'],
+    ],
+  ],
+  [
+    'Day 9 · Recursion',
+    [
+      ['Subset Sums', 'Medium'],
+      ['Subsets II', 'Medium'],
+      ['Combination Sum', 'Medium', 'combination-sum'],
+      ['Combination Sum II', 'Medium'],
+      ['Palindrome Partitioning', 'Medium'],
+      ['Kth Permutation Sequence', 'Hard'],
+    ],
+  ],
+  [
+    'Day 10 · Backtracking',
+    [
+      ['Print All Permutations', 'Medium'],
+      ['N-Queens', 'Hard'],
+      ['Sudoku Solver', 'Hard'],
+      ['M-Coloring Problem', 'Hard'],
+      ['Rat in a Maze', 'Medium'],
+      ['Word Break II', 'Hard'],
+    ],
+  ],
+  [
+    'Day 11 · Binary Search',
+    [
+      ['Nth Root of a Number', 'Easy'],
+      ['Matrix Median', 'Hard'],
+      ['Single Element in a Sorted Array', 'Medium'],
+      ['Search in Rotated Sorted Array', 'Medium', 'search-in-rotated-sorted-array'],
+      ['Median of Two Sorted Arrays', 'Hard'],
+      ['Kth Element of Two Sorted Arrays', 'Hard'],
+      ['Allocate Minimum Number of Pages', 'Hard'],
+      ['Aggressive Cows', 'Hard'],
+    ],
+  ],
+  [
+    'Day 12 · Heaps',
+    [
+      ['Implement a Max/Min Heap', 'Medium'],
+      ['Kth Largest Element in an Array', 'Medium'],
+      ['Maximum Sum Combination', 'Medium'],
+      ['Find Median from Data Stream', 'Hard', 'find-median-from-data-stream'],
+      ['Merge K Sorted Arrays', 'Medium'],
+      ['Top K Frequent Elements', 'Medium', 'top-k-frequent-elements'],
+    ],
+  ],
+  [
+    'Day 13 · Stack & Queue',
+    [
+      ['Implement Stack Using Arrays', 'Easy'],
+      ['Implement Queue Using Arrays', 'Easy'],
+      ['Implement Stack Using Queue', 'Easy'],
+      ['Implement Queue Using Stack', 'Easy'],
+      ['Valid Parentheses', 'Easy', 'valid-parentheses'],
+      ['Next Greater Element', 'Medium'],
+      ['Sort a Stack', 'Easy'],
+    ],
+  ],
+  [
+    'Day 14 · Stack & Queue II',
+    [
+      ['Next Smaller Element', 'Medium'],
+      ['LRU Cache', 'Medium'],
+      ['LFU Cache', 'Hard'],
+      ['Largest Rectangle in a Histogram', 'Hard'],
+      ['Sliding Window Maximum', 'Hard'],
+      ['Implement Min Stack', 'Medium'],
+      ['Rotten Oranges', 'Medium'],
+      ['Online Stock Span', 'Medium'],
+      ['Maximum of Minimums of Every Window Size', 'Hard'],
+      ['The Celebrity Problem', 'Medium'],
+    ],
+  ],
+  [
+    'Day 15 · Strings',
+    [
+      ['Reverse Words in a String', 'Medium'],
+      ['Longest Palindromic Substring', 'Medium', 'longest-palindromic-substring'],
+      ['Roman to Integer', 'Easy'],
+      ['String to Integer (atoi)', 'Medium'],
+      ['Longest Common Prefix', 'Easy'],
+      ['Rabin-Karp String Matching', 'Medium'],
+    ],
+  ],
+  [
+    'Day 16 · Strings II',
+    [
+      ['Z-Function', 'Medium'],
+      ['KMP / LPS Array', 'Hard'],
+      ['Minimum Insertions to Make String Palindrome', 'Hard'],
+      ['Valid Anagram', 'Easy', 'valid-anagram'],
+      ['Count and Say', 'Medium'],
+      ['Compare Version Numbers', 'Medium'],
+    ],
+  ],
+  [
+    'Day 17 · Binary Tree',
+    [
+      ['Inorder Traversal', 'Easy'],
+      ['Preorder Traversal', 'Easy'],
+      ['Postorder Traversal', 'Easy'],
+      ['Morris Inorder Traversal', 'Medium'],
+      ['Morris Preorder Traversal', 'Medium'],
+      ['Left View of Binary Tree', 'Easy'],
+      ['Bottom View of Binary Tree', 'Medium'],
+      ['Top View of Binary Tree', 'Medium'],
+      ['All Traversals in One Pass', 'Medium'],
+      ['Vertical Order Traversal', 'Hard'],
+      ['Root to Node Path', 'Medium'],
+      ['Maximum Width of Binary Tree', 'Medium'],
+    ],
+  ],
+  [
+    'Day 18 · Binary Tree II',
+    [
+      ['Binary Tree Level Order Traversal', 'Medium', 'binary-tree-level-order-traversal'],
+      ['Maximum Depth of Binary Tree', 'Easy', 'maximum-depth-of-binary-tree'],
+      ['Diameter of Binary Tree', 'Easy'],
+      ['Balanced Binary Tree', 'Easy'],
+      ['Lowest Common Ancestor of a Binary Tree', 'Medium'],
+      ['Same Tree', 'Easy', 'same-tree'],
+    ],
+  ],
+  [
+    'Day 19 · Binary Tree III',
+    [
+      ['Binary Tree Maximum Path Sum', 'Hard', 'binary-tree-maximum-path-sum'],
+      [
+        'Construct Binary Tree from Preorder and Inorder Traversal',
+        'Medium',
+        'construct-binary-tree-from-preorder-and-inorder-traversal',
+      ],
+      ['Construct Binary Tree from Inorder and Postorder', 'Medium'],
+      ['Symmetric Tree', 'Easy'],
+      ['Flatten Binary Tree to Linked List', 'Medium'],
+      ['Children Sum Property', 'Medium'],
+    ],
+  ],
+  [
+    'Day 20 · Binary Search Tree',
+    [
+      ['Populate Next Right Pointers', 'Medium'],
+      ['Search in a BST', 'Easy'],
+      ['Construct BST from Sorted Keys', 'Easy'],
+      ['Construct BST from Preorder Traversal', 'Medium'],
+      ['Validate Binary Search Tree', 'Medium', 'validate-binary-search-tree'],
+      ['Lowest Common Ancestor of a BST', 'Easy', 'lowest-common-ancestor-of-a-bst'],
+      ['Inorder Predecessor and Successor in BST', 'Medium'],
+    ],
+  ],
+  [
+    'Day 21 · BST II',
+    [
+      ['Floor in a BST', 'Easy'],
+      ['Ceil in a BST', 'Easy'],
+      ['Kth Smallest Element in a BST', 'Medium', 'kth-smallest-element-in-a-bst'],
+      ['Kth Largest Element in a BST', 'Medium'],
+      ['Two Sum in a BST', 'Medium'],
+      ['BST Iterator', 'Medium'],
+      ['Largest BST in a Binary Tree', 'Hard'],
+      [
+        'Serialize and Deserialize Binary Tree',
+        'Hard',
+        'serialize-and-deserialize-binary-tree',
+      ],
+    ],
+  ],
+  [
+    'Day 22 · Mixed Trees & Streams',
+    [
+      ['Binary Tree to Doubly Linked List', 'Hard'],
+      ['Median in a Stream of Integers', 'Hard', 'find-median-from-data-stream'],
+      ['Kth Largest Element in a Stream', 'Easy'],
+      ['Distinct Numbers in a Window', 'Medium'],
+      ['Kth Largest Element in an Unsorted Array', 'Medium'],
+      ['Flood Fill', 'Easy'],
+    ],
+  ],
+  [
+    'Day 23 · Graphs',
+    [
+      ['Clone Graph', 'Medium', 'clone-graph'],
+      ['Depth-First Search', 'Easy'],
+      ['Breadth-First Search', 'Easy'],
+      ['Cycle Detection in Undirected Graph (BFS)', 'Medium'],
+      ['Cycle Detection in Undirected Graph (DFS)', 'Medium'],
+      ['Cycle Detection in Directed Graph (DFS)', 'Medium'],
+      ['Course Schedule (Cycle in Directed Graph, BFS)', 'Medium', 'course-schedule'],
+      ['Topological Sort (BFS)', 'Medium'],
+      ['Topological Sort (DFS)', 'Medium'],
+      ['Number of Islands', 'Medium', 'number-of-islands'],
+      ['Bipartite Check (BFS)', 'Medium'],
+      ['Bipartite Check (DFS)', 'Medium'],
+    ],
+  ],
+  [
+    'Day 24 · Graphs II',
+    [
+      ["Strongly Connected Components (Kosaraju's)", 'Hard'],
+      ["Dijkstra's Algorithm", 'Medium'],
+      ['Bellman-Ford Algorithm', 'Medium'],
+      ['Floyd-Warshall Algorithm', 'Medium'],
+      ["Minimum Spanning Tree (Prim's)", 'Medium'],
+      ["Minimum Spanning Tree (Kruskal's)", 'Medium'],
+    ],
+  ],
+  [
+    'Day 25 · Dynamic Programming',
+    [
+      ['Maximum Product Subarray', 'Medium', 'maximum-product-subarray'],
+      ['Longest Increasing Subsequence', 'Medium', 'longest-increasing-subsequence'],
+      ['Longest Common Subsequence', 'Medium', 'longest-common-subsequence'],
+      ['0/1 Knapsack', 'Medium'],
+      ['Edit Distance', 'Medium'],
+      ['Maximum Sum Increasing Subsequence', 'Medium'],
+      ['Matrix Chain Multiplication', 'Hard'],
+    ],
+  ],
+  [
+    'Day 26 · DP II',
+    [
+      ['Minimum Path Sum in a Matrix', 'Medium'],
+      ['Coin Change', 'Medium', 'coin-change'],
+      ['Subset Sum', 'Medium'],
+      ['Rod Cutting', 'Medium'],
+      ['Egg Dropping Puzzle', 'Hard'],
+      ['Word Break', 'Medium', 'word-break'],
+      ['Palindrome Partitioning II', 'Hard'],
+      ['Maximum Profit in Job Scheduling', 'Hard'],
+    ],
+  ],
+  [
+    'Day 27 · Tries',
+    [
+      ['Implement Trie (Prefix Tree)', 'Medium', 'implement-trie-prefix-tree'],
+      ['Implement Trie II (Prefix Counts)', 'Medium'],
+      ['Longest Complete String', 'Medium'],
+      ['Number of Distinct Substrings', 'Hard'],
+      ['Power Set', 'Medium'],
+      ['Maximum XOR of Two Numbers', 'Medium'],
+      ['Maximum XOR with an Element from Array', 'Hard'],
+    ],
+  ],
+]
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+
+export const SDE_GROUPS: { name: string; items: SheetEntry[] }[] = SDE.map(([name, rows]) => ({
+  name,
+  items: rows.map(([title, difficulty, id]) => {
+    const slug = slugify(title)
+    // explicit id wins; otherwise a slug match against the traced set lights it up
+    const problemId = id ?? PROBLEMS.find((p) => p.id === slug)?.id
+    return { title, group: name, difficulty, slug, problemId }
+  }),
+}))
+
+export const SDE_ENTRIES: SheetEntry[] = SDE_GROUPS.flatMap((g) => g.items)
+export const SDE_TOTAL = SDE_ENTRIES.length
+export const SDE_TRACED = SDE_ENTRIES.filter((e) => e.problemId).length

@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useAssisted, useProgress } from '@/lib/store'
 import type { Difficulty } from '@/lib/types'
-import { ALL_ENTRIES, SHEET_GROUPS, TOTAL, type SheetEntry } from '@/problems'
+import { SHEET_GROUPS, type SheetEntry } from '@/problems'
+import { SDE_GROUPS } from '@/problems/sde'
 import s from './Sheet.module.scss'
 
 const DIFFS: Difficulty[] = ['Easy', 'Medium', 'Hard']
@@ -14,10 +15,50 @@ const DIFF_COLOR: Record<Difficulty, string> = {
   Hard: '#FF7A59',
 }
 
+export type TrackId = 'blind75' | 'sde'
+
+/**
+ * Track definitions live here, on the client side of the boundary, so pages
+ * pass only the track id — JSX blurbs and data never cross from the server.
+ */
+const TRACKS: Record<
+  TrackId,
+  {
+    title: string
+    blurb: React.ReactNode
+    groups: { name: string; items: SheetEntry[] }[]
+  }
+> = {
+  blind75: {
+    title: 'Blind 75',
+    blurb: (
+      <>
+        Seventy-five problems that cover every pattern worth knowing — and every row has a{' '}
+        <span className={s.hl}>working animation</span>. Pick one and watch it think.
+      </>
+    ),
+    groups: SHEET_GROUPS,
+  },
+  sde: {
+    title: "Striver's SDE Sheet",
+    blurb: (
+      <>
+        The 27-day interview grind from takeuforward. Rows with a{' '}
+        <span className={s.hl}>lit arrow</span> already have a working trace and link straight
+        into the player; the rest light up as traces land.
+      </>
+    ),
+    groups: SDE_GROUPS,
+  },
+}
+
 /** A row is keyed by its trace id when one exists, so progress survives authoring. */
 const keyOf = (e: SheetEntry) => e.problemId ?? e.slug
 
-export function Sheet() {
+export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
+  const def = TRACKS[track]
+  const entries = useMemo(() => def.groups.flatMap((g) => g.items), [def])
+
   const progress = useProgress()
   const assisted = useAssisted()
   const [query, setQuery] = useState('')
@@ -25,7 +66,7 @@ export function Sheet() {
   const [unsolvedOnly, setUnsolvedOnly] = useState(false)
 
   const isSolved = (e: SheetEntry) => progress[keyOf(e)] === 'solved'
-  const solvedCount = ALL_ENTRIES.filter(isSolved).length
+  const solvedCount = entries.filter(isSolved).length
 
   const matches = (e: SheetEntry) => {
     const q = query.trim().toLowerCase()
@@ -37,11 +78,11 @@ export function Sheet() {
 
   const groups = useMemo(
     () =>
-      SHEET_GROUPS.map((g) => ({ ...g, rows: g.items.filter(matches) })).filter(
+      def.groups.map((g) => ({ ...g, rows: g.items.filter(matches) })).filter(
         (g) => g.rows.length > 0,
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, diff, unsolvedOnly, progress],
+    [def, query, diff, unsolvedOnly, progress],
   )
 
   const shown = groups.reduce((a, g) => a + g.rows.length, 0)
@@ -51,11 +92,8 @@ export function Sheet() {
       <header className={s.head}>
         <div>
           <div className={s.kicker}>TRACK</div>
-          <h1>Blind 75</h1>
-          <p>
-            Seventy-five problems that cover every pattern worth knowing — and every row has a{' '}
-            <span className={s.hl}>working animation</span>. Pick one and watch it think.
-          </p>
+          <h1>{def.title}</h1>
+          <p>{def.blurb}</p>
         </div>
 
         <div className={s.headStats}>
@@ -65,14 +103,14 @@ export function Sheet() {
           </div>
           <div className={s.stat}>
             <span className={s.statLabel}>Remaining</span>
-            <span className={s.statValue}>{TOTAL - solvedCount}</span>
+            <span className={s.statValue}>{entries.length - solvedCount}</span>
           </div>
         </div>
       </header>
 
       <div className={s.diffGrid}>
         {DIFFS.map((d) => {
-          const set = ALL_ENTRIES.filter((e) => e.difficulty === d)
+          const set = entries.filter((e) => e.difficulty === d)
           const done = set.filter(isSolved).length
           return (
             <div key={d} className={s.diffCard}>
@@ -131,7 +169,7 @@ export function Sheet() {
         </button>
 
         <span className={s.shown}>
-          {shown} of {TOTAL}
+          {shown} of {entries.length}
         </span>
       </div>
 

@@ -27,7 +27,10 @@ export function TopNav() {
           Patterns
         </Link>
         <Link href="/practice" className={`${s.link} ${path.startsWith('/practice') ? s.on : ''}`}>
-          Practice
+          Blind 75
+        </Link>
+        <Link href="/sde" className={`${s.link} ${path.startsWith('/sde') ? s.on : ''}`}>
+          SDE Sheet
         </Link>
       </div>
 
