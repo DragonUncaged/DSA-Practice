@@ -14,12 +14,6 @@ import s from './Player.module.scss'
 
 type Tab = 'trace' | 'compare' | 'practice'
 
-const TAB_HINT: Record<Tab, string> = {
-  trace: 'space to play  ·  arrow keys to step',
-  compare: 'both run on the same input, step for step',
-  practice: 'run your own solution against the tests',
-}
-
 export function Player({ problem }: { problem: Problem }) {
   const [tab, setTab] = useState<Tab>('trace')
   const [solutionId, setSolutionId] = useState(problem.solutions[0]?.id)
@@ -40,7 +34,7 @@ export function Player({ problem }: { problem: Problem }) {
   const setPrefs = useTraceStore((st) => st.setPrefs)
   const setLang = useCallback((l: Lang) => setPrefs({ lang: l }), [setPrefs])
 
-  // --- fog of code -----------------------------------------------------------
+  // --- progressive reveal ----------------------------------------------------
   const revealLevel: RevealLevel = useReveal()[problem.id] ?? 0
   const setRevealLevel = useTraceStore((st) => st.setRevealLevel)
   const onRevealLevel = useCallback(
@@ -133,7 +127,7 @@ export function Player({ problem }: { problem: Problem }) {
             onClick={() => setTab('practice')}
             title="Solved status is earned: run your code in Practice and pass every test case"
           >
-            <span>○</span> Pass the tests to solve
+            <span>○</span> Unsolved
           </button>
         )}
       </header>
@@ -144,7 +138,6 @@ export function Player({ problem }: { problem: Problem }) {
             {t === 'trace' ? 'Trace' : t === 'compare' ? 'Brute vs Optimal' : 'Practice'}
           </button>
         ))}
-        <span className={s.tabHint}>{TAB_HINT[tab]}</span>
       </nav>
 
       <div className={s.body}>
@@ -169,7 +162,7 @@ export function Player({ problem }: { problem: Problem }) {
                   <p className={s.blurb}>
                     {revealLevel >= 1
                       ? solution?.blurb
-                      : 'Approach under fog — lift it in the solution panel below.'}
+                      : 'Approach is hidden. Reveal it in the solution panel below.'}
                   </p>
                 </div>
               )}

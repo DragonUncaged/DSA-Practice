@@ -341,9 +341,9 @@
   }
 }
 
-/* ------------------------------------------------------------- fog of code */
+/* ------------------------------------------------------ progressive reveal */
 
-.fogCtl {
+.revealCtl {
   display: flex;
   gap: 2px;
   padding: 2px;
@@ -352,7 +352,7 @@
   background: $ink-800;
 }
 
-.fogSeg {
+.revealSeg {
   padding: 3px 8px;
   border-radius: 5px;
   color: $fg-faint;
@@ -406,7 +406,7 @@
   }
 }
 
-.fogNote {
+.revealNote {
   padding: 8px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 11.5px;
@@ -419,7 +419,7 @@
   }
 }
 
-/* redaction bar standing in for a fogged line of code */
+/* redaction bar standing in for a hidden line of code */
 .maskBar {
   display: inline-block;
   height: 9px;

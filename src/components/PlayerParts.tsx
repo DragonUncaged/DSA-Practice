@@ -217,9 +217,9 @@ export function CodePane({
   }
 
   const LADDER: { level: RevealLevel; label: string; hint: string }[] = [
-    { level: 0, label: 'Fogged', hint: 'Hide the solution again' },
+    { level: 0, label: 'Hidden', hint: 'Hide the solution again' },
     { level: 1, label: 'Approach', hint: 'Reveal the idea in one paragraph' },
-    { level: 2, label: 'Watch', hint: 'Each line unfogs the moment the trace executes it' },
+    { level: 2, label: 'Watch', hint: 'Each line appears the moment the trace executes it' },
     { level: 3, label: 'Full', hint: 'Reveal everything (marks this solve as assisted)' },
   ]
 
@@ -228,11 +228,11 @@ export function CodePane({
       <div className={s.codeCol}>
         <div className={s.paneHead}>
           <span className={s.paneTitle}>Solution</span>
-          <div className={s.fogCtl}>
+          <div className={s.revealCtl}>
             {LADDER.map((o) => (
               <button
                 key={o.level}
-                className={`${s.fogSeg} ${revealLevel === o.level ? s.on : ''}`}
+                className={`${s.revealSeg} ${revealLevel === o.level ? s.on : ''}`}
                 title={o.hint}
                 onClick={() => onRevealLevel(o.level)}
               >
@@ -279,8 +279,8 @@ export function CodePane({
         )}
 
         {revealLevel === 0 && (
-          <div className={s.fogNote}>
-            The solution is under fog. Read the <strong>approach</strong>, switch to{' '}
+          <div className={s.revealNote}>
+            The solution is hidden. Read the <strong>approach</strong>, switch to{' '}
             <strong>watch</strong> and earn each line as the animation executes it, or reveal it{' '}
             <strong>full</strong>.
           </div>
