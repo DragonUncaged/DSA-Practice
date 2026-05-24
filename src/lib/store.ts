@@ -18,7 +18,7 @@ import type { Lang } from './types'
 export type SolveState = 'solved' | 'attempted'
 
 /**
- * 0 = fogged, 1 = approach shown, 2 = lines unfog as the trace executes them,
+ * 0 = hidden, 1 = approach shown, 2 = lines appear as the trace executes them,
  * 3 = fully revealed. Level 3 marks the problem as "assisted" forever, which
  * is what the sheet's clean-solve diamond keys off.
  */
@@ -33,6 +33,11 @@ export interface Prefs {
   codeH: number | null
   /** Practice-tab test-case panel width in px; null = the stylesheet default. */
   resultsW: number | null
+  /** Practice editor font size in px. */
+  editorFontSize: number
+  /** Practice editor tab width; null follows the language (4 for Python, else 2). */
+  editorTabSize: number | null
+  editorWordWrap: boolean
 }
 
 export interface Streak {
@@ -50,6 +55,9 @@ export const DEFAULT_PREFS: Prefs = {
   showRail: true,
   codeH: null,
   resultsW: null,
+  editorFontSize: 13,
+  editorTabSize: null,
+  editorWordWrap: false,
 }
 const EMPTY_STREAK: Streak = { last: null, count: 0, days: [] }
 

@@ -6,6 +6,23 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+
+  /* Fullscreen lifts the whole practice pane, editor and tests together, so
+     nothing the runner reports scrolls out of reach. Esc exits. */
+  &.fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: $ink-900;
+  }
+}
+
+/* Keyframes in a CSS module are file-scoped, so the popover carries its own. */
+@keyframes settingsPop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 
 .bar {
@@ -19,15 +36,6 @@
 
   .spacer {
     flex: 1;
-  }
-
-  .note {
-    color: $fg-trace;
-    @include mono(10.5px);
-
-    @include md-down {
-      display: none;
-    }
   }
 }
 
@@ -78,6 +86,120 @@
   &:hover {
     color: $fg;
     border-color: $hair-strong;
+  }
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: $fg-dim;
+  transition: all 0.18s;
+  @include focus-ring;
+
+  &:hover:not(:disabled) {
+    border-color: $hair-strong;
+    background: $ink-800;
+    color: $fg;
+  }
+
+  &:disabled {
+    color: $fg-trace;
+    cursor: not-allowed;
+  }
+
+  &.iconOn {
+    border-color: $hair-strong;
+    background: $ink-800;
+    color: $fg;
+  }
+}
+
+.settingsWrap {
+  position: relative;
+}
+
+.settings {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 232px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid $hair-strong;
+  background: $ink-800;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+  animation: settingsPop 0.16s $glide both;
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 7px;
+  font-size: 12px;
+  color: $fg-muted;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  select {
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: 1px solid $hair;
+    background: $ink-700;
+    color: $fg;
+    @include mono(11px);
+
+    &:focus-visible {
+      outline: 2px solid rgba(205, 255, 87, 0.5);
+      outline-offset: 1px;
+    }
+  }
+}
+
+.toggle {
+  position: relative;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  border: 1px solid $hair;
+  background: $ink-700;
+  transition: all 0.18s;
+  @include focus-ring;
+
+  .knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: $fg-dim;
+    transition: all 0.18s;
+  }
+
+  &.toggleOn {
+    border-color: rgba(205, 255, 87, 0.4);
+    background: rgba(205, 255, 87, 0.16);
+
+    .knob {
+      left: 16px;
+      background: $lime;
+    }
   }
 }
 
