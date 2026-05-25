@@ -2,7 +2,7 @@ import type { Difficulty } from '@/lib/types'
 import { PROBLEMS, type SheetEntry } from './index'
 
 /**
- * Striver's SDE Sheet (takeuforward.org) — 27 days of interview problems.
+ * The SDE Sheet - 27 days of interview problems.
  *
  * Rows carry an optional third element: the id of one of our traced problems.
  * A row with an id (or whose slugified title matches a trace) lights up and
@@ -14,7 +14,7 @@ type Row = [string, Difficulty] | [string, Difficulty, string]
 
 const SDE: [string, Row[]][] = [
   [
-    'Day 1 · Arrays',
+    'Arrays',
     [
       ['Set Matrix Zeroes', 'Medium', 'set-matrix-zeroes'],
       ["Pascal's Triangle", 'Easy'],
@@ -25,7 +25,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 2 · Arrays II',
+    'Arrays II',
     [
       ['Rotate Image', 'Medium', 'rotate-image'],
       ['Merge Intervals', 'Medium', 'merge-intervals'],
@@ -36,7 +36,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 3 · Arrays III',
+    'Arrays III',
     [
       ['Search a 2D Matrix', 'Medium'],
       ['Pow(x, n)', 'Medium'],
@@ -47,7 +47,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 4 · Arrays IV',
+    'Arrays IV',
     [
       ['Two Sum', 'Easy', 'two-sum'],
       ['4Sum', 'Medium'],
@@ -62,7 +62,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 5 · Linked List',
+    'Linked List',
     [
       ['Reverse a Linked List', 'Easy', 'reverse-a-linked-list'],
       ['Middle of the Linked List', 'Easy'],
@@ -73,7 +73,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 6 · Linked List II',
+    'Linked List II',
     [
       ['Intersection of Two Linked Lists', 'Easy'],
       ['Detect Cycle in a Linked List', 'Easy', 'detect-cycle-in-a-linked-list'],
@@ -84,7 +84,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 7 · Linked List & Arrays',
+    'Linked List & Arrays',
     [
       ['Rotate a Linked List', 'Medium'],
       ['Copy List with Random Pointer', 'Medium'],
@@ -95,7 +95,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 8 · Greedy',
+    'Greedy',
     [
       ['N Meetings in One Room', 'Easy'],
       ['Minimum Number of Platforms', 'Medium'],
@@ -106,7 +106,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 9 · Recursion',
+    'Recursion',
     [
       ['Subset Sums', 'Medium'],
       ['Subsets II', 'Medium'],
@@ -117,7 +117,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 10 · Backtracking',
+    'Backtracking',
     [
       ['Print All Permutations', 'Medium'],
       ['N-Queens', 'Hard'],
@@ -128,7 +128,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 11 · Binary Search',
+    'Binary Search',
     [
       ['Nth Root of a Number', 'Easy'],
       ['Matrix Median', 'Hard'],
@@ -141,7 +141,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 12 · Heaps',
+    'Heaps',
     [
       ['Implement a Max/Min Heap', 'Medium'],
       ['Kth Largest Element in an Array', 'Medium'],
@@ -152,7 +152,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 13 · Stack & Queue',
+    'Stack & Queue',
     [
       ['Implement Stack Using Arrays', 'Easy'],
       ['Implement Queue Using Arrays', 'Easy'],
@@ -164,7 +164,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 14 · Stack & Queue II',
+    'Stack & Queue II',
     [
       ['Next Smaller Element', 'Medium'],
       ['LRU Cache', 'Medium'],
@@ -179,7 +179,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 15 · Strings',
+    'Strings',
     [
       ['Reverse Words in a String', 'Medium'],
       ['Longest Palindromic Substring', 'Medium', 'longest-palindromic-substring'],
@@ -190,7 +190,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 16 · Strings II',
+    'Strings II',
     [
       ['Z-Function', 'Medium'],
       ['KMP / LPS Array', 'Hard'],
@@ -201,7 +201,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 17 · Binary Tree',
+    'Binary Tree',
     [
       ['Inorder Traversal', 'Easy'],
       ['Preorder Traversal', 'Easy'],
@@ -218,7 +218,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 18 · Binary Tree II',
+    'Binary Tree II',
     [
       ['Binary Tree Level Order Traversal', 'Medium', 'binary-tree-level-order-traversal'],
       ['Maximum Depth of Binary Tree', 'Easy', 'maximum-depth-of-binary-tree'],
@@ -229,7 +229,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 19 · Binary Tree III',
+    'Binary Tree III',
     [
       ['Binary Tree Maximum Path Sum', 'Hard', 'binary-tree-maximum-path-sum'],
       [
@@ -244,7 +244,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 20 · Binary Search Tree',
+    'Binary Search Tree',
     [
       ['Populate Next Right Pointers', 'Medium'],
       ['Search in a BST', 'Easy'],
@@ -256,7 +256,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 21 · BST II',
+    'BST II',
     [
       ['Floor in a BST', 'Easy'],
       ['Ceil in a BST', 'Easy'],
@@ -273,7 +273,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 22 · Mixed Trees & Streams',
+    'Mixed Trees & Streams',
     [
       ['Binary Tree to Doubly Linked List', 'Hard'],
       ['Median in a Stream of Integers', 'Hard', 'find-median-from-data-stream'],
@@ -284,7 +284,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 23 · Graphs',
+    'Graphs',
     [
       ['Clone Graph', 'Medium', 'clone-graph'],
       ['Depth-First Search', 'Easy'],
@@ -301,7 +301,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 24 · Graphs II',
+    'Graphs II',
     [
       ["Strongly Connected Components (Kosaraju's)", 'Hard'],
       ["Dijkstra's Algorithm", 'Medium'],
@@ -312,7 +312,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 25 · Dynamic Programming',
+    'Dynamic Programming',
     [
       ['Maximum Product Subarray', 'Medium', 'maximum-product-subarray'],
       ['Longest Increasing Subsequence', 'Medium', 'longest-increasing-subsequence'],
@@ -324,7 +324,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 26 · DP II',
+    'DP II',
     [
       ['Minimum Path Sum in a Matrix', 'Medium'],
       ['Coin Change', 'Medium', 'coin-change'],
@@ -337,7 +337,7 @@ const SDE: [string, Row[]][] = [
     ],
   ],
   [
-    'Day 27 · Tries',
+    'Tries',
     [
       ['Implement Trie (Prefix Tree)', 'Medium', 'implement-trie-prefix-tree'],
       ['Implement Trie II (Prefix Counts)', 'Medium'],

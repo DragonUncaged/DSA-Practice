@@ -133,9 +133,6 @@
 /* ----------------------------------------------------------------- filters */
 
 .filters {
-  position: sticky;
-  top: 60px;
-  z-index: 10;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -270,7 +267,37 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 4px 9px;
+  width: 100%;
+  padding: 4px 4px 9px;
+  border-radius: 8px;
+  text-align: left;
+  transition: background 0.16s;
+  @include focus-ring;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+
+    .name {
+      color: $fg;
+    }
+
+    .chevron {
+      color: $fg-dim;
+    }
+  }
+
+  .chevron {
+    display: flex;
+    flex: 0 0 auto;
+    color: $fg-ghost;
+    transition:
+      transform 0.18s $glide,
+      color 0.16s;
+  }
+
+  .chevronOpen {
+    transform: rotate(180deg);
+  }
 
   .name {
     font-size: 13px;

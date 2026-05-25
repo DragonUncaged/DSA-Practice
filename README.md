@@ -27,7 +27,7 @@ All 75 problems are traced. `/selftest` runs every trace and every reference
 solution against its own test table and reports anything broken.
 
 Two tracks share the same trace library: the Blind 75 (`/practice`, fully
-traced) and Striver's SDE Sheet (`/sde`, 27 days / ~190 problems — rows whose
+traced) and the SDE Sheet (`/sde`, 27 days / ~190 problems — rows whose
 problem is already traced link into the player, the rest light up as traces
 land). Solved state is per problem, so finishing Two Sum ticks it on both
 sheets.

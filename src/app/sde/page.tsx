@@ -3,9 +3,9 @@ import { Sheet } from '@/components/Sheet'
 import { TopNav } from '@/components/TopNav'
 
 export const metadata: Metadata = {
-  title: "Striver's SDE Sheet · TRACE",
+  title: 'SDE Sheet · TRACE',
   description:
-    "Striver's 27-day SDE sheet with stepped visual traces for every problem that has one.",
+    'A 27-day SDE sheet with stepped visual traces for every problem that has one.',
 }
 
 export default function Page() {

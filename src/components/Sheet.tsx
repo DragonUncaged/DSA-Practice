@@ -25,7 +25,7 @@ const TRACKS: Record<
   TrackId,
   {
     title: string
-    blurb: React.ReactNode
+    blurb?: React.ReactNode
     groups: { name: string; items: SheetEntry[] }[]
   }
 > = {
@@ -40,14 +40,7 @@ const TRACKS: Record<
     groups: SHEET_GROUPS,
   },
   sde: {
-    title: "Striver's SDE Sheet",
-    blurb: (
-      <>
-        The 27-day interview grind from takeuforward. Rows with a{' '}
-        <span className={s.hl}>lit arrow</span> already have a working trace and link straight
-        into the player; the rest light up as traces land.
-      </>
-    ),
+    title: 'SDE Sheet',
     groups: SDE_GROUPS,
   },
 }
@@ -64,6 +57,13 @@ export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
   const [query, setQuery] = useState('')
   const [diff, setDiff] = useState<Difficulty | 'all'>('all')
   const [unsolvedOnly, setUnsolvedOnly] = useState(false)
+
+  // Groups start collapsed so the whole track reads as an outline. A live
+  // filter forces them open, otherwise a search would hide its own results.
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+  const filtering = query.trim() !== '' || diff !== 'all' || unsolvedOnly
+  const toggleGroup = (name: string) =>
+    setExpanded((m) => ({ ...m, [name]: !m[name] }))
 
   const isSolved = (e: SheetEntry) => progress[keyOf(e)] === 'solved'
   const solvedCount = entries.filter(isSolved).length
@@ -93,7 +93,7 @@ export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
         <div>
           <div className={s.kicker}>TRACK</div>
           <h1>{def.title}</h1>
-          <p>{def.blurb}</p>
+          {def.blurb && <p>{def.blurb}</p>}
         </div>
 
         <div className={s.headStats}>
@@ -178,15 +178,40 @@ export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
       <div className={s.groups}>
         {groups.map((g) => (
           <section key={g.name} className={s.group}>
-            <div className={s.groupHead}>
+            <button
+              type="button"
+              className={s.groupHead}
+              onClick={() => !filtering && toggleGroup(g.name)}
+              aria-expanded={filtering || !!expanded[g.name]}
+            >
               <span className={s.name}>{g.name}</span>
               <span className={s.rule} />
               <span className={s.count}>
                 {g.rows.length} / {g.items.length}
               </span>
-            </div>
+              {!filtering && (
+                <span
+                  className={`${s.chevron} ${expanded[g.name] ? s.chevronOpen : ''}`}
+                  aria-hidden
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </span>
+              )}
+            </button>
 
-            {g.rows.map((e) => {
+            {(filtering || expanded[g.name]) &&
+              g.rows.map((e) => {
               const done = isSolved(e)
               const live = !!e.problemId
 
@@ -227,7 +252,7 @@ export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
                   {inner}
                 </div>
               )
-            })}
+              })}
           </section>
         ))}
       </div>
