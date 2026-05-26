@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import { useAssisted, useProgress } from '@/lib/store'
 import type { Difficulty } from '@/lib/types'
 import { SHEET_GROUPS, type SheetEntry } from '@/problems'
+import { COMPANY_GROUPS, COMPANY_TITLES } from '@/problems/companies'
 import { SDE_GROUPS } from '@/problems/sde'
 import s from './Sheet.module.scss'
 
@@ -15,7 +16,7 @@ const DIFF_COLOR: Record<Difficulty, string> = {
   Hard: '#FF7A59',
 }
 
-export type TrackId = 'blind75' | 'sde'
+export type TrackId = 'blind75' | 'sde' | 'google'
 
 /**
  * Track definitions live here, on the client side of the boundary, so pages
@@ -42,6 +43,17 @@ const TRACKS: Record<
   sde: {
     title: 'SDE Sheet',
     groups: SDE_GROUPS,
+  },
+  google: {
+    title: COMPANY_TITLES.google,
+    blurb: (
+      <>
+        Sixty-two problems Google leans on — a{' '}
+        <span className={s.hl}>core</span> ten and the set the same collection files
+        alongside them. Most have no trace yet; they light up as traces land.
+      </>
+    ),
+    groups: COMPANY_GROUPS.google,
   },
 }
 

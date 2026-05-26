@@ -32,6 +32,12 @@ export function TopNav() {
         <Link href="/sde" className={`${s.link} ${path.startsWith('/sde') ? s.on : ''}`}>
           SDE Sheet
         </Link>
+        <Link
+          href="/company/google"
+          className={`${s.link} ${path.startsWith('/company') ? s.on : ''}`}
+        >
+          Google
+        </Link>
       </div>
 
       <span className={s.spacer} />
