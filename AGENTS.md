@@ -12,6 +12,15 @@ and a `TopNav` link — see `src/problems/companies.ts` and `src/app/company/goo
 smallest complete example. Never fork `Sheet`; search, filters, progress and collapsible groups all
 live there. Progress is keyed by `problemId ?? slug`, so the same problem shares state across tracks.
 
+## Problems
+
+A problem is one file under `src/problems/` exporting a `Problem` (type in `src/lib/types.ts`),
+registered in `src/problems/index.ts`; `src/problems/3sum.ts` is the smallest complete template. A
+sheet row goes live when a registered id equals the row's slugified title (or its explicit id). Write a
+solution and step map for every `Lang`, then serve a build and open `/selftest`: it checks frames,
+unmapped steps and the reference solution against its own tests. Practice fetches Pyodide for Python
+and compiles C++ on godbolt.org, so Run tests needs network.
+
 ## Maintaining this file
 
 Keep this file for knowledge useful to almost every future agent session in this project.

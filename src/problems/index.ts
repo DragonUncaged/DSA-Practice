@@ -1,5 +1,6 @@
 import type { Difficulty, Problem } from '@/lib/types'
 import { threeSum } from './3sum'
+import { fourSum } from './4sum'
 import { addAndSearchWord } from './add-and-search-word'
 import { alienDictionary } from './alien-dictionary'
 import { bestTimeToBuyAndSellStock } from './best-time-to-buy-and-sell-stock'
@@ -87,6 +88,7 @@ export const PROBLEMS: Problem[] = [
   findMinimumInRotatedSortedArray,
   searchInRotatedSortedArray,
   threeSum,
+  fourSum,
   containerWithMostWater,
   // Binary
   sumOfTwoIntegers,
