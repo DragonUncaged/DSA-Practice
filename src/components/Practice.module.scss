@@ -6,15 +6,6 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-
-  /* Fullscreen lifts the whole practice pane, editor and tests together, so
-     nothing the runner reports scrolls out of reach. Esc exits. */
-  &.fullscreen {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    background: $ink-900;
-  }
 }
 
 /* Keyframes in a CSS module are file-scoped, so the popover carries its own. */

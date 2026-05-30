@@ -33,6 +33,8 @@ export interface Prefs {
   codeH: number | null
   /** Practice-tab test-case panel width in px; null = the stylesheet default. */
   resultsW: number | null
+  /** Problem-statement rail width in px; null = the stylesheet default. */
+  railW: number | null
   /** Practice editor font size in px. */
   editorFontSize: number
   /** Practice editor tab width; null follows the language (4 for Python, else 2). */
@@ -55,6 +57,7 @@ export const DEFAULT_PREFS: Prefs = {
   showRail: true,
   codeH: null,
   resultsW: null,
+  railW: null,
   editorFontSize: 13,
   editorTabSize: null,
   editorWordWrap: false,

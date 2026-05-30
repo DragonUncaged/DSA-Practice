@@ -260,7 +260,7 @@ export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
                   {inner}
                 </Link>
               ) : (
-                <div key={e.slug} className={`${s.row} ${s.soon}`}>
+                <div key={e.slug} className={`${s.row} ${s.soon}`} title="Not built yet">
                   {inner}
                 </div>
               )

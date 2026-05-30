@@ -6,6 +6,15 @@
   flex-direction: column;
   height: 100dvh;
   overflow: hidden;
+
+  /* Fullscreen drops the site chrome only: statement, editor and tests keep
+     the whole viewport between them. Esc exits (see Practice). */
+  &.fullscreen {
+    .head,
+    .tabBar {
+      display: none;
+    }
+  }
 }
 
 .head {
@@ -191,6 +200,45 @@
   }
 }
 
+/* Practice is where the problem gets solved, so it reads as a button, not as
+   a third tab: a lime pill pushed to the far side of the bar. */
+.practiceTab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  margin: 0 0 5px 14px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(205, 255, 87, 0.4);
+  background: rgba(205, 255, 87, 0.1);
+  color: $lime;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.18s;
+  @include focus-ring;
+
+  > span {
+    font-size: 9px;
+  }
+
+  &:hover {
+    border-color: $lime;
+    background: rgba(205, 255, 87, 0.18);
+  }
+
+  &.on {
+    border-color: $lime;
+    background: $lime;
+    color: $ink-900;
+
+    &:hover {
+      background: $lime-bright;
+    }
+  }
+}
+
 /* ------------------------------------------------------------------- body */
 
 .body {
@@ -290,6 +338,7 @@
 /* -------------------------------------------------------------- info rail */
 
 .rail {
+  position: relative;
   flex: 0 0 300px;
   overflow-y: auto;
   padding: 20px 18px;
@@ -297,7 +346,78 @@
   flex-direction: column;
   gap: 22px;
   background: $ink-900;
+
+  @include lg-down {
+    display: none;
+  }
+}
+
+/* Drag surface between the statement and the workspace; Practice's test
+   divider is the same idea mirrored. */
+.railDivider {
+  flex: 0 0 7px;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+  transition: background 0.15s;
+  @include hair(l);
+
+  &:hover,
+  &:active {
+    background: rgba(205, 255, 87, 0.16);
+  }
+
+  @include lg-down {
+    display: none;
+  }
+}
+
+.railToggle {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid $hair;
+  background: $ink-800;
+  color: $fg-dim;
+  font-size: 15px;
+  line-height: 1;
+  transition:
+    color 0.18s,
+    border-color 0.18s;
+  @include focus-ring;
+
+  &:hover {
+    color: $fg;
+    border-color: $hair-strong;
+  }
+}
+
+/* Sits on the rail's outer edge; the rail scrolls, so it scrolls with the top. */
+.railCollapse {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* Collapsed statement: a thin strip that keeps the expand control in view. */
+.railStrip {
+  flex: 0 0 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  background: $ink-900;
   @include hair(r);
+
+  .stripLabel {
+    writing-mode: vertical-rl;
+    color: $fg-ghost;
+    letter-spacing: 0.1em;
+    @include mono(10.5px);
+  }
 
   @include lg-down {
     display: none;

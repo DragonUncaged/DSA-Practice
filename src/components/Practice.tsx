@@ -68,10 +68,15 @@ export function Practice({
   problem,
   lang,
   onLang,
+  fullscreen,
+  onFullscreen,
 }: {
   problem: Problem
   lang: Lang
   onLang: (l: Lang) => void
+  /** Owned by Player: fullscreen hides the site chrome around the whole body. */
+  fullscreen: boolean
+  onFullscreen: (on: boolean) => void
 }) {
   const hydrated = useHydrated()
   const setDraft = useTraceStore((st) => st.setDraft)
@@ -81,7 +86,6 @@ export function Practice({
   const prefs = usePrefs()
 
   const editorRef = useRef<MonacoNS.IStandaloneCodeEditor | null>(null)
-  const [fullscreen, setFullscreen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const settingsWrap = useRef<HTMLDivElement | null>(null)
 
@@ -98,11 +102,11 @@ export function Practice({
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
       if (settingsOpen) setSettingsOpen(false)
-      else if (fullscreen) setFullscreen(false)
+      else if (fullscreen) onFullscreen(false)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [fullscreen, settingsOpen])
+  }, [fullscreen, onFullscreen, settingsOpen])
 
   useEffect(() => {
     if (!settingsOpen) return
@@ -219,7 +223,7 @@ export function Practice({
   }, [results])
 
   return (
-    <div className={`${s.wrap} ${fullscreen ? s.fullscreen : ''}`}>
+    <div className={s.wrap}>
       <div className={s.bar}>
         <button className={s.runBtn} onClick={run} disabled={running}>
           {running ? <span className={s.spinner} /> : <span>&#9654;</span>}
@@ -259,7 +263,7 @@ export function Practice({
 
         <button
           className={s.iconBtn}
-          onClick={() => setFullscreen((v) => !v)}
+          onClick={() => onFullscreen(!fullscreen)}
           title={fullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen'}
           aria-label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
         >

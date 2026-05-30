@@ -54,7 +54,49 @@ export function Player({ problem }: { problem: Problem }) {
   const watched = useMemo(() => new Set(watchedMap[watchKey] ?? []), [watchedMap, watchKey])
 
   const hasBrute = problem.solutions.some((x) => x.kind === 'brute')
-  const tabs: Tab[] = ['trace', ...(hasBrute ? (['compare'] as Tab[]) : []), 'practice']
+  // The two informational tabs sit together; Practice is the primary action
+  // and is rendered separately as a pill on the far side of the bar.
+  const infoTabs: Tab[] = ['trace', ...(hasBrute ? (['compare'] as Tab[]) : [])]
+
+  // Fullscreen belongs to the body, not to Practice: it hides the header and
+  // tab bar so statement, editor and tests share the viewport. Esc exits
+  // (handled inside Practice, which also owns the settings popover).
+  const [fullscreen, setFullscreen] = useState(false)
+  const isFullscreen = fullscreen && tab === 'practice'
+
+  // --- resizable, collapsible statement rail ---------------------------------
+  // Width is local only while dragging; the released width and the collapsed
+  // state both live in prefs so they survive a reload.
+  const [dragRailW, setDragRailW] = useState<number | null>(null)
+  const railW = dragRailW ?? prefs.railW
+  const dragRail = useRef<number | null>(null)
+  const onRailDown = useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault()
+      const startX = e.clientX
+      const startW = prefs.railW ?? 300
+      const move = (ev: PointerEvent) => {
+        const w = Math.min(560, Math.max(220, startW + (ev.clientX - startX)))
+        dragRail.current = w
+        setDragRailW(w)
+      }
+      const up = () => {
+        window.removeEventListener('pointermove', move)
+        window.removeEventListener('pointerup', up)
+        if (dragRail.current != null) setPrefs({ railW: dragRail.current })
+        dragRail.current = null
+        setDragRailW(null)
+      }
+      window.addEventListener('pointermove', move)
+      window.addEventListener('pointerup', up)
+    },
+    [prefs.railW, setPrefs],
+  )
+  const onRailReset = useCallback(() => setPrefs({ railW: null }), [setPrefs])
+  const toggleRail = useCallback(
+    () => setPrefs({ showRail: !prefs.showRail }),
+    [prefs.showRail, setPrefs],
+  )
 
   // --- draggable stage/solution split ---------------------------------------
   // Dragging the transport bar trades animation height for solution height.
@@ -88,7 +130,7 @@ export function Player({ problem }: { problem: Problem }) {
   }, [setPrefs])
 
   return (
-    <div className={s.shell}>
+    <div className={`${s.shell} ${isFullscreen ? s.fullscreen : ''}`}>
       <header className={s.head}>
         <Link href="/practice" className={s.back} aria-label="Back to the problem list">
           &#8592;
@@ -133,15 +175,45 @@ export function Player({ problem }: { problem: Problem }) {
       </header>
 
       <nav className={s.tabBar}>
-        {tabs.map((t) => (
+        {infoTabs.map((t) => (
           <button key={t} className={`${s.tab} ${tab === t ? s.on : ''}`} onClick={() => setTab(t)}>
-            {t === 'trace' ? 'Trace' : t === 'compare' ? 'Brute vs Optimal' : 'Practice'}
+            {t === 'trace' ? 'Trace' : 'Brute vs Optimal'}
           </button>
         ))}
+        <span className={s.grow} />
+        <button
+          className={`${s.practiceTab} ${tab === 'practice' ? s.on : ''}`}
+          onClick={() => setTab('practice')}
+          title="Solve the problem in the editor and run it against every test case"
+        >
+          <span aria-hidden>&#9654;</span> Practice
+        </button>
       </nav>
 
       <div className={s.body}>
-        <InfoRail problem={problem} />
+        {prefs.showRail ? (
+          <>
+            <InfoRail problem={problem} width={railW} onCollapse={toggleRail} />
+            <div
+              className={s.railDivider}
+              onPointerDown={onRailDown}
+              onDoubleClick={onRailReset}
+              title="Drag to resize the problem statement · double-click to reset"
+            />
+          </>
+        ) : (
+          <aside className={s.railStrip}>
+            <button
+              className={s.railToggle}
+              onClick={toggleRail}
+              title="Show the problem statement"
+              aria-label="Show the problem statement"
+            >
+              &#8250;
+            </button>
+            <span className={s.stripLabel}>Problem</span>
+          </aside>
+        )}
 
         <section className={s.main}>
           {tab === 'trace' && (
@@ -195,7 +267,15 @@ export function Player({ problem }: { problem: Problem }) {
           )}
 
           {tab === 'compare' && <CompareView problem={problem} lang={prefs.lang} />}
-          {tab === 'practice' && <Practice problem={problem} lang={prefs.lang} onLang={setLang} />}
+          {tab === 'practice' && (
+            <Practice
+              problem={problem}
+              lang={prefs.lang}
+              onLang={setLang}
+              fullscreen={isFullscreen}
+              onFullscreen={setFullscreen}
+            />
+          )}
         </section>
       </div>
     </div>
@@ -204,13 +284,29 @@ export function Player({ problem }: { problem: Problem }) {
 
 // ---------------------------------------------------------------------------
 
-function InfoRail({ problem }: { problem: Problem }) {
+function InfoRail({
+  problem,
+  width,
+  onCollapse,
+}: {
+  problem: Problem
+  width: number | null
+  onCollapse: () => void
+}) {
   const sample = problem.tests[0]
   const optimal = problem.solutions[0]
   const guide = PATTERN_OF_PROBLEM[problem.id]
 
   return (
-    <aside className={s.rail}>
+    <aside className={s.rail} style={width != null ? { flex: `0 0 ${width}px` } : undefined}>
+      <button
+        className={`${s.railToggle} ${s.railCollapse}`}
+        onClick={onCollapse}
+        title="Hide the problem statement"
+        aria-label="Hide the problem statement"
+      >
+        &#8249;
+      </button>
       <div className={s.railSection}>
         <div className={s.railTitle}>Problem</div>
         <p dangerouslySetInnerHTML={{ __html: renderStatement(problem.statement) }} />
