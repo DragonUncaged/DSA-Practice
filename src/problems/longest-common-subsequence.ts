@@ -34,10 +34,6 @@ export const longestCommonSubsequence: Problem = {
     return [s, r]
   },
   starter: {
-    py: `def longestCommonSubsequence(text1, text2):
-    # text1: str, text2: str  ->  int
-    pass
-`,
     js: `function longestCommonSubsequence(text1, text2) {
   // text1: string, text2: string  ->  number
 }
@@ -58,21 +54,6 @@ export const longestCommonSubsequence: Problem = {
       blurb:
         'Cell (i, j) answers: how long is the LCS of the first i characters of one string and the first j of the other? If the two current characters match, extend the diagonal; if not, carry over the better of skipping one character from either string.',
       code: {
-        py: {
-          lines: [
-            'def longestCommonSubsequence(text1, text2):',
-            '    m, n = len(text1), len(text2)',
-            '    dp = [[0] * (n + 1) for _ in range(m + 1)]',
-            '    for i in range(1, m + 1):',
-            '        for j in range(1, n + 1):',
-            '            if text1[i - 1] == text2[j - 1]:',
-            '                dp[i][j] = dp[i - 1][j - 1] + 1',
-            '            else:',
-            '                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])',
-            '    return dp[m][n]',
-          ],
-          map: { init: 3, match: 7, gap: 9, done: 10 },
-        },
         cpp: {
           lines: [
             'int longestCommonSubsequence(string text1, string text2) {',

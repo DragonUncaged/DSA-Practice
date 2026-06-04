@@ -8,8 +8,8 @@ import { accentAlpha, accentOf } from '@/viz/palette'
 import { Renderer } from '@/viz/Renderer'
 import s from './PlayerParts.module.scss'
 
-export const LANG_LABEL: Record<Lang, string> = { py: 'PYTHON', cpp: 'C++', js: 'JAVASCRIPT' }
-export const LANGS: Lang[] = ['py', 'cpp', 'js']
+export const LANG_LABEL: Record<Lang, string> = { cpp: 'C++', js: 'JAVASCRIPT' }
+export const LANGS: Lang[] = ['cpp', 'js']
 
 // ---------------------------------------------------------------------------
 

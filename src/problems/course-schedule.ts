@@ -30,10 +30,6 @@ export const courseSchedule: Problem = {
   demo: DEMO,
   scale: (n) => [n, Array.from({ length: n - 1 }, (_, i) => [i + 1, i])],
   starter: {
-    py: `def canFinish(numCourses, prerequisites):
-    # numCourses: int, prerequisites: list[list[int]]  ->  bool
-    pass
-`,
     js: `function canFinish(numCourses, prerequisites) {
   // numCourses: number, prerequisites: number[][]  ->  boolean
 }
@@ -54,27 +50,6 @@ export const courseSchedule: Problem = {
       blurb:
         'A course with zero unmet prerequisites can be taken right now. Take it, which unlocks its dependants, which may drop to zero themselves. If this peeling eventually takes every course, there was no cycle; a cycle is exactly the knot the peeling can never reach.',
       code: {
-        py: {
-          lines: [
-            'def canFinish(numCourses, prerequisites):',
-            '    indeg = [0] * numCourses',
-            '    adj = [[] for _ in range(numCourses)]',
-            '    for a, b in prerequisites:',
-            '        adj[b].append(a)',
-            '        indeg[a] += 1',
-            '    queue = [i for i in range(numCourses) if indeg[i] == 0]',
-            '    taken = 0',
-            '    while queue:',
-            '        c = queue.pop()',
-            '        taken += 1',
-            '        for nxt in adj[c]:',
-            '            indeg[nxt] -= 1',
-            '            if indeg[nxt] == 0:',
-            '                queue.append(nxt)',
-            '    return taken == numCourses',
-          ],
-          map: { init: 7, take: 11, unlock: 13, free: 15, done: 16 },
-        },
         cpp: {
           lines: [
             'bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {',

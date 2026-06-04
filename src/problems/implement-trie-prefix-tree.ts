@@ -37,11 +37,6 @@ export const implementTrie: Problem = {
     Array.from({ length: n }, (_, i) => `search w${i.toString(36)}`),
   ],
   starter: {
-    py: `def trieQueries(words, queries):
-    # build a Trie class with insert/search/startsWith,
-    # insert all words, answer each query with 1 or 0
-    pass
-`,
     js: `function trieQueries(words, queries) {
   // build a Trie class with insert/search/startsWith,
   // insert all words, answer each query with 1 or 0
@@ -63,35 +58,6 @@ export const implementTrie: Problem = {
       blurb:
         'Words that share a prefix share a path: each node holds up to 26 children and an "a word ends here" flag. Insert, search and prefix-check are all the same walk — follow one child per character, and the only difference is what you check at the end.',
       code: {
-        py: {
-          lines: [
-            'def trieQueries(words, queries):',
-            '    root = {}',
-            '    END = object()',
-            '    for w in words:',
-            '        node = root',
-            '        for ch in w:',
-            '            node = node.setdefault(ch, {})',
-            '        node[END] = True',
-            '    def walk(s):',
-            '        node = root',
-            '        for ch in s:',
-            '            if ch not in node:',
-            '                return None',
-            '            node = node[ch]',
-            '        return node',
-            '    out = []',
-            '    for query in queries:',
-            '        kind, _, arg = query.partition(" ")',
-            '        node = walk(arg)',
-            '        if kind == "search":',
-            '            out.append(1 if node is not None and END in node else 0)',
-            '        else:',
-            '            out.append(1 if node is not None else 0)',
-            '    return out',
-          ],
-          map: { insert: 8, walk: 14, hit: 21, miss: 13, done: 24 },
-        },
         cpp: {
           lines: [
             'vector<int> trieQueries(vector<string>& words, vector<string>& queries) {',

@@ -34,10 +34,6 @@ export const addAndSearchWord: Problem = {
     Array.from({ length: n }, (_, i) => 'w' + i.toString(36)),
   ],
   starter: {
-    py: `def addAndSearch(words, queries):
-    # trie with '.' wildcard search; return 1/0 per query
-    pass
-`,
     js: `function addAndSearch(words, queries) {
   // trie with '.' wildcard search; return 1/0 per query
 }
@@ -58,27 +54,6 @@ export const addAndSearchWord: Problem = {
       blurb:
         'A plain letter follows one child, exactly like an ordinary trie search. A "." cannot choose — so it tries every child, forking the walk into a small DFS. With few dots the search stays near-linear; each dot multiplies the branching.',
       code: {
-        py: {
-          lines: [
-            'def addAndSearch(words, queries):',
-            '    root = {}',
-            '    for w in words:',
-            '        node = root',
-            '        for ch in w:',
-            '            node = node.setdefault(ch, {})',
-            "        node['$'] = True",
-            '    def find(node, s, i):',
-            '        if i == len(s):',
-            "            return '$' in node",
-            '        ch = s[i]',
-            "        if ch == '.':",
-            '            return any(find(child, s, i + 1)',
-            "                       for k, child in node.items() if k != '$')",
-            '        return ch in node and find(node[ch], s, i + 1)',
-            '    return [1 if find(root, q, 0) else 0 for q in queries]',
-          ],
-          map: { insert: 7, step: 15, fork: 13, end: 10, done: 16 },
-        },
         cpp: {
           lines: [
             'vector<int> addAndSearch(vector<string>& words, vector<string>& queries) {',

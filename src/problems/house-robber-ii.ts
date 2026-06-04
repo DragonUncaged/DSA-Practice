@@ -23,10 +23,6 @@ export const houseRobberII: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => ((i * 31) % 97) + 1)],
   starter: {
-    py: `def rob(nums):
-    # nums: list[int]  ->  int
-    pass
-`,
     js: `function rob(nums) {
   // nums: number[]  ->  number
 }
@@ -47,20 +43,6 @@ export const houseRobberII: Problem = {
       blurb:
         'The only new constraint is that house 0 and house n-1 cannot both be robbed. So run the ordinary straight-street solver twice: once excluding the last house, once excluding the first. Every legal plan lives in one of those two worlds.',
       code: {
-        py: {
-          lines: [
-            'def rob(nums):',
-            '    if len(nums) == 1:',
-            '        return nums[0]',
-            '    def line(a):',
-            '        take = skip = 0',
-            '        for x in a:',
-            '            take, skip = skip + x, max(skip, take)',
-            '        return max(take, skip)',
-            '    return max(line(nums[:-1]), line(nums[1:]))',
-          ],
-          map: { init: 2, phase: 9, decide: 7, done: 9 },
-        },
         cpp: {
           lines: [
             'int rob(vector<int>& nums) {',

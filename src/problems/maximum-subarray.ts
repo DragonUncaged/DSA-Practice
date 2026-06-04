@@ -23,10 +23,6 @@ export const maximumSubarray: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => (((i * 41) % 21) - 10))],
   starter: {
-    py: `def maxSubArray(nums):
-    # nums: list[int]  ->  int
-    pass
-`,
     js: `function maxSubArray(nums) {
   // nums: number[]  ->  number
 }
@@ -47,18 +43,6 @@ export const maximumSubarray: Problem = {
       blurb:
         'At each element there are only two candidates: extend the run you are on, or throw it away and start fresh here. A run whose sum has gone negative can never help what comes next, so it is always safe to drop.',
       code: {
-        py: {
-          lines: [
-            'def maxSubArray(nums):',
-            '    best = cur = nums[0]',
-            '    for i in range(1, len(nums)):',
-            '        x = nums[i]',
-            '        cur = max(x, cur + x)',
-            '        best = max(best, cur)',
-            '    return best',
-          ],
-          map: { init: 2, read: 4, extend: 5, restart: 5, best: 6, done: 7 },
-        },
         cpp: {
           lines: [
             'int maxSubArray(vector<int>& nums) {',
@@ -224,19 +208,6 @@ export const maximumSubarray: Problem = {
       space: 'O(1)',
       blurb: 'Start at each index and extend one element at a time, summing as you go. Every subarray gets its own total.',
       code: {
-        py: {
-          lines: [
-            'def maxSubArray(nums):',
-            '    best = nums[0]',
-            '    for i in range(len(nums)):',
-            '        total = 0',
-            '        for j in range(i, len(nums)):',
-            '            total += nums[j]',
-            '            best = max(best, total)',
-            '    return best',
-          ],
-          map: { init: 2, outer: 3, extend: 6, best: 7, done: 8 },
-        },
         cpp: {
           lines: [
             'int maxSubArray(vector<int>& nums) {',

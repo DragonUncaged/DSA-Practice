@@ -22,10 +22,6 @@ export const countingBits: Problem = {
   demo: DEMO,
   scale: (n) => [n],
   starter: {
-    py: `def countBits(n):
-    # n: int  ->  list[int]
-    pass
-`,
     js: `function countBits(n) {
   // n: number  ->  number[]
 }
@@ -46,16 +42,6 @@ export const countingBits: Problem = {
       blurb:
         'i >> 1 is i with its last bit chopped off — and its bit count is already in the table. So bits(i) is bits(i >> 1) plus i\'s own last bit. Every entry costs one addition.',
       code: {
-        py: {
-          lines: [
-            'def countBits(n):',
-            '    bits = [0] * (n + 1)',
-            '    for i in range(1, n + 1):',
-            '        bits[i] = bits[i >> 1] + (i & 1)',
-            '    return bits',
-          ],
-          map: { init: 2, fill: 4, done: 5 },
-        },
         cpp: {
           lines: [
             'vector<int> countBits(int n) {',

@@ -29,10 +29,6 @@ export const combinationSum: Problem = {
   ],
   demo: DEMO,
   starter: {
-    py: `def combinationSum(candidates, target):
-    # candidates: list[int], target: int  ->  list[list[int]]
-    pass
-`,
     js: `function combinationSum(candidates, target) {
   // candidates: number[], target: number  ->  number[][]
 }
@@ -53,27 +49,6 @@ export const combinationSum: Problem = {
       blurb:
         'Depth-first: pick a candidate, subtract it, recurse on what remains, then take it back and try the next. Starting each level at the current index — never earlier — is what stops [2,3] and [3,2] both appearing.',
       code: {
-        py: {
-          lines: [
-            'def combinationSum(candidates, target):',
-            '    out = []',
-            '    path = []',
-            '    def dig(start, remain):',
-            '        if remain == 0:',
-            '            out.append(path[:])',
-            '            return',
-            '        for i in range(start, len(candidates)):',
-            '            c = candidates[i]',
-            '            if c > remain:',
-            '                continue',
-            '            path.append(c)',
-            '            dig(i, remain - c)',
-            '            path.pop()',
-            '    dig(0, target)',
-            '    return out',
-          ],
-          map: { init: 15, pick: 12, found: 6, over: 11, back: 14, done: 16 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> combinationSum(vector<int>& candidates, int target) {',

@@ -30,10 +30,6 @@ export const lowestCommonAncestorOfABst: Problem = {
   ],
   demo: DEMO,
   starter: {
-    py: `def lowestCommonAncestor(root, p, q):
-    # root: TreeNode | None, p: int, q: int  ->  int (the LCA's value)
-    pass
-`,
     js: `function lowestCommonAncestor(root, p, q) {
   // root: TreeNode | null, p: number, q: number  ->  number (the LCA's value)
 }
@@ -54,21 +50,6 @@ export const lowestCommonAncestorOfABst: Problem = {
       blurb:
         'In a BST, ordering tells you where p and q live. If both are smaller than the current node, the answer is entirely in the left subtree; both larger, the right. The first node where they separate — one on each side, or equal to it — is the lowest common ancestor.',
       code: {
-        py: {
-          lines: [
-            'def lowestCommonAncestor(root, p, q):',
-            '    node = root',
-            '    while node:',
-            '        if p < node.val and q < node.val:',
-            '            node = node.left',
-            '        elif p > node.val and q > node.val:',
-            '            node = node.right',
-            '        else:',
-            '            return node.val',
-            '    return -1',
-          ],
-          map: { init: 2, left: 5, right: 7, split: 9, done: 10 },
-        },
         cpp: {
           lines: [
             'int lowestCommonAncestor(TreeNode* root, int p, int q) {',

@@ -23,10 +23,6 @@ export const meetingRoomsII: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => [i, i + 3])],
   starter: {
-    py: `def minMeetingRooms(intervals):
-    # intervals: list[list[int]]  ->  int
-    pass
-`,
     js: `function minMeetingRooms(intervals) {
   // intervals: number[][]  ->  number
 }
@@ -47,23 +43,6 @@ export const meetingRoomsII: Problem = {
       blurb:
         'Rooms only change hands at a start or an end. Sort all starts and all ends separately, then walk time forward: a start before the next end needs one more room; a start at-or-after it reuses a freed one. The peak of that counter is the answer.',
       code: {
-        py: {
-          lines: [
-            'def minMeetingRooms(intervals):',
-            '    starts = sorted(iv[0] for iv in intervals)',
-            '    ends = sorted(iv[1] for iv in intervals)',
-            '    rooms = peak = 0',
-            '    e = 0',
-            '    for s in starts:',
-            '        if s < ends[e]:',
-            '            rooms += 1',
-            '            peak = max(peak, rooms)',
-            '        else:',
-            '            e += 1',
-            '    return peak',
-          ],
-          map: { init: 3, open: 8, reuse: 11, done: 12 },
-        },
         cpp: {
           lines: [
             'int minMeetingRooms(vector<vector<int>>& intervals) {',

@@ -22,10 +22,6 @@ export const reverseLinkedList: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => i + 1)],
   starter: {
-    py: `def reverseList(head):
-    # head: ListNode | None  ->  ListNode | None
-    pass
-`,
     js: `function reverseList(head) {
   // head: ListNode | null  ->  ListNode | null
 }
@@ -46,20 +42,6 @@ export const reverseLinkedList: Problem = {
       blurb:
         'Nothing moves. Walk the list once and flip each arrow to point backwards instead of forwards. The only catch is that flipping an arrow destroys your way onward, so you have to save the next node first.',
       code: {
-        py: {
-          lines: [
-            'def reverseList(head):',
-            '    prev = None',
-            '    cur = head',
-            '    while cur:',
-            '        nxt = cur.next',
-            '        cur.next = prev',
-            '        prev = cur',
-            '        cur = nxt',
-            '    return prev',
-          ],
-          map: { init: 3, save: 5, flip: 6, advance: 8, done: 9 },
-        },
         cpp: {
           lines: [
             'ListNode* reverseList(ListNode* head) {',

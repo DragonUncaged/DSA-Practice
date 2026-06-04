@@ -1,6 +1,6 @@
 /**
  * Turns a problem signature + its test cases into runnable source for each
- * language, so the same test table drives JS, Python and C++ without any
+ * language, so the same test table drives JS and C++ without any
  * per-problem harness code.
  *
  * Layout of a generated program is always: preamble → user code → runner.
@@ -57,80 +57,6 @@ function __fromTree(r) {
   while (out.length && out[out.length - 1] === null) out.pop();
   return out;
 }
-`.trim()
-
-// ---------------------------------------------------------------------------
-// Python
-// ---------------------------------------------------------------------------
-
-const PY_PREAMBLE = `
-import json as __json
-from collections import deque as __deque
-
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
-class TreeNode:
-    def __init__(self, val=0, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
-
-def __to_list(a):
-    head = None
-    for v in reversed(a):
-        head = ListNode(v, head)
-    return head
-
-def __to_cycle(pair):
-    vals, pos = pair
-    head = __to_list(vals)
-    if pos >= 0 and head is not None:
-        tail = head
-        while tail.next is not None:
-            tail = tail.next
-        target = head
-        for _ in range(pos):
-            target = target.next
-        tail.next = target
-    return head
-
-def __from_list(h):
-    out, guard = [], 0
-    while h is not None and guard < 10000:
-        out.append(h.val); h = h.next; guard += 1
-    return out
-
-def __to_tree(a):
-    if not a or a[0] is None:
-        return None
-    root = TreeNode(a[0]); q = __deque([root]); i = 1
-    while q and i < len(a):
-        n = q.popleft()
-        if i < len(a):
-            v = a[i]; i += 1
-            if v is not None:
-                n.left = TreeNode(v); q.append(n.left)
-        if i < len(a):
-            v = a[i]; i += 1
-            if v is not None:
-                n.right = TreeNode(v); q.append(n.right)
-    return root
-
-def __from_tree(r):
-    if r is None:
-        return []
-    out, q = [], __deque([r])
-    while q:
-        n = q.popleft()
-        if n is None:
-            out.append(None); continue
-        out.append(n.val); q.append(n.left); q.append(n.right)
-    while out and out[-1] is None:
-        out.pop()
-    return out
 `.trim()
 
 // ---------------------------------------------------------------------------
@@ -270,28 +196,24 @@ const CPP_TYPE: Record<ParamType, string> = {
   tree: 'TreeNode*',
 }
 
-/** JS/Python argument expression: wraps raw JSON in a structure builder when needed. */
-function wrapArg(lang: 'js' | 'py', type: ParamType, json: string): string {
-  if (type === 'list') return lang === 'js' ? `__toList(${json})` : `__to_list(${json})`
-  if (type === 'list[]')
-    return lang === 'js' ? `(${json}).map(__toList)` : `[__to_list(__x) for __x in ${json}]`
-  if (type === 'cycle') return lang === 'js' ? `__toCycle(${json})` : `__to_cycle(${json})`
-  if (type === 'tree') return lang === 'js' ? `__toTree(${json})` : `__to_tree(${json})`
+/** JS argument expression: wraps raw JSON in a structure builder when needed. */
+function wrapArg(lang: 'js', type: ParamType, json: string): string {
+  if (type === 'list') return `__toList(${json})`
+  if (type === 'list[]') return `(${json}).map(__toList)`
+  if (type === 'cycle') return `__toCycle(${json})`
+  if (type === 'tree') return `__toTree(${json})`
   return json
 }
 
-function wrapRet(lang: 'js' | 'py', type: ParamType, expr: string): string {
-  if (type === 'list') return lang === 'js' ? `__fromList(${expr})` : `__from_list(${expr})`
-  if (type === 'tree') return lang === 'js' ? `__fromTree(${expr})` : `__from_tree(${expr})`
+function wrapRet(lang: 'js', type: ParamType, expr: string): string {
+  if (type === 'list') return `__fromList(${expr})`
+  if (type === 'tree') return `__fromTree(${expr})`
   return expr
 }
 
 // ---------------------------------------------------------------------------
 // Program builders
 // ---------------------------------------------------------------------------
-
-const pyJson = (v: unknown) =>
-  JSON.stringify(v).replace(/\btrue\b/g, 'True').replace(/\bfalse\b/g, 'False').replace(/\bnull\b/g, 'None')
 
 export function buildProgram(lang: Lang, userCode: string, sig: Signature, tests: TestCase[]): string {
   if (lang === 'js') {
@@ -313,36 +235,6 @@ ${userCode}
   const __fail = (e) => console.log(${JSON.stringify(RESULT_MARK)} + JSON.stringify({ __error: String((e && e.message) || e) }));
 ${calls}
 })();`
-  }
-
-  if (lang === 'py') {
-    const calls = tests
-      .map((t) => {
-        const args = sig.params.map((p, i) => wrapArg('py', p.type, pyJson(t.args[i]))).join(', ')
-        return `    try:
-        __emit(${wrapRet('py', sig.ret, `__fn(${args})`)})
-    except Exception as __e:
-        __fail(__e)`
-      })
-      .join('\n')
-
-    return `${PY_PREAMBLE}
-# ---- your code ----
-${userCode}
-# ---- runner ----
-def __run():
-    __fn = globals().get(${q(sig.fn)})
-    if __fn is None and 'Solution' in globals():
-        __fn = getattr(globals()['Solution'](), ${q(sig.fn)}, None)
-    if __fn is None:
-        import sys; print('Could not find a function named ${sig.fn}(...)', file=sys.stderr); return
-    def __emit(v):
-        print(${q(RESULT_MARK)} + __json.dumps(v, default=str))
-    def __fail(e):
-        print(${q(RESULT_MARK)} + __json.dumps({'__error': str(e)}))
-${calls}
-
-__run()`
   }
 
   // C++

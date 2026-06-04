@@ -22,10 +22,6 @@ export const maximumDepthOfBinaryTree: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: Math.min(n, 2000) }, (_, i) => i)],
   starter: {
-    py: `def maxDepth(root):
-    # root: TreeNode | None  ->  int
-    pass
-`,
     js: `function maxDepth(root) {
   // root: TreeNode | null  ->  number
 }
@@ -46,16 +42,6 @@ export const maximumDepthOfBinaryTree: Problem = {
       blurb:
         'A tree\'s depth is one more than the deeper of its two subtrees, and an empty tree is depth zero. That one-line recurrence, applied at every node, is the entire algorithm.',
       code: {
-        py: {
-          lines: [
-            'def maxDepth(root):',
-            '    if root is None:',
-            '        return 0',
-            '    return 1 + max(maxDepth(root.left),',
-            '                   maxDepth(root.right))',
-          ],
-          map: { init: 1, leaf: 3, up: 4, done: 4 },
-        },
         cpp: {
           lines: [
             'int maxDepth(TreeNode* root) {',

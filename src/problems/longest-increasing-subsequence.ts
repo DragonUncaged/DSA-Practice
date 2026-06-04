@@ -22,10 +22,6 @@ export const longestIncreasingSubsequence: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => (i * 7919) % 1000)],
   starter: {
-    py: `def lengthOfLIS(nums):
-    # nums: list[int]  ->  int
-    pass
-`,
     js: `function lengthOfLIS(nums) {
   // nums: number[]  ->  number
 }
@@ -46,19 +42,6 @@ export const longestIncreasingSubsequence: Problem = {
       blurb:
         'For each index, ask: which earlier elements are smaller than me? The best chain ending here is the best of their chains, plus me. dp[i] answers that once and never again — the classic subproblem table. (An O(n log n) version exists, but this is the one to understand first.)',
       code: {
-        py: {
-          lines: [
-            'def lengthOfLIS(nums):',
-            '    n = len(nums)',
-            '    dp = [1] * n',
-            '    for i in range(n):',
-            '        for j in range(i):',
-            '            if nums[j] < nums[i]:',
-            '                dp[i] = max(dp[i], dp[j] + 1)',
-            '    return max(dp)',
-          ],
-          map: { init: 3, scan: 4, extend: 7, done: 8 },
-        },
         cpp: {
           lines: [
             'int lengthOfLIS(vector<int>& nums) {',

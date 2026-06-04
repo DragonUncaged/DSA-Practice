@@ -10,7 +10,7 @@
  * means writing drawing code unless it needs a genuinely new shape.
  */
 
-export type Lang = 'py' | 'cpp' | 'js'
+export type Lang = 'cpp' | 'js'
 export type Difficulty = 'Easy' | 'Medium' | 'Hard'
 
 /** Per-element emphasis. Renderers map these onto colours consistently. */

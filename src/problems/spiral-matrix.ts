@@ -30,10 +30,6 @@ export const spiralMatrix: Problem = {
     return [Array.from({ length: k }, (_, r) => Array.from({ length: k }, (_, c) => r * k + c))]
   },
   starter: {
-    py: `def spiralOrder(matrix):
-    # matrix: list[list[int]]  ->  list[int]
-    pass
-`,
     js: `function spiralOrder(matrix) {
   // matrix: number[][]  ->  number[]
 }
@@ -54,31 +50,6 @@ export const spiralMatrix: Problem = {
       blurb:
         'Keep four boundaries — top, bottom, left, right. Walk the top row, then the right column, then the bottom row, then the left column, shrinking each wall after its pass. The spiral is just those four moves repeating until the walls cross.',
       code: {
-        py: {
-          lines: [
-            'def spiralOrder(matrix):',
-            '    out = []',
-            '    top, bottom = 0, len(matrix) - 1',
-            '    left, right = 0, len(matrix[0]) - 1',
-            '    while top <= bottom and left <= right:',
-            '        for j in range(left, right + 1):',
-            '            out.append(matrix[top][j])',
-            '        top += 1',
-            '        for i in range(top, bottom + 1):',
-            '            out.append(matrix[i][right])',
-            '        right -= 1',
-            '        if top <= bottom:',
-            '            for j in range(right, left - 1, -1):',
-            '                out.append(matrix[bottom][j])',
-            '            bottom -= 1',
-            '        if left <= right:',
-            '            for i in range(bottom, top - 1, -1):',
-            '                out.append(matrix[i][left])',
-            '            left += 1',
-            '    return out',
-          ],
-          map: { init: 3, right: 7, down: 10, leftw: 14, up: 18, done: 20 },
-        },
         cpp: {
           lines: [
             'vector<int> spiralOrder(vector<vector<int>>& matrix) {',

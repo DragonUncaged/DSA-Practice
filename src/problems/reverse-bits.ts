@@ -20,10 +20,6 @@ export const reverseBits: Problem = {
   ],
   demo: DEMO,
   starter: {
-    py: `def reverseBits(n):
-    # n: int  ->  int
-    pass
-`,
     js: `function reverseBits(n) {
   // n: number  ->  number
 }
@@ -44,17 +40,6 @@ export const reverseBits: Problem = {
       blurb:
         'Thirty-two rounds: take the lowest bit off n and push it onto the bottom of the answer, which shifts everything already there up. The first bit taken ends up on top — exactly a reversal, like flipping a stack of plates.',
       code: {
-        py: {
-          lines: [
-            'def reverseBits(n):',
-            '    out = 0',
-            '    for _ in range(32):',
-            '        out = (out << 1) | (n & 1)',
-            '        n >>= 1',
-            '    return out',
-          ],
-          map: { init: 2, bit: 4, done: 6 },
-        },
         cpp: {
           lines: [
             'int reverseBits(int n) {',

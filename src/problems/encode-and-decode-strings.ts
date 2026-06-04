@@ -23,11 +23,6 @@ export const encodeAndDecodeStrings: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => 'str' + i)],
   starter: {
-    py: `def encodeDecode(strs):
-    # implement encode(strs) -> str and decode(s) -> list[str],
-    # then return decode(encode(strs))
-    pass
-`,
     js: `function encodeDecode(strs) {
   // implement encode(strs) -> string and decode(s) -> string[],
   // then return decode(encode(strs))
@@ -49,23 +44,6 @@ export const encodeAndDecodeStrings: Problem = {
       blurb:
         'Escaping delimiters is fragile — instead, announce each string\'s length up front: "5#hello". The decoder reads the number, skips the #, then consumes exactly that many characters without ever inspecting them, so no character in the payload can confuse it.',
       code: {
-        py: {
-          lines: [
-            'def encodeDecode(strs):',
-            '    def encode(xs):',
-            "        return ''.join(f'{len(x)}#{x}' for x in xs)",
-            '    def decode(s):',
-            '        out, i = [], 0',
-            '        while i < len(s):',
-            "            j = s.index('#', i)",
-            '            length = int(s[i:j])',
-            '            out.append(s[j + 1:j + 1 + length])',
-            '            i = j + 1 + length',
-            '        return out',
-            '    return decode(encode(strs))',
-          ],
-          map: { pack: 3, read: 8, slice: 9, done: 12 },
-        },
         cpp: {
           lines: [
             'vector<string> encodeDecode(vector<string>& strs) {',

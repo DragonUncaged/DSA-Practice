@@ -22,10 +22,6 @@ export const longestPalindromicSubstring: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => 'abcd'[i % 4]).join('')],
   starter: {
-    py: `def longestPalindrome(s):
-    # s: str  ->  str
-    pass
-`,
     js: `function longestPalindrome(s) {
   // s: string  ->  string
 }
@@ -46,23 +42,6 @@ export const longestPalindromicSubstring: Problem = {
       blurb:
         'Every palindrome has a center — a character (odd length) or a gap between two (even length). There are only 2n-1 centers, so stand at each one and expand outward while the mirror characters agree. No table, no suffix machinery.',
       code: {
-        py: {
-          lines: [
-            'def longestPalindrome(s):',
-            '    best = (0, 0)',
-            '    def expand(l, r):',
-            '        while l >= 0 and r < len(s) and s[l] == s[r]:',
-            '            l -= 1',
-            '            r += 1',
-            '        return (l + 1, r)',
-            '    for i in range(len(s)):',
-            '        for span in (expand(i, i), expand(i, i + 1)):',
-            '            if span[1] - span[0] > best[1] - best[0]:',
-            '                best = span',
-            '    return s[best[0]:best[1]]',
-          ],
-          map: { init: 2, center: 8, grow: 6, best: 11, done: 12 },
-        },
         cpp: {
           lines: [
             'string longestPalindrome(string s) {',

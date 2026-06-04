@@ -22,10 +22,6 @@ export const houseRobber: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => ((i * 31) % 97) + 1)],
   starter: {
-    py: `def rob(nums):
-    # nums: list[int]  ->  int
-    pass
-`,
     js: `function rob(nums) {
   // nums: number[]  ->  number
 }
@@ -46,16 +42,6 @@ export const houseRobber: Problem = {
       blurb:
         'At every house there are only two futures: rob it (adding its cash to the best haul from two houses back) or skip it (keeping the best haul from one house back). Carry those two numbers down the street and the last one is the answer.',
       code: {
-        py: {
-          lines: [
-            'def rob(nums):',
-            '    take, skip = 0, 0',
-            '    for x in nums:',
-            '        take, skip = skip + x, max(skip, take)',
-            '    return max(take, skip)',
-          ],
-          map: { init: 2, decide: 4, done: 5 },
-        },
         cpp: {
           lines: [
             'int rob(vector<int>& nums) {',

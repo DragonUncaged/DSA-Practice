@@ -67,10 +67,6 @@ export const numberOfIslands: Problem = {
     ]
   },
   starter: {
-    py: `def numIslands(grid):
-    # grid: list[list[str]]  ->  int
-    pass
-`,
     js: `function numIslands(grid) {
   // grid: string[][]  ->  number
 }
@@ -91,30 +87,6 @@ export const numberOfIslands: Problem = {
       blurb:
         'Scan for any land you have not seen. The instant you find some, flood outward and sink the whole connected landmass to water. Because a sunk island can never be found again, the number of times the scan trips over land is exactly the number of islands.',
       code: {
-        py: {
-          lines: [
-            'def numIslands(grid):',
-            '    rows, cols = len(grid), len(grid[0])',
-            '    count = 0',
-            '',
-            '    def sink(r, c):',
-            '        if r < 0 or r >= rows or c < 0 or c >= cols:',
-            '            return',
-            "        if grid[r][c] != '1':",
-            '            return',
-            "        grid[r][c] = '0'",
-            '        sink(r + 1, c); sink(r - 1, c)',
-            '        sink(r, c + 1); sink(r, c - 1)',
-            '',
-            '    for r in range(rows):',
-            '        for c in range(cols):',
-            "            if grid[r][c] == '1':",
-            '                count += 1',
-            '                sink(r, c)',
-            '    return count',
-          ],
-          map: { scan: 16, found: 17, sink: 10, spread: 11, edge: 9, done: 19 },
-        },
         cpp: {
           lines: [
             'int numIslands(vector<vector<char>>& grid) {',

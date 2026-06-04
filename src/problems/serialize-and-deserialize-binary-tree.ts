@@ -22,11 +22,6 @@ export const serializeAndDeserializeBinaryTree: Problem = {
   ],
   demo: DEMO,
   starter: {
-    py: `def serdes(root):
-    # implement serialize(root) -> str and deserialize(s) -> TreeNode | None,
-    # then return deserialize(serialize(root))
-    pass
-`,
     js: `function serdes(root) {
   // implement serialize(root) -> string and deserialize(s) -> TreeNode | null,
   // then return deserialize(serialize(root))
@@ -48,28 +43,6 @@ export const serializeAndDeserializeBinaryTree: Problem = {
       blurb:
         'Preorder alone is ambiguous — you cannot tell where a subtree ends. Write the nulls too ("#") and the ambiguity vanishes: the decoder consumes tokens in the exact order the encoder emitted them, rebuilding the shape without any bookkeeping beyond the token stream itself.',
       code: {
-        py: {
-          lines: [
-            'def serdes(root):',
-            '    def serialize(node):',
-            '        if node is None:',
-            "            return '#'",
-            "        return f'{node.val},{serialize(node.left)},{serialize(node.right)}'",
-            '    def deserialize(s):',
-            "        tokens = iter(s.split(','))",
-            '        def build():',
-            '            tok = next(tokens)',
-            "            if tok == '#':",
-            '                return None',
-            '            node = TreeNode(int(tok))',
-            '            node.left = build()',
-            '            node.right = build()',
-            '            return node',
-            '        return build()',
-            '    return deserialize(serialize(root))',
-          ],
-          map: { emit: 5, null: 4, read: 12, done: 17 },
-        },
         cpp: {
           lines: [
             'TreeNode* serdes(TreeNode* root) {',

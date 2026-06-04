@@ -21,7 +21,7 @@ Three tabs per problem:
 |---|---|
 | **Trace** | Stepped animation with code sync, live variable state, scrub bar, speed control. `space` plays, `←`/`→` step. |
 | **Brute vs Optimal** | Both solutions animate on the same input at the same time. The optimal one finishes while the brute force is still grinding. |
-| **Practice** | Monaco editor, your solution run against the real test table in Python, C++ or JavaScript. Passing every case marks the problem solved. |
+| **Practice** | Monaco editor, your solution run against the real test table in C++ or JavaScript. Passing every case marks the problem solved. |
 
 All 75 problems are traced. `/selftest` runs every trace and every reference
 solution against its own test table and reports anything broken.
@@ -47,7 +47,6 @@ test-case panel. Double-click either handle to reset. Both persist.
 | Language | Where |
 |---|---|
 | JavaScript | Sandboxed Web Worker in the tab, with an 8s kill switch for infinite loops |
-| Python | CPython compiled to WebAssembly (Pyodide), ~10 MB on first run, then cached |
 | C++ | Compiled and executed by [Compiler Explorer](https://godbolt.org)'s public API |
 
 The C++ path is the only runtime network dependency, and only when you press Run
@@ -69,13 +68,13 @@ not writing drawing code.
 src/
   lib/
     types.ts        the trace model - Frame, View, Tracer, and the view builders
-    harness.ts      turns a signature + test table into runnable JS/Python/C++
+    harness.ts      turns a signature + test table into runnable JS/C++
     complexity.ts   growth measurement, used by /selftest only
     store.ts        Zustand store persisted to localStorage
     useTrace.ts     playback (index, play/pause, speed, keyboard)
   viz/              one renderer per View.kind, plus the shared tone palette
   problems/         one file per problem; index.ts holds the full Blind 75 sheet
-  runners/          runJS (worker), runPython (Pyodide), runCpp (godbolt)
+  runners/          runJS (worker), runCpp (godbolt)
   components/       Player, ProblemSwitcher, CompareView, Practice, Sheet, Home
   styles/           _vars.scss and _mix.scss; everything else is *.module.scss
 ```
@@ -102,7 +101,7 @@ A problem needs:
 
 Each solution carries `code` per language as `{ lines, map }`, where `map` sends
 a semantic step key to a 1-based line number. One trace then lights up the
-correct line in Python, C++ and JavaScript without being rewritten three times.
+correct line in C++ and JavaScript without being rewritten twice.
 
 ```ts
 trace(t, [nums, target]) {

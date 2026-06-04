@@ -23,10 +23,6 @@ export const threeSum: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => ((i * 37) % 41) - 20)],
   starter: {
-    py: `def threeSum(nums):
-    # nums: list[int]  ->  list[list[int]]
-    pass
-`,
     js: `function threeSum(nums) {
   // nums: number[]  ->  number[][]
 }
@@ -47,30 +43,6 @@ export const threeSum: Problem = {
       blurb:
         'Sort first. Then fix the smallest member of the triplet and the problem collapses into Two Sum on a sorted array — a left and right pointer pinching inward. Sorting also makes duplicates adjacent, so skipping them is one comparison.',
       code: {
-        py: {
-          lines: [
-            'def threeSum(nums):',
-            '    nums.sort()',
-            '    out = []',
-            '    for i in range(len(nums) - 2):',
-            '        if i > 0 and nums[i] == nums[i - 1]:',
-            '            continue',
-            '        l, r = i + 1, len(nums) - 1',
-            '        while l < r:',
-            '            s = nums[i] + nums[l] + nums[r]',
-            '            if s == 0:',
-            '                out.append([nums[i], nums[l], nums[r]])',
-            '                l += 1',
-            '                while l < r and nums[l] == nums[l - 1]:',
-            '                    l += 1',
-            '            elif s < 0:',
-            '                l += 1',
-            '            else:',
-            '                r -= 1',
-            '    return out',
-          ],
-          map: { init: 2, fix: 7, skip: 6, check: 9, found: 11, lt: 16, gt: 18, done: 19 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> threeSum(vector<int>& nums) {',

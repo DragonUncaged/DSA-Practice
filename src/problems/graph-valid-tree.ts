@@ -29,10 +29,6 @@ export const graphValidTree: Problem = {
   demo: DEMO,
   scale: (n) => [n, Array.from({ length: n - 1 }, (_, i) => [i, i + 1])],
   starter: {
-    py: `def validTree(n, edges):
-    # n: int, edges: list[list[int]]  ->  bool
-    pass
-`,
     js: `function validTree(n, edges) {
   // n: number, edges: number[][]  ->  boolean
 }
@@ -53,26 +49,6 @@ export const graphValidTree: Problem = {
       blurb:
         'A tree on n nodes has exactly n-1 edges — one more creates a cycle, one fewer leaves it disconnected. So check the count, then union each edge: if an edge joins two nodes already in the same group, that edge closes a cycle.',
       code: {
-        py: {
-          lines: [
-            'def validTree(n, edges):',
-            '    if len(edges) != n - 1:',
-            '        return False',
-            '    parent = list(range(n))',
-            '    def find(x):',
-            '        while parent[x] != x:',
-            '            parent[x] = parent[parent[x]]',
-            '            x = parent[x]',
-            '        return x',
-            '    for a, b in edges:',
-            '        ra, rb = find(a), find(b)',
-            '        if ra == rb:',
-            '            return False',
-            '        parent[ra] = rb',
-            '    return True',
-          ],
-          map: { count: 3, init: 4, union: 14, cycle: 13, done: 15 },
-        },
         cpp: {
           lines: [
             'bool validTree(int n, vector<vector<int>>& edges) {',

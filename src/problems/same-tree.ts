@@ -32,10 +32,6 @@ export const sameTree: Problem = {
     return [a, a]
   },
   starter: {
-    py: `def isSameTree(p, q):
-    # p, q: TreeNode | None  ->  bool
-    pass
-`,
     js: `function isSameTree(p, q) {
   // p, q: TreeNode | null  ->  boolean
 }
@@ -56,18 +52,6 @@ export const sameTree: Problem = {
       blurb:
         'March through both trees simultaneously. At each pair of positions there are three cases: both empty (fine), one empty or values differ (fail immediately), or recurse into both children pairs. The first mismatch short-circuits everything above it.',
       code: {
-        py: {
-          lines: [
-            'def isSameTree(p, q):',
-            '    if p is None and q is None:',
-            '        return True',
-            '    if p is None or q is None or p.val != q.val:',
-            '        return False',
-            '    return (isSameTree(p.left, q.left) and',
-            '            isSameTree(p.right, q.right))',
-          ],
-          map: { init: 1, both: 3, diff: 5, match: 6, done: 7 },
-        },
         cpp: {
           lines: [
             'bool isSameTree(TreeNode* p, TreeNode* q) {',

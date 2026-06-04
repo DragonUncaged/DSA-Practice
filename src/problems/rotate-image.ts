@@ -33,10 +33,6 @@ export const rotateImage: Problem = {
     return [Array.from({ length: k }, (_, r) => Array.from({ length: k }, (_, c) => r * k + c))]
   },
   starter: {
-    py: `def rotate(matrix):
-    # matrix: list[list[int]]  ->  list[list[int]]  (rotate in place, return it)
-    pass
-`,
     js: `function rotate(matrix) {
   // matrix: number[][]  ->  number[][]  (rotate in place, return it)
 }
@@ -57,19 +53,6 @@ export const rotateImage: Problem = {
       blurb:
         'A 90-degree clockwise turn is two mirrors: flip across the main diagonal (transpose), then flip each row left-to-right. Both mirrors are trivial in-place swaps, and chaining them gives the rotation with no scratch matrix.',
       code: {
-        py: {
-          lines: [
-            'def rotate(matrix):',
-            '    n = len(matrix)',
-            '    for i in range(n):',
-            '        for j in range(i + 1, n):',
-            '            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]',
-            '    for row in matrix:',
-            '        row.reverse()',
-            '    return matrix',
-          ],
-          map: { init: 2, swap: 5, mirror: 7, done: 8 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> rotate(vector<vector<int>>& matrix) {',

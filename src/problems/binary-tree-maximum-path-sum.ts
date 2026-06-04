@@ -23,10 +23,6 @@ export const binaryTreeMaximumPathSum: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: Math.min(n, 2000) }, (_, i) => ((i * 13) % 21) - 10)],
   starter: {
-    py: `def maxPathSum(root):
-    # root: TreeNode | None  ->  int
-    pass
-`,
     js: `function maxPathSum(root) {
   // root: TreeNode | null  ->  number
 }
@@ -47,23 +43,6 @@ export const binaryTreeMaximumPathSum: Problem = {
       blurb:
         'Every path has a highest node, where it arches over. At each node, ask two different questions: for the global answer, what is the best arch through me (left arm + me + right arm)? For my parent, what is the best single arm I can offer (me + one child, never both)? Negative arms are simply declined.',
       code: {
-        py: {
-          lines: [
-            'def maxPathSum(root):',
-            "    best = float('-inf')",
-            '    def gain(node):',
-            '        nonlocal best',
-            '        if node is None:',
-            '            return 0',
-            '        left = max(gain(node.left), 0)',
-            '        right = max(gain(node.right), 0)',
-            '        best = max(best, node.val + left + right)',
-            '        return node.val + max(left, right)',
-            '    gain(root)',
-            '    return best',
-          ],
-          map: { init: 2, arms: 8, arch: 9, arm: 10, done: 12 },
-        },
         cpp: {
           lines: [
             'int maxPathSum(TreeNode* root) {',

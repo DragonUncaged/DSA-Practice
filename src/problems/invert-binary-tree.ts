@@ -23,10 +23,6 @@ export const invertBinaryTree: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: Math.min(n, 2000) }, (_, i) => i + 1)],
   starter: {
-    py: `def invertTree(root):
-    # root: TreeNode | None  ->  TreeNode | None
-    pass
-`,
     js: `function invertTree(root) {
   // root: TreeNode | null  ->  TreeNode | null
 }
@@ -47,18 +43,6 @@ export const invertBinaryTree: Problem = {
       blurb:
         'Inverting a tree is inverting its two subtrees and then swapping them. Swap the children at the node you are standing on, recurse into both, and the whole tree mirrors itself.',
       code: {
-        py: {
-          lines: [
-            'def invertTree(root):',
-            '    if root is None:',
-            '        return None',
-            '    root.left, root.right = root.right, root.left',
-            '    invertTree(root.left)',
-            '    invertTree(root.right)',
-            '    return root',
-          ],
-          map: { visit: 1, base: 3, swap: 4, left: 5, right: 6, done: 7 },
-        },
         cpp: {
           lines: [
             'TreeNode* invertTree(TreeNode* root) {',

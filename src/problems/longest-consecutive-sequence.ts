@@ -22,10 +22,6 @@ export const longestConsecutiveSequence: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => (i * 2) % n)],
   starter: {
-    py: `def longestConsecutive(nums):
-    # nums: list[int]  ->  int
-    pass
-`,
     js: `function longestConsecutive(nums) {
   // nums: number[]  ->  number
 }
@@ -46,22 +42,6 @@ export const longestConsecutiveSequence: Problem = {
       blurb:
         'Dump everything into a set. A number begins a run only if number-1 is absent — so only run starts pay for a walk, and each element is stepped over exactly once across all walks. That single observation is what beats sorting.',
       code: {
-        py: {
-          lines: [
-            'def longestConsecutive(nums):',
-            '    s = set(nums)',
-            '    best = 0',
-            '    for x in s:',
-            '        if x - 1 in s:',
-            '            continue',
-            '        end = x',
-            '        while end + 1 in s:',
-            '            end += 1',
-            '        best = max(best, end - x + 1)',
-            '    return best',
-          ],
-          map: { init: 2, skip: 6, start: 7, walk: 9, best: 10, done: 11 },
-        },
         cpp: {
           lines: [
             'int longestConsecutive(vector<int>& nums) {',

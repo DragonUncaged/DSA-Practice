@@ -23,10 +23,6 @@ export const jumpGame: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, () => 1)],
   starter: {
-    py: `def canJump(nums):
-    # nums: list[int]  ->  bool
-    pass
-`,
     js: `function canJump(nums) {
   // nums: number[]  ->  boolean
 }
@@ -47,18 +43,6 @@ export const jumpGame: Problem = {
       blurb:
         'You never need the actual route — only the furthest index reachable so far. Walk left to right: if you stand beyond that frontier the answer is no; otherwise extend it with your own jump and keep going.',
       code: {
-        py: {
-          lines: [
-            'def canJump(nums):',
-            '    reach = 0',
-            '    for i, x in enumerate(nums):',
-            '        if i > reach:',
-            '            return False',
-            '        reach = max(reach, i + x)',
-            '    return True',
-          ],
-          map: { init: 2, stuck: 5, reach: 6, done: 7 },
-        },
         cpp: {
           lines: [
             'bool canJump(vector<int>& nums) {',

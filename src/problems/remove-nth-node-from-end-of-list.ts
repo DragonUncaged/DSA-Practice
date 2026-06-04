@@ -28,10 +28,6 @@ export const removeNthFromEnd: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => i), Math.max(1, Math.floor(n / 2))],
   starter: {
-    py: `def removeNthFromEnd(head, n):
-    # head: ListNode | None, n: int  ->  ListNode | None
-    pass
-`,
     js: `function removeNthFromEnd(head, n) {
   // head: ListNode | null, n: number  ->  ListNode | null
 }
@@ -52,21 +48,6 @@ export const removeNthFromEnd: Problem = {
       blurb:
         'You cannot see the end coming in a singly linked list — but you can send a scout n nodes ahead. When the scout falls off the end, the trailing pointer is standing exactly one node before the victim. One pass, no counting pass first.',
       code: {
-        py: {
-          lines: [
-            'def removeNthFromEnd(head, n):',
-            '    dummy = ListNode(0, head)',
-            '    lead = trail = dummy',
-            '    for _ in range(n + 1):',
-            '        lead = lead.next',
-            '    while lead:',
-            '        lead = lead.next',
-            '        trail = trail.next',
-            '    trail.next = trail.next.next',
-            '    return dummy.next',
-          ],
-          map: { init: 3, lead: 5, walk: 8, cut: 9, done: 10 },
-        },
         cpp: {
           lines: [
             'ListNode* removeNthFromEnd(ListNode* head, int n) {',

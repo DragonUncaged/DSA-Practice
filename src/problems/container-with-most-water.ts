@@ -23,10 +23,6 @@ export const containerWithMostWater: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => ((i * 37) % 100) + 1)],
   starter: {
-    py: `def maxArea(height):
-    # height: list[int]  ->  int
-    pass
-`,
     js: `function maxArea(height) {
   // height: number[]  ->  number
 }
@@ -48,22 +44,6 @@ export const containerWithMostWater: Problem = {
       blurb:
         'Start as wide as possible, then give up width only when you must. The shorter wall is what caps the water, so moving the taller one can never help — which means the shorter one is always safe to discard.',
       code: {
-        py: {
-          lines: [
-            'def maxArea(height):',
-            '    l, r = 0, len(height) - 1',
-            '    best = 0',
-            '    while l < r:',
-            '        area = min(height[l], height[r]) * (r - l)',
-            '        best = max(best, area)',
-            '        if height[l] < height[r]:',
-            '            l += 1',
-            '        else:',
-            '            r -= 1',
-            '    return best',
-          ],
-          map: { init: 2, measure: 5, best: 6, moveL: 8, moveR: 10, done: 11 },
-        },
         cpp: {
           lines: [
             'int maxArea(vector<int>& height) {',
@@ -237,19 +217,6 @@ export const containerWithMostWater: Problem = {
       space: 'O(1)',
       blurb: 'Measure every possible container and keep the largest. No insight required, and no hope at scale.',
       code: {
-        py: {
-          lines: [
-            'def maxArea(height):',
-            '    best = 0',
-            '    n = len(height)',
-            '    for i in range(n):',
-            '        for j in range(i + 1, n):',
-            '            area = min(height[i], height[j]) * (j - i)',
-            '            best = max(best, area)',
-            '    return best',
-          ],
-          map: { init: 2, outer: 4, measure: 6, best: 7, done: 8 },
-        },
         cpp: {
           lines: [
             'int maxArea(vector<int>& height) {',

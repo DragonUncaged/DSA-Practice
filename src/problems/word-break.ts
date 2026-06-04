@@ -30,10 +30,6 @@ export const wordBreak: Problem = {
   demo: DEMO,
   scale: (n) => ['ab'.repeat(Math.ceil(n / 2)).slice(0, n), ['a', 'b', 'ab']],
   starter: {
-    py: `def wordBreak(s, wordDict):
-    # s: str, wordDict: list[str]  ->  bool
-    pass
-`,
     js: `function wordBreak(s, wordDict) {
   // s: string, wordDict: string[]  ->  boolean
 }
@@ -54,21 +50,6 @@ export const wordBreak: Problem = {
       blurb:
         'dp[i] asks one question: can the first i characters be split cleanly? They can if some earlier breakable point j is followed by a dictionary word covering j..i. Fill left to right and the final cell answers the whole string.',
       code: {
-        py: {
-          lines: [
-            'def wordBreak(s, wordDict):',
-            '    words = set(wordDict)',
-            '    n = len(s)',
-            '    dp = [True] + [False] * n',
-            '    for i in range(1, n + 1):',
-            '        for j in range(i):',
-            '            if dp[j] and s[j:i] in words:',
-            '                dp[i] = True',
-            '                break',
-            '    return dp[n]',
-          ],
-          map: { init: 4, cut: 6, ok: 8, miss: 7, done: 10 },
-        },
         cpp: {
           lines: [
             'bool wordBreak(string s, vector<string>& wordDict) {',

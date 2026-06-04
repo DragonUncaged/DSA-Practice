@@ -23,10 +23,6 @@ export const containsDuplicate: Problem = {
   // all distinct: the worst case, where the scan cannot stop early
   scale: (n) => [Array.from({ length: n }, (_, i) => i)],
   starter: {
-    py: `def containsDuplicate(nums):
-    # nums: list[int]  ->  bool
-    pass
-`,
     js: `function containsDuplicate(nums) {
   // nums: number[]  ->  boolean
 }
@@ -47,18 +43,6 @@ export const containsDuplicate: Problem = {
       blurb:
         'A duplicate is just a number you have met before. Keep a set of everything walked past, and each new element asks one O(1) question: am I already in it?',
       code: {
-        py: {
-          lines: [
-            'def containsDuplicate(nums):',
-            '    seen = set()',
-            '    for x in nums:',
-            '        if x in seen:',
-            '            return True',
-            '        seen.add(x)',
-            '    return False',
-          ],
-          map: { init: 2, read: 3, hit: 5, add: 6, done: 7 },
-        },
         cpp: {
           lines: [
             'bool containsDuplicate(vector<int>& nums) {',
@@ -175,18 +159,6 @@ export const containsDuplicate: Problem = {
       space: 'O(1)',
       blurb: 'Check each element against everything after it. No memory used, and most of the comparisons are wasted.',
       code: {
-        py: {
-          lines: [
-            'def containsDuplicate(nums):',
-            '    n = len(nums)',
-            '    for i in range(n):',
-            '        for j in range(i + 1, n):',
-            '            if nums[i] == nums[j]:',
-            '                return True',
-            '    return False',
-          ],
-          map: { init: 2, outer: 3, check: 5, hit: 6, done: 7 },
-        },
         cpp: {
           lines: [
             'bool containsDuplicate(vector<int>& nums) {',

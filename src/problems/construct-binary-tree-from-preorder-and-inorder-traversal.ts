@@ -29,10 +29,6 @@ export const constructBinaryTree: Problem = {
   ],
   demo: DEMO,
   starter: {
-    py: `def buildTree(preorder, inorder):
-    # preorder, inorder: list[int]  ->  TreeNode | None
-    pass
-`,
     js: `function buildTree(preorder, inorder) {
   // preorder, inorder: number[]  ->  TreeNode | null
 }
@@ -53,24 +49,6 @@ export const constructBinaryTree: Problem = {
       blurb:
         'Preorder\'s first element is always the root. Find it in the inorder list: everything left of it is the left subtree, everything right is the right subtree. Recurse on both halves — with a value-to-index map so each lookup is O(1).',
       code: {
-        py: {
-          lines: [
-            'def buildTree(preorder, inorder):',
-            '    pos = {v: i for i, v in enumerate(inorder)}',
-            '    it = iter(preorder)',
-            '    def build(lo, hi):',
-            '        if lo > hi:',
-            '            return None',
-            '        val = next(it)',
-            '        node = TreeNode(val)',
-            '        mid = pos[val]',
-            '        node.left = build(lo, mid - 1)',
-            '        node.right = build(mid + 1, hi)',
-            '        return node',
-            '    return build(0, len(inorder) - 1)',
-          ],
-          map: { init: 2, root: 9, split: 10, done: 13 },
-        },
         cpp: {
           lines: [
             'TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {',

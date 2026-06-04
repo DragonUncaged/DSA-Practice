@@ -16,7 +16,7 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   loading: () => <div className={s.editorLoading}>loading editor...</div>,
 })
 
-const MONACO_LANG: Record<Lang, string> = { py: 'python', cpp: 'cpp', js: 'javascript' }
+const MONACO_LANG: Record<Lang, string> = { cpp: 'cpp', js: 'javascript' }
 
 /** Monaco only ships a formatter with its TypeScript/JavaScript worker. */
 const CAN_FORMAT = new Set<Lang>(['js'])
@@ -352,7 +352,7 @@ export function Practice({
               minimap: { enabled: false },
               scrollBeyondLastLine: false,
               padding: { top: 14, bottom: 14 },
-              tabSize: prefs.editorTabSize ?? (lang === 'py' ? 4 : 2),
+              tabSize: prefs.editorTabSize ?? 2,
               wordWrap: prefs.editorWordWrap ? 'on' : 'off',
               renderLineHighlight: 'all',
               smoothScrolling: true,

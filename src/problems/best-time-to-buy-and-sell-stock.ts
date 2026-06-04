@@ -24,10 +24,6 @@ export const bestTimeToBuyAndSellStock: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => ((i * 53) % 97) + 1)],
   starter: {
-    py: `def maxProfit(prices):
-    # prices: list[int]  ->  int
-    pass
-`,
     js: `function maxProfit(prices) {
   // prices: number[]  ->  number
 }
@@ -48,21 +44,6 @@ export const bestTimeToBuyAndSellStock: Problem = {
       blurb:
         'You never need to look backwards. The best sale on any given day is that day’s price minus the cheapest price seen so far, and the cheapest so far is one number you can carry with you.',
       code: {
-        py: {
-          lines: [
-            'def maxProfit(prices):',
-            '    best = 0',
-            '    low = prices[0]',
-            '    for i in range(1, len(prices)):',
-            '        p = prices[i]',
-            '        if p < low:',
-            '            low = p',
-            '        else:',
-            '            best = max(best, p - low)',
-            '    return best',
-          ],
-          map: { init: 3, read: 5, newlow: 7, profit: 9, done: 10 },
-        },
         cpp: {
           lines: [
             'int maxProfit(vector<int>& prices) {',
@@ -209,17 +190,6 @@ export const bestTimeToBuyAndSellStock: Problem = {
       space: 'O(1)',
       blurb: 'Try every buy day against every later sell day. Correct, and it re-walks the same days over and over.',
       code: {
-        py: {
-          lines: [
-            'def maxProfit(prices):',
-            '    best = 0',
-            '    for i in range(len(prices)):',
-            '        for j in range(i + 1, len(prices)):',
-            '            best = max(best, prices[j] - prices[i])',
-            '    return best',
-          ],
-          map: { init: 2, outer: 3, check: 5, best: 5, done: 6 },
-        },
         cpp: {
           lines: [
             'int maxProfit(vector<int>& prices) {',

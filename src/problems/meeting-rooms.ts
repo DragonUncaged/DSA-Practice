@@ -24,10 +24,6 @@ export const meetingRooms: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => [i * 3, i * 3 + 2])],
   starter: {
-    py: `def canAttendMeetings(intervals):
-    # intervals: list[list[int]]  ->  bool
-    pass
-`,
     js: `function canAttendMeetings(intervals) {
   // intervals: number[][]  ->  boolean
 }
@@ -48,17 +44,6 @@ export const meetingRooms: Problem = {
       blurb:
         'After sorting by start time, any conflict must be between neighbours — if meeting 3 collides with meeting 1, it collides with meeting 2 as well. So one linear scan of adjacent pairs settles it.',
       code: {
-        py: {
-          lines: [
-            'def canAttendMeetings(intervals):',
-            '    intervals.sort()',
-            '    for i in range(1, len(intervals)):',
-            '        if intervals[i][0] < intervals[i - 1][1]:',
-            '            return False',
-            '    return True',
-          ],
-          map: { init: 2, check: 4, clash: 5, done: 6 },
-        },
         cpp: {
           lines: [
             'bool canAttendMeetings(vector<vector<int>>& intervals) {',

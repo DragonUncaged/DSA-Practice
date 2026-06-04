@@ -42,10 +42,6 @@ export const wordSearchII: Problem = {
   ],
   demo: DEMO,
   starter: {
-    py: `def findWords(board, words):
-    # board: list[list[str]], words: list[str]  ->  list[str]
-    pass
-`,
     js: `function findWords(board, words) {
   // board: string[][], words: string[]  ->  string[]
 }
@@ -66,37 +62,6 @@ export const wordSearchII: Problem = {
       blurb:
         'Searching each word separately re-walks the same grid paths over and over. Load every word into a trie instead, then DFS the grid once: a step is only taken if the trie has a matching child, so one walk advances all words that share the prefix — and dies instantly on prefixes no word has.',
       code: {
-        py: {
-          lines: [
-            'def findWords(board, words):',
-            '    root = {}',
-            '    for w in words:',
-            '        node = root',
-            '        for ch in w:',
-            '            node = node.setdefault(ch, {})',
-            "        node['$'] = w",
-            '    m, n = len(board), len(board[0])',
-            '    out = []',
-            '    def dfs(i, j, node):',
-            '        if i < 0 or i >= m or j < 0 or j >= n:',
-            '            return',
-            '        ch = board[i][j]',
-            '        if ch not in node:',
-            '            return',
-            '        nxt = node[ch]',
-            "        if '$' in nxt:",
-            "            out.append(nxt.pop('$'))",
-            "        board[i][j] = '#'",
-            '        dfs(i+1, j, nxt); dfs(i-1, j, nxt)',
-            '        dfs(i, j+1, nxt); dfs(i, j-1, nxt)',
-            '        board[i][j] = ch',
-            '    for i in range(m):',
-            '        for j in range(n):',
-            '            dfs(i, j, root)',
-            '    return out',
-          ],
-          map: { build: 7, walk: 16, found: 18, dead: 15, done: 26 },
-        },
         cpp: {
           lines: [
             'vector<string> findWords(vector<vector<char>>& board, vector<string>& words) {',

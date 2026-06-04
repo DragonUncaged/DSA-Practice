@@ -24,10 +24,6 @@ export const validPalindrome: Problem = {
   demo: DEMO,
   scale: (n) => ['ab'.repeat(Math.floor(n / 4)) + 'x' + 'ba'.repeat(Math.floor(n / 4))],
   starter: {
-    py: `def isPalindrome(s):
-    # s: str  ->  bool
-    pass
-`,
     js: `function isPalindrome(s) {
   // s: string  ->  boolean
 }
@@ -48,24 +44,6 @@ export const validPalindrome: Problem = {
       blurb:
         'No cleaned copy needed: two pointers pinch inward, each skipping punctuation and spaces as it goes, comparing lowercase letters when both stand on real characters. First mismatch ends it.',
       code: {
-        py: {
-          lines: [
-            'def isPalindrome(s):',
-            '    l, r = 0, len(s) - 1',
-            '    while l < r:',
-            '        if not s[l].isalnum():',
-            '            l += 1',
-            '        elif not s[r].isalnum():',
-            '            r -= 1',
-            '        elif s[l].lower() != s[r].lower():',
-            '            return False',
-            '        else:',
-            '            l += 1',
-            '            r -= 1',
-            '    return True',
-          ],
-          map: { init: 2, skip: 5, cmp: 11, bad: 9, done: 13 },
-        },
         cpp: {
           lines: [
             'bool isPalindrome(string s) {',

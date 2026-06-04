@@ -29,10 +29,6 @@ export const kthSmallestElementInABst: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: Math.min(n, 2000) }, (_, i) => i), Math.max(1, Math.floor(n / 2))],
   starter: {
-    py: `def kthSmallest(root, k):
-    # root: TreeNode | None, k: int  ->  int
-    pass
-`,
     js: `function kthSmallest(root, k) {
   // root: TreeNode | null, k: number  ->  number
 }
@@ -53,23 +49,6 @@ export const kthSmallestElementInABst: Problem = {
       blurb:
         'An in-order traversal of a BST — left subtree, node, right subtree — visits values in exactly sorted order. So walk in-order, count each node as you pass it, and the k-th one you touch is the answer. No sorting, no extra array, stop the moment you hit k.',
       code: {
-        py: {
-          lines: [
-            'def kthSmallest(root, k):',
-            '    stack = []',
-            '    node = root',
-            '    while stack or node:',
-            '        while node:',
-            '            stack.append(node)',
-            '            node = node.left',
-            '        node = stack.pop()',
-            '        k -= 1',
-            '        if k == 0:',
-            '            return node.val',
-            '        node = node.right',
-          ],
-          map: { init: 2, dive: 7, visit: 9, found: 11, done: 12 },
-        },
         cpp: {
           lines: [
             'int kthSmallest(TreeNode* root, int k) {',

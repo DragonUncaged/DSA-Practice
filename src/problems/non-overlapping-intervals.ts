@@ -24,10 +24,6 @@ export const nonOverlappingIntervals: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => [i, i + 2])],
   starter: {
-    py: `def eraseOverlapIntervals(intervals):
-    # intervals: list[list[int]]  ->  int
-    pass
-`,
     js: `function eraseOverlapIntervals(intervals) {
   // intervals: number[][]  ->  number
 }
@@ -48,21 +44,6 @@ export const nonOverlappingIntervals: Problem = {
       blurb:
         'Removing the fewest is keeping the most, and the interval that ends earliest leaves the most room for everything after it. So sort by end time and sweep: keep an interval when it starts after the last kept one ended, drop it otherwise. Classic exchange-argument greedy.',
       code: {
-        py: {
-          lines: [
-            'def eraseOverlapIntervals(intervals):',
-            '    intervals.sort(key=lambda iv: iv[1])',
-            '    removed = 0',
-            "    last_end = float('-inf')",
-            '    for s, e in intervals:',
-            '        if s >= last_end:',
-            '            last_end = e',
-            '        else:',
-            '            removed += 1',
-            '    return removed',
-          ],
-          map: { init: 2, keep: 7, drop: 9, done: 10 },
-        },
         cpp: {
           lines: [
             'int eraseOverlapIntervals(vector<vector<int>>& intervals) {',

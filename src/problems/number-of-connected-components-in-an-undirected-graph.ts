@@ -28,10 +28,6 @@ export const connectedComponents: Problem = {
   demo: DEMO,
   scale: (n) => [n, Array.from({ length: Math.floor(n / 2) }, (_, i) => [i * 2, i * 2 + 1])],
   starter: {
-    py: `def countComponents(n, edges):
-    # n: int, edges: list[list[int]]  ->  int
-    pass
-`,
     js: `function countComponents(n, edges) {
   // n: number, edges: number[][]  ->  number
 }
@@ -52,25 +48,6 @@ export const connectedComponents: Problem = {
       blurb:
         'Begin with n solitary components. Each edge that joins two different groups shrinks the count by one; an edge inside a group changes nothing. Whatever the count is at the end is the answer — no traversal required.',
       code: {
-        py: {
-          lines: [
-            'def countComponents(n, edges):',
-            '    parent = list(range(n))',
-            '    def find(x):',
-            '        while parent[x] != x:',
-            '            parent[x] = parent[parent[x]]',
-            '            x = parent[x]',
-            '        return x',
-            '    count = n',
-            '    for a, b in edges:',
-            '        ra, rb = find(a), find(b)',
-            '        if ra != rb:',
-            '            parent[ra] = rb',
-            '            count -= 1',
-            '    return count',
-          ],
-          map: { init: 8, merge: 13, same: 11, done: 14 },
-        },
         cpp: {
           lines: [
             'int countComponents(int n, vector<vector<int>>& edges) {',

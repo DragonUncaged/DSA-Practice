@@ -26,10 +26,6 @@ export const validParentheses: Problem = {
   demo: DEMO,
   scale: (n) => ['('.repeat(Math.floor(n / 2)) + ')'.repeat(Math.floor(n / 2))],
   starter: {
-    py: `def isValid(s):
-    # s: str  ->  bool
-    pass
-`,
     js: `function isValid(s) {
   // s: string  ->  boolean
 }
@@ -50,20 +46,6 @@ export const validParentheses: Problem = {
       blurb:
         'A closing bracket only ever has one legal partner: the most recent unclosed opener. That "most recent" is exactly what a stack gives you, which is why one pass is enough.',
       code: {
-        py: {
-          lines: [
-            'def isValid(s):',
-            "    pairs = {')': '(', ']': '[', '}': '{'}",
-            '    stack = []',
-            '    for ch in s:',
-            '        if ch not in pairs:',
-            '            stack.append(ch)',
-            '        elif not stack or stack.pop() != pairs[ch]:',
-            '            return False',
-            '    return not stack',
-          ],
-          map: { init: 3, read: 4, push: 6, pop: 7, bad: 8, done: 9 },
-        },
         cpp: {
           lines: [
             'bool isValid(string s) {',

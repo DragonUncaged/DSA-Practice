@@ -31,10 +31,6 @@ export const validAnagram: Problem = {
     return [s, s.split('').reverse().join('')]
   },
   starter: {
-    py: `def isAnagram(s, t):
-    # s: str, t: str  ->  bool
-    pass
-`,
     js: `function isAnagram(s, t) {
   // s: string, t: string  ->  boolean
 }
@@ -55,22 +51,6 @@ export const validAnagram: Problem = {
       blurb:
         'One counter array: each letter of s increments its slot, each letter of t decrements it. Anagrams cancel to all zeros; any imbalance survives as a non-zero. No sorting, one pass over each string.',
       code: {
-        py: {
-          lines: [
-            'def isAnagram(s, t):',
-            '    if len(s) != len(t):',
-            '        return False',
-            '    count = {}',
-            '    for ch in s:',
-            '        count[ch] = count.get(ch, 0) + 1',
-            '    for ch in t:',
-            '        count[ch] = count.get(ch, 0) - 1',
-            '        if count[ch] < 0:',
-            '            return False',
-            '    return True',
-          ],
-          map: { len: 3, up: 6, down: 8, bad: 10, done: 11 },
-        },
         cpp: {
           lines: [
             'bool isAnagram(string s, string t) {',

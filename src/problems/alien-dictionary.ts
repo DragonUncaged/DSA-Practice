@@ -21,10 +21,6 @@ export const alienDictionary: Problem = {
   ],
   demo: DEMO,
   starter: {
-    py: `def alienOrder(words):
-    # words: list[str]  ->  str
-    pass
-`,
     js: `function alienOrder(words) {
   // words: string[]  ->  string
 }
@@ -45,34 +41,6 @@ export const alienDictionary: Problem = {
       blurb:
         'Each adjacent pair of words yields at most one fact: the first letter where they differ orders those two letters. Those facts form a graph over the alphabet, and any topological order of that graph is a valid alien alphabet. A cycle means the input lied.',
       code: {
-        py: {
-          lines: [
-            'def alienOrder(words):',
-            '    adj = {c: set() for w in words for c in w}',
-            '    indeg = {c: 0 for c in adj}',
-            '    for w1, w2 in zip(words, words[1:]):',
-            '        for a, b in zip(w1, w2):',
-            '            if a != b:',
-            '                if b not in adj[a]:',
-            '                    adj[a].add(b)',
-            '                    indeg[b] += 1',
-            '                break',
-            '        else:',
-            '            if len(w1) > len(w2):',
-            "                return ''",
-            '    queue = [c for c in indeg if indeg[c] == 0]',
-            '    out = []',
-            '    while queue:',
-            '        c = queue.pop()',
-            '        out.append(c)',
-            '        for nxt in adj[c]:',
-            '            indeg[nxt] -= 1',
-            '            if indeg[nxt] == 0:',
-            '                queue.append(nxt)',
-            "    return ''.join(out) if len(out) == len(adj) else ''",
-          ],
-          map: { init: 2, edge: 8, prefix: 13, take: 18, done: 23, cycle: 23 },
-        },
         cpp: {
           lines: [
             'string alienOrder(vector<string>& words) {',

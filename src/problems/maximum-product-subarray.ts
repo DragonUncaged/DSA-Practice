@@ -23,10 +23,6 @@ export const maximumProductSubarray: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => ((i % 3) - 1) || 2)],
   starter: {
-    py: `def maxProduct(nums):
-    # nums: list[int]  ->  int
-    pass
-`,
     js: `function maxProduct(nums) {
   // nums: number[]  ->  number
 }
@@ -47,21 +43,6 @@ export const maximumProductSubarray: Problem = {
       blurb:
         'The twist on Kadane: a huge negative product is one negative number away from being a huge positive one. So carry both the best and the worst product ending here — a negative element swaps their roles.',
       code: {
-        py: {
-          lines: [
-            'def maxProduct(nums):',
-            '    best = hi = lo = nums[0]',
-            '    for i in range(1, len(nums)):',
-            '        x = nums[i]',
-            '        if x < 0:',
-            '            hi, lo = lo, hi',
-            '        hi = max(x, hi * x)',
-            '        lo = min(x, lo * x)',
-            '        best = max(best, hi)',
-            '    return best',
-          ],
-          map: { init: 2, read: 4, swap: 6, update: 8, best: 9, done: 10 },
-        },
         cpp: {
           lines: [
             'int maxProduct(vector<int>& nums) {',

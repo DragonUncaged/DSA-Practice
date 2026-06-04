@@ -27,10 +27,6 @@ export const groupAnagrams: Problem = {
     }),
   ],
   starter: {
-    py: `def groupAnagrams(strs):
-    # strs: list[str]  ->  list[list[str]]
-    pass
-`,
     js: `function groupAnagrams(strs) {
   // strs: string[]  ->  string[][]
 }
@@ -51,17 +47,6 @@ export const groupAnagrams: Problem = {
       blurb:
         'Anagrams become identical when you sort their letters — "eat", "tea" and "ate" all collapse to "aet". That canonical form is a perfect dictionary key: one pass, each word filed under its sorted self.',
       code: {
-        py: {
-          lines: [
-            'def groupAnagrams(strs):',
-            '    groups = {}',
-            '    for w in strs:',
-            "        key = ''.join(sorted(w))",
-            '        groups.setdefault(key, []).append(w)',
-            '    return list(groups.values())',
-          ],
-          map: { init: 2, key: 4, file: 5, done: 6 },
-        },
         cpp: {
           lines: [
             'vector<vector<string>> groupAnagrams(vector<string>& strs) {',

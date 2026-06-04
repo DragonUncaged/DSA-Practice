@@ -37,7 +37,7 @@ export interface Prefs {
   railW: number | null
   /** Practice editor font size in px. */
   editorFontSize: number
-  /** Practice editor tab width; null follows the language (4 for Python, else 2). */
+  /** Practice editor tab width; null uses the editor default of 2. */
   editorTabSize: number | null
   editorWordWrap: boolean
 }
@@ -50,8 +50,20 @@ export interface Streak {
   days: string[]
 }
 
+const VALID_LANGS: Lang[] = ['cpp', 'js']
+
+/**
+ * Python was dropped as a supported language. A profile stored before that
+ * still names it, so coerce the language back to the default and drop the
+ * drafts that were keyed to it.
+ */
+const coerceLang = (lang: Lang): Lang => (VALID_LANGS.includes(lang) ? lang : DEFAULT_PREFS.lang)
+
+const dropStaleDrafts = (drafts: Record<string, string>): Record<string, string> =>
+  Object.fromEntries(Object.entries(drafts).filter(([k]) => !k.endsWith(':py')))
+
 export const DEFAULT_PREFS: Prefs = {
-  lang: 'py',
+  lang: 'js',
   speed: 1,
   showState: true,
   showRail: true,
@@ -184,7 +196,14 @@ export const useTraceStore = create<TraceState>()(
       // still picks up that pref's default.
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<Persisted>
-        return { ...current, ...p, prefs: { ...current.prefs, ...(p.prefs ?? {}) } }
+        const prefs = { ...current.prefs, ...(p.prefs ?? {}) }
+        prefs.lang = coerceLang(prefs.lang)
+        return {
+          ...current,
+          ...p,
+          drafts: dropStaleDrafts(p.drafts ?? current.drafts),
+          prefs,
+        }
       },
       onRehydrateStorage: () => () => useTraceStore.setState({ hydrated: true }),
     },
@@ -237,14 +256,17 @@ function migrateLegacy() {
     const reveal = legacy<Record<string, RevealLevel>>('reveal')
     const assisted = legacy<Record<string, boolean>>('assisted')
     if (!progress && !drafts && !streak && !prefs && !reveal && !assisted) return
-    useTraceStore.setState((s) => ({
-      progress: progress ?? s.progress,
-      drafts: drafts ?? s.drafts,
-      streak: streak ?? s.streak,
-      prefs: { ...s.prefs, ...(prefs ?? {}) },
-      reveal: reveal ?? s.reveal,
-      assisted: assisted ?? s.assisted,
-    }))
+    useTraceStore.setState((s) => {
+      const merged = { ...s.prefs, ...(prefs ?? {}) }
+      return {
+        progress: progress ?? s.progress,
+        drafts: dropStaleDrafts(drafts ?? s.drafts),
+        streak: streak ?? s.streak,
+        prefs: { ...merged, lang: coerceLang(merged.lang) },
+        reveal: reveal ?? s.reveal,
+        assisted: assisted ?? s.assisted,
+      }
+    })
     // the setState above has already persisted the new blob
     LEGACY_KEYS.forEach((k) => window.localStorage.removeItem(`${STORE_KEY}.${k}`))
   } catch {

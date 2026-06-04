@@ -27,10 +27,6 @@ export const longestSubstringWithoutRepeating: Problem = {
   // every attempt at 26 characters and hide the quadratic entirely.
   scale: (n) => [Array.from({ length: n }, (_, i) => String.fromCharCode(0x41 + i)).join('')],
   starter: {
-    py: `def lengthOfLongestSubstring(s):
-    # s: str  ->  int
-    pass
-`,
     js: `function lengthOfLongestSubstring(s) {
   // s: string  ->  number
 }
@@ -51,21 +47,6 @@ export const longestSubstringWithoutRepeating: Problem = {
       blurb:
         'Keep a window that is always duplicate-free. The right edge advances every step; the left edge only ever jumps forward, past the previous copy of whatever character just collided. Neither edge ever moves backwards, so the whole string is crossed twice at most.',
       code: {
-        py: {
-          lines: [
-            'def lengthOfLongestSubstring(s):',
-            '    seen = {}',
-            '    best = 0',
-            '    l = 0',
-            '    for r, ch in enumerate(s):',
-            '        if ch in seen and seen[ch] >= l:',
-            '            l = seen[ch] + 1',
-            '        seen[ch] = r',
-            '        best = max(best, r - l + 1)',
-            '    return best',
-          ],
-          map: { init: 4, read: 5, shrink: 7, store: 8, best: 9, done: 10 },
-        },
         cpp: {
           lines: [
             'int lengthOfLongestSubstring(string s) {',
@@ -256,21 +237,6 @@ export const longestSubstringWithoutRepeating: Problem = {
       blurb:
         'From each starting index, walk forward until a repeat appears. Correct, but it re-reads the same characters from every start.',
       code: {
-        py: {
-          lines: [
-            'def lengthOfLongestSubstring(s):',
-            '    best = 0',
-            '    for i in range(len(s)):',
-            '        seen = set()',
-            '        for j in range(i, len(s)):',
-            '            if s[j] in seen:',
-            '                break',
-            '            seen.add(s[j])',
-            '            best = max(best, j - i + 1)',
-            '    return best',
-          ],
-          map: { init: 2, outer: 3, read: 6, stop: 7, grow: 9, done: 10 },
-        },
         cpp: {
           lines: [
             'int lengthOfLongestSubstring(string s) {',

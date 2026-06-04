@@ -30,10 +30,6 @@ export const sumOfTwoIntegers: Problem = {
   ],
   demo: DEMO,
   starter: {
-    py: `def getSum(a, b):
-    # a: int, b: int  ->  int
-    pass
-`,
     js: `function getSum(a, b) {
   // a: number, b: number  ->  number
 }
@@ -54,18 +50,6 @@ export const sumOfTwoIntegers: Problem = {
       blurb:
         'Adding bits is two separate jobs: XOR adds each column while ignoring carries, and AND-shifted-left is exactly the carries that were ignored. Repeat until nothing is left to carry — at most 32 rounds.',
       code: {
-        py: {
-          lines: [
-            'def getSum(a, b):',
-            '    mask = 0xFFFFFFFF',
-            '    while b != 0:',
-            '        carry = ((a & b) << 1) & mask',
-            '        a = (a ^ b) & mask',
-            '        b = carry',
-            '    return a if a <= 0x7FFFFFFF else ~(a ^ mask)',
-          ],
-          map: { init: 2, calc: 4, done: 7 },
-        },
         cpp: {
           lines: [
             'int getSum(int a, int b) {',

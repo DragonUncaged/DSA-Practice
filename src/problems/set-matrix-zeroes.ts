@@ -36,10 +36,6 @@ export const setMatrixZeroes: Problem = {
     return [Array.from({ length: k }, (_, r) => Array.from({ length: k }, (_, c) => ((r + c) % 7 === 3 ? 0 : 1)))]
   },
   starter: {
-    py: `def setZeroes(matrix):
-    # matrix: list[list[int]]  ->  list[list[int]]  (mutate and return it)
-    pass
-`,
     js: `function setZeroes(matrix) {
   // matrix: number[][]  ->  number[][]  (mutate and return it)
 }
@@ -60,27 +56,6 @@ export const setMatrixZeroes: Problem = {
       blurb:
         'You cannot zero things as you find them — you would no longer know which zeros were original. The trick: write the "this row/column must die" marks into the first row and first column themselves, which are about to be zeroed anyway, plus two booleans for their own fate.',
       code: {
-        py: {
-          lines: [
-            'def setZeroes(matrix):',
-            '    m, n = len(matrix), len(matrix[0])',
-            '    row0 = any(matrix[0][j] == 0 for j in range(n))',
-            '    col0 = any(matrix[i][0] == 0 for i in range(m))',
-            '    for i in range(1, m):',
-            '        for j in range(1, n):',
-            '            if matrix[i][j] == 0:',
-            '                matrix[i][0] = matrix[0][j] = 0',
-            '    for i in range(1, m):',
-            '        for j in range(1, n):',
-            '            if matrix[i][0] == 0 or matrix[0][j] == 0:',
-            '                matrix[i][j] = 0',
-            '    if row0: matrix[0] = [0] * n',
-            '    if col0:',
-            '        for i in range(m): matrix[i][0] = 0',
-            '    return matrix',
-          ],
-          map: { init: 3, mark: 8, wipe: 12, edges: 13, done: 16 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> setZeroes(vector<vector<int>>& matrix) {',

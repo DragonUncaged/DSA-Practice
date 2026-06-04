@@ -22,10 +22,6 @@ export const findMedianFromDataStream: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => (i * 7919) % 1000)],
   starter: {
-    py: `def runningMedian(nums):
-    # maintain two heaps; return the median after each insert
-    pass
-`,
     js: `function runningMedian(nums) {
   // maintain two heaps; return the median after each insert
 }
@@ -46,25 +42,6 @@ export const findMedianFromDataStream: Problem = {
       blurb:
         'Split the numbers into a lower half and an upper half. If the lower half is a max-heap and the upper a min-heap, the median lives at their touching tops — no sorting, ever. Each insert drops into one side and a single rebalance keeps the sizes within one.',
       code: {
-        py: {
-          lines: [
-            'import heapq',
-            'def runningMedian(nums):',
-            '    lo, hi = [], []   # max-heap (negated), min-heap',
-            '    out = []',
-            '    for x in nums:',
-            '        heapq.heappush(lo, -x)',
-            '        heapq.heappush(hi, -heapq.heappop(lo))',
-            '        if len(hi) > len(lo):',
-            '            heapq.heappush(lo, -heapq.heappop(hi))',
-            '        if len(lo) > len(hi):',
-            '            out.append(-lo[0])',
-            '        else:',
-            '            out.append((-lo[0] + hi[0]) / 2)',
-            '    return out',
-          ],
-          map: { init: 3, insert: 7, balance: 9, median: 13, done: 14 },
-        },
         cpp: {
           lines: [
             'vector<double> runningMedian(vector<int>& nums) {',

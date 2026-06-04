@@ -44,10 +44,6 @@ export const pacificAtlanticWaterFlow: Problem = {
     return [Array.from({ length: k }, (_, r) => Array.from({ length: k }, (_, c) => ((r * 5 + c * 3) % 9) + 1))]
   },
   starter: {
-    py: `def pacificAtlantic(heights):
-    # heights: list[list[int]]  ->  list[list[int]]
-    pass
-`,
     js: `function pacificAtlantic(heights) {
   // heights: number[][]  ->  number[][]
 }
@@ -68,29 +64,6 @@ export const pacificAtlanticWaterFlow: Problem = {
       blurb:
         'Chasing water downhill from every cell is quadratic pain. Flip it: start in each ocean and climb — a cell drains to an ocean exactly if the ocean can reach it going uphill. Two border-seeded DFS floods, then intersect the two claimed sets.',
       code: {
-        py: {
-          lines: [
-            'def pacificAtlantic(heights):',
-            '    m, n = len(heights), len(heights[0])',
-            '    def flood(starts):',
-            '        seen = set(starts)',
-            '        stack = list(starts)',
-            '        while stack:',
-            '            r, c = stack.pop()',
-            '            for dr, dc in ((1,0),(-1,0),(0,1),(0,-1)):',
-            '                nr, nc = r + dr, c + dc',
-            '                if (0 <= nr < m and 0 <= nc < n',
-            '                        and (nr, nc) not in seen',
-            '                        and heights[nr][nc] >= heights[r][c]):',
-            '                    seen.add((nr, nc))',
-            '                    stack.append((nr, nc))',
-            '        return seen',
-            '    pac = flood([(0, j) for j in range(n)] + [(i, 0) for i in range(m)])',
-            '    atl = flood([(m-1, j) for j in range(n)] + [(i, n-1) for i in range(m)])',
-            '    return [list(p) for p in pac & atl]',
-          ],
-          map: { init: 2, pac: 16, atl: 17, climb: 13, both: 18, done: 18 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> pacificAtlantic(vector<vector<int>>& h) {',

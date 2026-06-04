@@ -34,10 +34,6 @@ export const searchInRotatedSortedArray: Problem = {
     return [[...sorted.slice(cut), ...sorted.slice(0, cut)], -1]
   },
   starter: {
-    py: `def search(nums, target):
-    # nums: list[int], target: int  ->  int
-    pass
-`,
     js: `function search(nums, target) {
   // nums: number[], target: number  ->  number
 }
@@ -58,28 +54,6 @@ export const searchInRotatedSortedArray: Problem = {
       blurb:
         'Cut anywhere in a rotated array and at least one half is still perfectly sorted. A sorted half answers "is the target in you?" with two comparisons — so decide that, keep the half that could contain the target, and discard the other.',
       code: {
-        py: {
-          lines: [
-            'def search(nums, target):',
-            '    l, r = 0, len(nums) - 1',
-            '    while l <= r:',
-            '        m = (l + r) // 2',
-            '        if nums[m] == target:',
-            '            return m',
-            '        if nums[l] <= nums[m]:',
-            '            if nums[l] <= target < nums[m]:',
-            '                r = m - 1',
-            '            else:',
-            '                l = m + 1',
-            '        else:',
-            '            if nums[m] < target <= nums[r]:',
-            '                l = m + 1',
-            '            else:',
-            '                r = m - 1',
-            '    return -1',
-          ],
-          map: { init: 2, mid: 4, found: 6, leftSorted: 7, rightSorted: 13, move: 11, done: 17 },
-        },
         cpp: {
           lines: [
             'int search(vector<int>& nums, int target) {',

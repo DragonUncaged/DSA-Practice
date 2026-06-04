@@ -32,10 +32,6 @@ export const mergeTwoSortedLists: Problem = {
     Array.from({ length: Math.ceil(n / 2) }, (_, i) => i * 2 + 1),
   ],
   starter: {
-    py: `def mergeTwoLists(list1, list2):
-    # list1, list2: ListNode | None  ->  ListNode | None
-    pass
-`,
     js: `function mergeTwoLists(list1, list2) {
   // list1, list2: ListNode | null  ->  ListNode | null
 }
@@ -56,23 +52,6 @@ export const mergeTwoSortedLists: Problem = {
       blurb:
         'Both lists are sorted, so the smallest remaining node overall is always one of the two current heads. Repeatedly splice the smaller head onto the tail of the answer; when one list runs dry, the other attaches whole.',
       code: {
-        py: {
-          lines: [
-            'def mergeTwoLists(list1, list2):',
-            '    dummy = tail = ListNode()',
-            '    while list1 and list2:',
-            '        if list1.val <= list2.val:',
-            '            tail.next = list1',
-            '            list1 = list1.next',
-            '        else:',
-            '            tail.next = list2',
-            '            list2 = list2.next',
-            '        tail = tail.next',
-            '    tail.next = list1 or list2',
-            '    return dummy.next',
-          ],
-          map: { init: 2, takeA: 5, takeB: 8, drain: 11, done: 12 },
-        },
         cpp: {
           lines: [
             'ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {',

@@ -32,10 +32,6 @@ export const twoSum: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => i + 1), 2 * n - 1],
   starter: {
-    py: `def twoSum(nums, target):
-    # nums: list[int], target: int  ->  list[int]
-    pass
-`,
     js: `function twoSum(nums, target) {
   // nums: number[], target: number  ->  number[]
 }
@@ -57,19 +53,6 @@ export const twoSum: Problem = {
       blurb:
         'Instead of hunting for the partner, remember every number you have already walked past. Then each new number only has to ask one question: have I seen what I need?',
       code: {
-        py: {
-          lines: [
-            'def twoSum(nums, target):',
-            '    seen = {}',
-            '    for i, x in enumerate(nums):',
-            '        need = target - x',
-            '        if need in seen:',
-            '            return [seen[need], i]',
-            '        seen[x] = i',
-            '    return []',
-          ],
-          map: { init: 2, read: 4, check: 5, found: 6, store: 7, done: 8 },
-        },
         cpp: {
           lines: [
             'vector<int> twoSum(vector<int>& nums, int target) {',
@@ -225,18 +208,6 @@ export const twoSum: Problem = {
       blurb:
         'The honest first attempt: try every pair until one works. Correct, and hopeless the moment the array gets long.',
       code: {
-        py: {
-          lines: [
-            'def twoSum(nums, target):',
-            '    n = len(nums)',
-            '    for i in range(n):',
-            '        for j in range(i + 1, n):',
-            '            if nums[i] + nums[j] == target:',
-            '                return [i, j]',
-            '    return []',
-          ],
-          map: { init: 2, outer: 3, inner: 4, check: 5, found: 6, done: 7 },
-        },
         cpp: {
           lines: [
             'vector<int> twoSum(vector<int>& nums, int target) {',

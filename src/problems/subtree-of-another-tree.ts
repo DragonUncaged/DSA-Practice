@@ -30,10 +30,6 @@ export const subtreeOfAnotherTree: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: Math.min(n, 1000) }, (_, i) => i % 7), [0, 1, 2]],
   starter: {
-    py: `def isSubtree(root, subRoot):
-    # root, subRoot: TreeNode | None  ->  bool
-    pass
-`,
     js: `function isSubtree(root, subRoot) {
   // root, subRoot: TreeNode | null  ->  boolean
 }
@@ -54,25 +50,6 @@ export const subtreeOfAnotherTree: Problem = {
       blurb:
         'Walk the big tree; wherever a node\'s value equals subRoot\'s root, anchor a full Same Tree comparison there. Values elsewhere cannot start a match, and a failed anchor costs only the length of the agreement before divergence.',
       code: {
-        py: {
-          lines: [
-            'def isSubtree(root, subRoot):',
-            '    def same(a, b):',
-            '        if a is None and b is None:',
-            '            return True',
-            '        if a is None or b is None or a.val != b.val:',
-            '            return False',
-            '        return same(a.left, b.left) and same(a.right, b.right)',
-            '    def walk(node):',
-            '        if node is None:',
-            '            return False',
-            '        if node.val == subRoot.val and same(node, subRoot):',
-            '            return True',
-            '        return walk(node.left) or walk(node.right)',
-            '    return walk(root)',
-          ],
-          map: { init: 14, anchor: 11, hit: 12, miss: 13, done: 14 },
-        },
         cpp: {
           lines: [
             'bool isSubtree(TreeNode* root, TreeNode* subRoot) {',

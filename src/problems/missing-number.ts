@@ -23,10 +23,6 @@ export const missingNumber: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => (i === 0 ? n : i))],
   starter: {
-    py: `def missingNumber(nums):
-    # nums: list[int]  ->  int
-    pass
-`,
     js: `function missingNumber(nums) {
   // nums: number[]  ->  number
 }
@@ -47,16 +43,6 @@ export const missingNumber: Problem = {
       blurb:
         'XOR is its own undo: x ^ x = 0. Fold every index 0..n and every value into one accumulator, and each number that appears on both sides cancels itself out. The only survivor is the number that appeared as an index but never as a value.',
       code: {
-        py: {
-          lines: [
-            'def missingNumber(nums):',
-            '    acc = len(nums)',
-            '    for i, x in enumerate(nums):',
-            '        acc ^= i ^ x',
-            '    return acc',
-          ],
-          map: { init: 2, fold: 4, done: 5 },
-        },
         cpp: {
           lines: [
             'int missingNumber(vector<int>& nums) {',

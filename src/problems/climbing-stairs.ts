@@ -27,10 +27,6 @@ export const climbingStairs: Problem = {
   // the meter deliberately probes past the stated bound; growth is the point
   scale: (n) => [n],
   starter: {
-    py: `def climbStairs(n):
-    # n: int  ->  int
-    pass
-`,
     js: `function climbStairs(n) {
   // n: number  ->  number
 }
@@ -51,19 +47,6 @@ export const climbingStairs: Problem = {
       blurb:
         'The last move onto step i came from either i-1 or i-2, so the ways to reach i is the sum of the ways to reach those two. Fill the table from the bottom and every value is already waiting when you need it.',
       code: {
-        py: {
-          lines: [
-            'def climbStairs(n):',
-            '    if n <= 2:',
-            '        return n',
-            '    ways = [0] * (n + 1)',
-            '    ways[1], ways[2] = 1, 2',
-            '    for i in range(3, n + 1):',
-            '        ways[i] = ways[i - 1] + ways[i - 2]',
-            '    return ways[n]',
-          ],
-          map: { init: 5, read: 6, fill: 7, done: 8 },
-        },
         cpp: {
           lines: [
             'int climbStairs(int n) {',
@@ -190,15 +173,6 @@ export const climbingStairs: Problem = {
       blurb:
         'Ask the same question of the two smaller staircases, with no memory of the answers. Every subproblem gets solved again and again, and the call count explodes.',
       code: {
-        py: {
-          lines: [
-            'def climbStairs(n):',
-            '    if n <= 2:',
-            '        return n',
-            '    return climbStairs(n - 1) + climbStairs(n - 2)',
-          ],
-          map: { call: 1, base: 3, split: 4, ret: 4, done: 4 },
-        },
         cpp: {
           lines: [
             'int climbStairs(int n) {',

@@ -39,7 +39,7 @@ function check(problem: Problem): Row[] {
       row.frames = t.frames.length
       const steps = new Set(t.frames.map((f) => f.step))
       for (const step of steps) {
-        for (const lang of ['py', 'cpp', 'js'] as const) {
+        for (const lang of ['cpp', 'js'] as const) {
           const line = sol.code[lang].map[step]
           if (line == null) row.unmappedSteps.push(`${lang}:${step}`)
           else if (line < 1 || line > sol.code[lang].lines.length) {

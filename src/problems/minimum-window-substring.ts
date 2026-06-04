@@ -29,10 +29,6 @@ export const minimumWindowSubstring: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => 'ABCDEFG'[i % 7]).join(''), 'ABC'],
   starter: {
-    py: `def minWindow(s, t):
-    # s: str, t: str  ->  str
-    pass
-`,
     js: `function minWindow(s, t) {
   // s: string, t: string  ->  string
 }
@@ -53,29 +49,6 @@ export const minimumWindowSubstring: Problem = {
       blurb:
         'The right edge expands until the window covers every needed character; then the left edge shrinks, squeezing out slack, until coverage would break — recording the window each time. A "how many requirements are still unmet" counter makes both checks O(1).',
       code: {
-        py: {
-          lines: [
-            'def minWindow(s, t):',
-            '    need = {}',
-            '    for ch in t:',
-            '        need[ch] = need.get(ch, 0) + 1',
-            '    missing = len(t)',
-            '    best = (0, 0)',
-            '    l = 0',
-            '    for r, ch in enumerate(s, 1):',
-            '        if need.get(ch, 0) > 0:',
-            '            missing -= 1',
-            '        need[ch] = need.get(ch, 0) - 1',
-            '        if missing == 0:',
-            '            while need.get(s[l], 0) < 0:',
-            '                need[s[l]] += 1',
-            '                l += 1',
-            '            if not best[1] or r - l < best[1] - best[0]:',
-            '                best = (l, r)',
-            '    return s[best[0]:best[1]]',
-          ],
-          map: { init: 5, take: 11, cover: 12, shrink: 15, record: 17, done: 18 },
-        },
         cpp: {
           lines: [
             'string minWindow(string s, string t) {',

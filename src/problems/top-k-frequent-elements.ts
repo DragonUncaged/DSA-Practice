@@ -29,10 +29,6 @@ export const topKFrequentElements: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => i % Math.max(2, Math.floor(n / 8))), 3],
   starter: {
-    py: `def topKFrequent(nums, k):
-    # nums: list[int], k: int  ->  list[int]
-    pass
-`,
     js: `function topKFrequent(nums, k) {
   // nums: number[], k: number  ->  number[]
 }
@@ -53,25 +49,6 @@ export const topKFrequentElements: Problem = {
       blurb:
         'A frequency can never exceed n, so make n+1 buckets and drop each value into the bucket of its count. Reading the buckets from the top down yields the most frequent elements with no heap and no sort — the array index does the ordering.',
       code: {
-        py: {
-          lines: [
-            'def topKFrequent(nums, k):',
-            '    count = {}',
-            '    for x in nums:',
-            '        count[x] = count.get(x, 0) + 1',
-            '    buckets = [[] for _ in range(len(nums) + 1)]',
-            '    for x, f in count.items():',
-            '        buckets[f].append(x)',
-            '    out = []',
-            '    for f in range(len(nums), 0, -1):',
-            '        for x in buckets[f]:',
-            '            out.append(x)',
-            '            if len(out) == k:',
-            '                return out',
-            '    return out',
-          ],
-          map: { count: 4, drop: 7, sweep: 11, done: 14 },
-        },
         cpp: {
           lines: [
             'vector<int> topKFrequent(vector<int>& nums, int k) {',

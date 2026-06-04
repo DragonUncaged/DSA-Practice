@@ -21,10 +21,6 @@ export const palindromicSubstrings: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => 'abcd'[i % 4]).join('')],
   starter: {
-    py: `def countSubstrings(s):
-    # s: str  ->  int
-    pass
-`,
     js: `function countSubstrings(s) {
   // s: string  ->  number
 }
@@ -45,22 +41,6 @@ export const palindromicSubstrings: Problem = {
       blurb:
         'Same 2n-1 centers as Longest Palindromic Substring, but instead of tracking the widest reach, count one palindrome per successful expansion step — every ring of agreement around a center is itself a palindrome.',
       code: {
-        py: {
-          lines: [
-            'def countSubstrings(s):',
-            '    n = len(s)',
-            '    count = 0',
-            '    for center in range(2 * n - 1):',
-            '        l = center // 2',
-            '        r = l + center % 2',
-            '        while l >= 0 and r < n and s[l] == s[r]:',
-            '            count += 1',
-            '            l -= 1',
-            '            r += 1',
-            '    return count',
-          ],
-          map: { init: 3, center: 6, ring: 8, done: 11 },
-        },
         cpp: {
           lines: [
             'int countSubstrings(string s) {',

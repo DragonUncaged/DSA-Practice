@@ -24,10 +24,6 @@ export const mergeIntervals: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => [i * 3, i * 3 + ((i % 2) + 1) * 2])],
   starter: {
-    py: `def merge(intervals):
-    # intervals: list[list[int]]  ->  list[list[int]]
-    pass
-`,
     js: `function merge(intervals) {
   // intervals: number[][]  ->  number[][]
 }
@@ -48,20 +44,6 @@ export const mergeIntervals: Problem = {
       blurb:
         'Once sorted by start, an interval can only overlap the one growing directly before it. So sweep left to right: extend the current merged block while starts keep landing inside it, and seal it the moment a gap appears.',
       code: {
-        py: {
-          lines: [
-            'def merge(intervals):',
-            '    intervals.sort()',
-            '    out = [intervals[0][:]]',
-            '    for s, e in intervals[1:]:',
-            '        if s <= out[-1][1]:',
-            '            out[-1][1] = max(out[-1][1], e)',
-            '        else:',
-            '            out.append([s, e])',
-            '    return out',
-          ],
-          map: { init: 2, absorb: 6, seal: 8, done: 9 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> merge(vector<vector<int>>& intervals) {',

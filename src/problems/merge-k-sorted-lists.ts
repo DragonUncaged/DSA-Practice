@@ -26,10 +26,6 @@ export const mergeKSortedLists: Problem = {
     return [Array.from({ length: k }, (_, i) => Array.from({ length: per }, (_, j) => j * k + i))]
   },
   starter: {
-    py: `def mergeKLists(lists):
-    # lists: list[ListNode | None]  ->  ListNode | None
-    pass
-`,
     js: `function mergeKLists(lists) {
   // lists: (ListNode | null)[]  ->  ListNode | null
 }
@@ -50,32 +46,6 @@ export const mergeKSortedLists: Problem = {
       blurb:
         'Merging lists one-into-one runs the first list through every merge — O(Nk). Instead merge them in pairs: k lists become k/2, then k/4, and every node participates in only log k merges. Same two-list merge underneath, smarter schedule on top.',
       code: {
-        py: {
-          lines: [
-            'def mergeKLists(lists):',
-            '    if not lists:',
-            '        return None',
-            '    def merge2(a, b):',
-            '        dummy = tail = ListNode()',
-            '        while a and b:',
-            '            if a.val <= b.val:',
-            '                tail.next, a = a, a.next',
-            '            else:',
-            '                tail.next, b = b, b.next',
-            '            tail = tail.next',
-            '        tail.next = a or b',
-            '        return dummy.next',
-            '    while len(lists) > 1:',
-            '        merged = []',
-            '        for i in range(0, len(lists), 2):',
-            '            a = lists[i]',
-            '            b = lists[i + 1] if i + 1 < len(lists) else None',
-            '            merged.append(merge2(a, b))',
-            '        lists = merged',
-            '    return lists[0]',
-          ],
-          map: { init: 2, pair: 19, round: 20, done: 21 },
-        },
         cpp: {
           lines: [
             'ListNode* mergeKLists(vector<ListNode*>& lists) {',

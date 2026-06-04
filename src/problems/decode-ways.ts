@@ -23,10 +23,6 @@ export const decodeWays: Problem = {
   demo: DEMO,
   scale: (n) => ['1'.repeat(n)],
   starter: {
-    py: `def numDecodings(s):
-    # s: str  ->  int
-    pass
-`,
     js: `function numDecodings(s) {
   // s: string  ->  number
 }
@@ -47,21 +43,6 @@ export const decodeWays: Problem = {
       blurb:
         'The last letter of any decoding covers either one digit or two. So ways(i) = ways(i-1) when the single digit is valid, plus ways(i-2) when the two-digit pair lands in 10..26. Climbing Stairs with a validity check bolted on.',
       code: {
-        py: {
-          lines: [
-            'def numDecodings(s):',
-            '    n = len(s)',
-            '    dp = [0] * (n + 1)',
-            '    dp[0] = 1',
-            '    for i in range(1, n + 1):',
-            "        if s[i - 1] != '0':",
-            '            dp[i] += dp[i - 1]',
-            '        if i > 1 and 10 <= int(s[i - 2:i]) <= 26:',
-            '            dp[i] += dp[i - 2]',
-            '    return dp[n]',
-          ],
-          map: { init: 4, fill: 7, pair: 9, dead: 10, done: 10 },
-        },
         cpp: {
           lines: [
             'int numDecodings(string s) {',

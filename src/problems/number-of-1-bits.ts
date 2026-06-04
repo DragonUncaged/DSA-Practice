@@ -23,10 +23,6 @@ export const numberOf1Bits: Problem = {
   demo: DEMO,
   scale: (n) => [n],
   starter: {
-    py: `def hammingWeight(n):
-    # n: int  ->  int
-    pass
-`,
     js: `function hammingWeight(n) {
   // n: number  ->  number
 }
@@ -47,17 +43,6 @@ export const numberOf1Bits: Problem = {
       blurb:
         'n & (n - 1) deletes exactly the lowest 1-bit, nothing else. So instead of inspecting all 32 positions, loop once per set bit and count how many deletions it takes to reach zero.',
       code: {
-        py: {
-          lines: [
-            'def hammingWeight(n):',
-            '    count = 0',
-            '    while n:',
-            '        n &= n - 1',
-            '        count += 1',
-            '    return count',
-          ],
-          map: { init: 2, clear: 4, done: 6 },
-        },
         cpp: {
           lines: [
             'int hammingWeight(int n) {',

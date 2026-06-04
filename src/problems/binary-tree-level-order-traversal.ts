@@ -22,10 +22,6 @@ export const binaryTreeLevelOrderTraversal: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: Math.min(n, 2000) }, (_, i) => i)],
   starter: {
-    py: `def levelOrder(root):
-    # root: TreeNode | None  ->  list[list[int]]
-    pass
-`,
     js: `function levelOrder(root) {
   // root: TreeNode | null  ->  number[][]
 }
@@ -46,25 +42,6 @@ export const binaryTreeLevelOrderTraversal: Problem = {
       blurb:
         'A queue naturally visits the tree breadth-first. The one refinement: snapshot the queue length before each round, drain exactly that many nodes — that batch is one complete level — while their children pile up behind for the next round.',
       code: {
-        py: {
-          lines: [
-            'def levelOrder(root):',
-            '    if not root:',
-            '        return []',
-            '    out, queue = [], [root]',
-            '    while queue:',
-            '        size = len(queue)',
-            '        row = []',
-            '        for _ in range(size):',
-            '            node = queue.pop(0)',
-            '            row.append(node.val)',
-            '            if node.left: queue.append(node.left)',
-            '            if node.right: queue.append(node.right)',
-            '        out.append(row)',
-            '    return out',
-          ],
-          map: { init: 4, row: 6, take: 10, seal: 13, done: 14 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> levelOrder(TreeNode* root) {',

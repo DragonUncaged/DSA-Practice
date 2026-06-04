@@ -31,10 +31,6 @@ export const coinChange: Problem = {
   demo: DEMO,
   scale: (n) => [[1, 2, 5], n],
   starter: {
-    py: `def coinChange(coins, amount):
-    # coins: list[int], amount: int  ->  int
-    pass
-`,
     js: `function coinChange(coins, amount) {
   // coins: number[], amount: number  ->  number
 }
@@ -55,19 +51,6 @@ export const coinChange: Problem = {
       blurb:
         'The cheapest way to make x must end with some coin c — and before that coin, you were at x - c, an amount already solved. So fill the table upward: each cell is one plus the cheapest of the cells one coin below it.',
       code: {
-        py: {
-          lines: [
-            'def coinChange(coins, amount):',
-            "    INF = float('inf')",
-            '    dp = [0] + [INF] * amount',
-            '    for x in range(1, amount + 1):',
-            '        for c in coins:',
-            '            if c <= x and dp[x - c] + 1 < dp[x]:',
-            '                dp[x] = dp[x - c] + 1',
-            '    return -1 if dp[amount] == INF else dp[amount]',
-          ],
-          map: { init: 3, consider: 5, fill: 7, done: 8 },
-        },
         cpp: {
           lines: [
             'int coinChange(vector<int>& coins, int amount) {',

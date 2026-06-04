@@ -29,10 +29,6 @@ export const longestRepeatingCharacterReplacement: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => 'AB'[i % 2]).join(''), 2],
   starter: {
-    py: `def characterReplacement(s, k):
-    # s: str, k: int  ->  int
-    pass
-`,
     js: `function characterReplacement(s, k) {
   // s: string, k: number  ->  number
 }
@@ -53,22 +49,6 @@ export const longestRepeatingCharacterReplacement: Problem = {
       blurb:
         'A window is fixable when everything except its most common letter fits inside k edits: window length − max count ≤ k. Grow the right edge every step; when the rule breaks, slide the left edge once. The window never shrinks — it only stops growing — so the max it ever reached is the answer.',
       code: {
-        py: {
-          lines: [
-            'def characterReplacement(s, k):',
-            '    count = {}',
-            '    best = l = maxf = 0',
-            '    for r, ch in enumerate(s):',
-            '        count[ch] = count.get(ch, 0) + 1',
-            '        maxf = max(maxf, count[ch])',
-            '        if r - l + 1 - maxf > k:',
-            '            count[s[l]] -= 1',
-            '            l += 1',
-            '        best = max(best, r - l + 1)',
-            '    return best',
-          ],
-          map: { init: 3, grow: 6, slide: 9, best: 10, done: 11 },
-        },
         cpp: {
           lines: [
             'int characterReplacement(string s, int k) {',

@@ -23,10 +23,6 @@ export const detectCycle: Problem = {
   demo: DEMO,
   scale: (n) => [[Array.from({ length: n }, (_, i) => i), -1]],
   starter: {
-    py: `def hasCycle(head):
-    # head: ListNode | None  ->  bool
-    pass
-`,
     js: `function hasCycle(head) {
   // head: ListNode | null  ->  boolean
 }
@@ -47,19 +43,6 @@ export const detectCycle: Problem = {
       blurb:
         'Send two pointers down the list, one moving a single step, the other two. On a straight track the fast one simply falls off the end. On a circular one it laps the slow one — and because it gains exactly one position per move, it cannot skip over it: they collide.',
       code: {
-        py: {
-          lines: [
-            'def hasCycle(head):',
-            '    slow = fast = head',
-            '    while fast and fast.next:',
-            '        slow = slow.next',
-            '        fast = fast.next.next',
-            '        if slow is fast:',
-            '            return True',
-            '    return False',
-          ],
-          map: { init: 2, move: 5, meet: 7, done: 8 },
-        },
         cpp: {
           lines: [
             'bool hasCycle(ListNode* head) {',

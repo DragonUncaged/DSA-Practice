@@ -31,10 +31,6 @@ export const insertInterval: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => [i * 4, i * 4 + 2]), [n, n * 2]],
   starter: {
-    py: `def insert(intervals, newInterval):
-    # intervals: list[list[int]], newInterval: list[int]  ->  list[list[int]]
-    pass
-`,
     js: `function insert(intervals, newInterval) {
   // intervals: number[][], newInterval: number[]  ->  number[][]
 }
@@ -55,24 +51,6 @@ export const insertInterval: Problem = {
       blurb:
         'One pass, three phases: copy the intervals that end before the new one starts, then swallow everything that overlaps into the new interval (stretching it as you go), then copy the rest untouched. The input being sorted is what makes the phases clean.',
       code: {
-        py: {
-          lines: [
-            'def insert(intervals, newInterval):',
-            '    s, e = newInterval',
-            '    out = []',
-            '    i, n = 0, len(intervals)',
-            '    while i < n and intervals[i][1] < s:',
-            '        out.append(intervals[i]); i += 1',
-            '    while i < n and intervals[i][0] <= e:',
-            '        s = min(s, intervals[i][0])',
-            '        e = max(e, intervals[i][1]); i += 1',
-            '    out.append([s, e])',
-            '    while i < n:',
-            '        out.append(intervals[i]); i += 1',
-            '    return out',
-          ],
-          map: { init: 3, before: 6, swallow: 9, place: 10, after: 12, done: 13 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval) {',

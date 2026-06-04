@@ -35,10 +35,6 @@ export const wordSearch: Problem = {
   ],
   demo: DEMO,
   starter: {
-    py: `def exist(board, word):
-    # board: list[list[str]], word: str  ->  bool
-    pass
-`,
     js: `function exist(board, word) {
   // board: string[][], word: string  ->  boolean
 }
@@ -59,27 +55,6 @@ export const wordSearch: Problem = {
       blurb:
         'From every cell that matches the first letter, walk depth-first matching one letter per step. Mark a cell while it is on the current path so it cannot be reused, and unmark it when backing out — the same cell may serve a different path later.',
       code: {
-        py: {
-          lines: [
-            'def exist(board, word):',
-            '    m, n = len(board), len(board[0])',
-            '    def dfs(i, j, k):',
-            '        if k == len(word):',
-            '            return True',
-            '        if i < 0 or i >= m or j < 0 or j >= n:',
-            '            return False',
-            '        if board[i][j] != word[k]:',
-            '            return False',
-            "        board[i][j] = '#'",
-            '        found = (dfs(i+1, j, k+1) or dfs(i-1, j, k+1) or',
-            '                 dfs(i, j+1, k+1) or dfs(i, j-1, k+1))',
-            '        board[i][j] = word[k]',
-            '        return found',
-            '    return any(dfs(i, j, 0)',
-            '               for i in range(m) for j in range(n))',
-          ],
-          map: { start: 15, match: 10, found: 5, dead: 9, back: 13, done: 16 },
-        },
         cpp: {
           lines: [
             'bool exist(vector<vector<char>>& board, string word) {',

@@ -27,10 +27,6 @@ export const findMinimumInRotatedSortedArray: Problem = {
     return [[...sorted.slice(cut), ...sorted.slice(0, cut)]]
   },
   starter: {
-    py: `def findMin(nums):
-    # nums: list[int]  ->  int
-    pass
-`,
     js: `function findMin(nums) {
   // nums: number[]  ->  number
 }
@@ -51,20 +47,6 @@ export const findMinimumInRotatedSortedArray: Problem = {
       blurb:
         'The rotation leaves exactly one cliff where a big value is followed by a small one, and the minimum sits just after it. Compare the middle with the right end: it tells you which half contains the cliff, so half the array is discarded every step.',
       code: {
-        py: {
-          lines: [
-            'def findMin(nums):',
-            '    l, r = 0, len(nums) - 1',
-            '    while l < r:',
-            '        m = (l + r) // 2',
-            '        if nums[m] > nums[r]:',
-            '            l = m + 1',
-            '        else:',
-            '            r = m',
-            '    return nums[l]',
-          ],
-          map: { init: 2, mid: 4, right: 6, left: 8, done: 9 },
-        },
         cpp: {
           lines: [
             'int findMin(vector<int>& nums) {',

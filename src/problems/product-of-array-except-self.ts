@@ -22,10 +22,6 @@ export const productOfArrayExceptSelf: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => ((i * 7) % 3) - 1 || 1)],
   starter: {
-    py: `def productExceptSelf(nums):
-    # nums: list[int]  ->  list[int]
-    pass
-`,
     js: `function productExceptSelf(nums) {
   // nums: number[]  ->  number[]
 }
@@ -46,23 +42,6 @@ export const productOfArrayExceptSelf: Problem = {
       blurb:
         'The product of everything-except-me is (everything to my left) times (everything to my right). Sweep left to right writing the left products, then sweep right to left multiplying the right products in. No division ever needed.',
       code: {
-        py: {
-          lines: [
-            'def productExceptSelf(nums):',
-            '    n = len(nums)',
-            '    out = [1] * n',
-            '    left = 1',
-            '    for i in range(n):',
-            '        out[i] = left',
-            '        left *= nums[i]',
-            '    right = 1',
-            '    for i in range(n - 1, -1, -1):',
-            '        out[i] *= right',
-            '        right *= nums[i]',
-            '    return out',
-          ],
-          map: { init: 3, pre: 6, suf: 10, done: 12 },
-        },
         cpp: {
           lines: [
             'vector<int> productExceptSelf(vector<int>& nums) {',

@@ -22,10 +22,6 @@ export const reorderList: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: n }, (_, i) => i)],
   starter: {
-    py: `def reorderList(head):
-    # head: ListNode | None  ->  ListNode | None  (return the head)
-    pass
-`,
     js: `function reorderList(head) {
   // head: ListNode | null  ->  ListNode | null  (return the head)
 }
@@ -46,26 +42,6 @@ export const reorderList: Problem = {
       blurb:
         'Three moves you already know: slow/fast pointers find the middle, the back half reverses in place, and then the two halves interleave like shuffling two half-decks together. Each step is linear and reuses a standard pattern.',
       code: {
-        py: {
-          lines: [
-            'def reorderList(head):',
-            '    if not head or not head.next:',
-            '        return head',
-            '    slow, fast = head, head',
-            '    while fast.next and fast.next.next:',
-            '        slow, fast = slow.next, fast.next.next',
-            '    second = slow.next',
-            '    slow.next = None',
-            '    prev = None',
-            '    while second:',
-            '        second.next, prev, second = prev, second, second.next',
-            '    a, b = head, prev',
-            '    while b:',
-            '        a.next, b.next, a, b = b, a.next, a.next, b.next',
-            '    return head',
-          ],
-          map: { init: 4, mid: 7, rev: 11, weave: 14, done: 15 },
-        },
         cpp: {
           lines: [
             'ListNode* reorderList(ListNode* head) {',

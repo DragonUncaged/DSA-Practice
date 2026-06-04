@@ -32,10 +32,6 @@ export const uniquePaths: Problem = {
     return [k, k]
   },
   starter: {
-    py: `def uniquePaths(m, n):
-    # m: int, n: int  ->  int
-    pass
-`,
     js: `function uniquePaths(m, n) {
   // m: number, n: number  ->  number
 }
@@ -56,17 +52,6 @@ export const uniquePaths: Problem = {
       blurb:
         'Every path into a cell arrives from directly above or directly left — there is no third door. So the count for each cell is the sum of those two neighbours, and the border cells are all 1 because there is only one straight-line way along an edge.',
       code: {
-        py: {
-          lines: [
-            'def uniquePaths(m, n):',
-            '    row = [1] * n',
-            '    for i in range(1, m):',
-            '        for j in range(1, n):',
-            '            row[j] += row[j - 1]',
-            '    return row[-1]',
-          ],
-          map: { init: 2, fill: 5, done: 6 },
-        },
         cpp: {
           lines: [
             'int uniquePaths(int m, int n) {',

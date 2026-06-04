@@ -29,10 +29,6 @@ export const cloneGraph: Problem = {
     }),
   ],
   starter: {
-    py: `def cloneGraph(adjList):
-    # adjList: list[list[int]] (1-indexed neighbours)  ->  list[list[int]]
-    pass
-`,
     js: `function cloneGraph(adjList) {
   // adjList: number[][] (1-indexed neighbours)  ->  number[][]
 }
@@ -53,27 +49,6 @@ export const cloneGraph: Problem = {
       blurb:
         'The whole trick is one map from original node to its clone. Walk the graph breadth-first; the first time you meet a node, mint its clone and record it, and wire every edge through the map so shared neighbours resolve to the same clone instead of being copied twice.',
       code: {
-        py: {
-          lines: [
-            'def cloneGraph(adjList):',
-            '    if not adjList:',
-            '        return []',
-            '    n = len(adjList)',
-            '    cloned = [False] * (n + 1)',
-            '    copy = [[] for _ in range(n)]',
-            '    queue = [1]',
-            '    cloned[1] = True',
-            '    while queue:',
-            '        u = queue.pop(0)',
-            '        for v in adjList[u - 1]:',
-            '            copy[u - 1].append(v)',
-            '            if not cloned[v]:',
-            '                cloned[v] = True',
-            '                queue.append(v)',
-            '    return copy',
-          ],
-          map: { init: 7, visit: 10, wire: 12, mint: 14, done: 16 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> cloneGraph(vector<vector<int>>& adjList) {',

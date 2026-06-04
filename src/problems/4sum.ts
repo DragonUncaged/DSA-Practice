@@ -42,10 +42,6 @@ export const fourSum: Problem = {
   // distinct even values and an odd target: no duplicates to skip, no hits, so the pinch always runs full length
   scale: (n) => [Array.from({ length: n }, (_, i) => 2 * i - n), 1],
   starter: {
-    py: `def fourSum(nums, target):
-    # nums: list[int], target: int  ->  list[list[int]]
-    pass
-`,
     js: `function fourSum(nums, target) {
   // nums: number[], target: number  ->  number[][]
 }
@@ -66,34 +62,6 @@ export const fourSum: Problem = {
       blurb:
         'Sort first. Fix the two smallest members of the quadruplet and what is left is Two Sum on a sorted array — a left and right pointer pinching inward. Sorting makes duplicates adjacent, so skipping them at each level is one comparison, and the same trick keeps stacking: every extra fixed index costs one more factor of n.',
       code: {
-        py: {
-          lines: [
-            'def fourSum(nums, target):',
-            '    nums.sort()',
-            '    out = []',
-            '    n = len(nums)',
-            '    for i in range(n - 3):',
-            '        if i > 0 and nums[i] == nums[i - 1]:',
-            '            continue',
-            '        for j in range(i + 1, n - 2):',
-            '            if j > i + 1 and nums[j] == nums[j - 1]:',
-            '                continue',
-            '            l, r = j + 1, n - 1',
-            '            while l < r:',
-            '                s = nums[i] + nums[j] + nums[l] + nums[r]',
-            '                if s == target:',
-            '                    out.append([nums[i], nums[j], nums[l], nums[r]])',
-            '                    l += 1',
-            '                    while l < r and nums[l] == nums[l - 1]:',
-            '                        l += 1',
-            '                elif s < target:',
-            '                    l += 1',
-            '                else:',
-            '                    r -= 1',
-            '    return out',
-          ],
-          map: { init: 2, fixi: 5, skipi: 7, fixj: 11, skipj: 10, found: 15, lt: 20, gt: 22, done: 23 },
-        },
         cpp: {
           lines: [
             'vector<vector<int>> fourSum(vector<int>& nums, int target) {',

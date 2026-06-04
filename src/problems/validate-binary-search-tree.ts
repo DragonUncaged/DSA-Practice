@@ -26,10 +26,6 @@ export const validateBinarySearchTree: Problem = {
   demo: DEMO,
   scale: (n) => [Array.from({ length: Math.min(n, 2000) }, (_, i) => i)],
   starter: {
-    py: `def isValidBST(root):
-    # root: TreeNode | None  ->  bool
-    pass
-`,
     js: `function isValidBST(root) {
   // root: TreeNode | null  ->  boolean
 }
@@ -50,20 +46,6 @@ export const validateBinarySearchTree: Problem = {
       blurb:
         'Comparing each node with its parent misses violations against grandparents. The fix: every node inherits an allowed (low, high) range — going left tightens the ceiling to the node\'s value, going right raises the floor. A node outside its inherited range sinks the whole tree.',
       code: {
-        py: {
-          lines: [
-            'def isValidBST(root):',
-            "    def ok(node, lo=float('-inf'), hi=float('inf')):",
-            '        if node is None:',
-            '            return True',
-            '        if not (lo < node.val < hi):',
-            '            return False',
-            '        return (ok(node.left, lo, node.val) and',
-            '                ok(node.right, node.val, hi))',
-            '    return ok(root)',
-          ],
-          map: { init: 9, check: 5, bad: 6, descend: 7, done: 9 },
-        },
         cpp: {
           lines: [
             'bool isValidBST(TreeNode* root) {',
