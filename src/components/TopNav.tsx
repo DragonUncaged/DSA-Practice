@@ -32,6 +32,9 @@ export function TopNav() {
         <Link href="/sde" className={`${s.link} ${path.startsWith('/sde') ? s.on : ''}`}>
           SDE Sheet
         </Link>
+        <Link href="/premium" className={`${s.link} ${path.startsWith('/premium') ? s.on : ''}`}>
+          Premium
+        </Link>
         <Link
           href="/company/google"
           className={`${s.link} ${path.startsWith('/company') ? s.on : ''}`}

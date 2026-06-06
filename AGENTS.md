@@ -11,6 +11,9 @@ module under `src/problems/`, an entry in Sheet's `TRACKS` map, a route that ren
 and a `TopNav` link — see `src/problems/companies.ts` and `src/app/company/google/page.tsx` for the
 smallest complete example. Never fork `Sheet`; search, filters, progress and collapsible groups all
 live there. Progress is keyed by `problemId ?? slug`, so the same problem shares state across tracks.
+A row without a trace is not dead: it opens on LeetCode, using `SheetEntry.leetcode` when the track
+knows the real slug (see `src/problems/premium.ts`) and otherwise the slugified title, which is
+best-effort and misses for titles we spell differently.
 
 ## Problems
 

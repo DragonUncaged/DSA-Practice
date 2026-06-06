@@ -6,6 +6,7 @@ import { useAssisted, useProgress } from '@/lib/store'
 import type { Difficulty } from '@/lib/types'
 import { SHEET_GROUPS, type SheetEntry } from '@/problems'
 import { COMPANY_GROUPS, COMPANY_TITLES } from '@/problems/companies'
+import { PREMIUM_GROUPS } from '@/problems/premium'
 import { SDE_GROUPS } from '@/problems/sde'
 import s from './Sheet.module.scss'
 
@@ -16,7 +17,7 @@ const DIFF_COLOR: Record<Difficulty, string> = {
   Hard: '#FF7A59',
 }
 
-export type TrackId = 'blind75' | 'sde' | 'google'
+export type TrackId = 'blind75' | 'sde' | 'google' | 'premium'
 
 /**
  * Track definitions live here, on the client side of the boundary, so pages
@@ -55,7 +56,24 @@ const TRACKS: Record<
     ),
     groups: COMPANY_GROUPS.google,
   },
+  premium: {
+    title: 'Premium',
+    blurb: (
+      <>
+        The eighty-nine <span className={s.hl}>subscriber-only</span> problems, grouped by
+        difficulty. Almost none have a trace yet; every row without one opens on LeetCode.
+      </>
+    ),
+    groups: PREMIUM_GROUPS,
+  },
 }
+
+/**
+ * Where an unbuilt row sends you. `slug` is already the slugified title, so the
+ * fallback lands on LeetCode for most rows and misses for the few we spell
+ * differently - still better than the dead row it replaces.
+ */
+const leetcodeUrl = (e: SheetEntry) => e.leetcode ?? `https://leetcode.com/problems/${e.slug}/`
 
 /** A row is keyed by its trace id when one exists, so progress survives authoring. */
 const keyOf = (e: SheetEntry) => e.problemId ?? e.slug
@@ -251,7 +269,9 @@ export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
                   <span className={`${s.diffLabel} ${s[e.difficulty.toLowerCase()]}`}>
                     {e.difficulty}
                   </span>
-                  <span className={`${s.arrow} ${live ? '' : s.off}`}>&rarr;</span>
+                  <span className={`${s.arrow} ${live ? '' : s.off}`}>
+                    {live ? <>&rarr;</> : <>&#8599;</>}
+                  </span>
                 </>
               )
 
@@ -260,9 +280,16 @@ export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
                   {inner}
                 </Link>
               ) : (
-                <div key={e.slug} className={`${s.row} ${s.soon}`} title="Not built yet">
+                <a
+                  key={e.slug}
+                  href={leetcodeUrl(e)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Not built yet, opens on LeetCode"
+                  className={`${s.row} ${s.soon}`}
+                >
                   {inner}
-                </div>
+                </a>
               )
               })}
           </section>

@@ -179,6 +179,11 @@ export interface SheetEntry {
   /** Set when a trace exists; otherwise the row shows as not yet authored. */
   problemId?: string
   slug: string
+  /**
+   * Where an unbuilt row sends you. Tracks that know the real LeetCode slug
+   * set it; the rest fall back to the slugified title, which is best-effort.
+   */
+  leetcode?: string
 }
 
 const slugify = (s: string) =>

@@ -334,9 +334,14 @@
     background: $ink-800;
   }
 
+  /* not built here yet — dimmed, but it still opens the problem on LeetCode */
   &.soon {
     opacity: 0.72;
-    cursor: default;
+  }
+
+  &.soon:hover {
+    opacity: 0.9;
+    border-color: $hair-strong;
   }
 }
 
