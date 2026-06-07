@@ -154,8 +154,8 @@ export interface Frame {
 
 export interface CodeBlock {
   lines: string[]
-  /** step key to 1-based line number in `lines`. */
-  map: Record<string, number>
+  /** step key to 1-based line number in `lines`. Absent on a practice-only problem. */
+  map?: Record<string, number>
 }
 
 export interface Counter {
@@ -170,10 +170,15 @@ export interface Solution {
   space: string
   blurb: string
   code: Record<Lang, CodeBlock>
-  /* `any` rather than `any[]` so a problem can destructure its own argument
-     tuple — `(t, [nums, target])` — without tripping parameter variance. */
+  /**
+   * Omitted on a practice-only problem: no animation, no step map, and the
+   * player drops its Trace and Brute vs Optimal tabs.
+   *
+   * `any` rather than `any[]` so a problem can destructure its own argument
+   * tuple — `(t, [nums, target])` — without tripping parameter variance.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  trace: (t: Tracer, args: any) => void
+  trace?: (t: Tracer, args: any) => void
   /** Untraced run used by the complexity meter; must bump `c.ops` per unit of work. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   run: (args: any, c: Counter) => unknown

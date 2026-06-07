@@ -47,23 +47,10 @@ const TRACKS: Record<
   },
   google: {
     title: COMPANY_TITLES.google,
-    blurb: (
-      <>
-        Sixty-two problems Google leans on — a{' '}
-        <span className={s.hl}>core</span> ten and the set the same collection files
-        alongside them. Most have no trace yet; they light up as traces land.
-      </>
-    ),
     groups: COMPANY_GROUPS.google,
   },
   premium: {
     title: 'Premium',
-    blurb: (
-      <>
-        The eighty-nine <span className={s.hl}>subscriber-only</span> problems, grouped by
-        difficulty. Almost none have a trace yet; every row without one opens on LeetCode.
-      </>
-    ),
     groups: PREMIUM_GROUPS,
   },
 }

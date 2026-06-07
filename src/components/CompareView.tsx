@@ -9,7 +9,7 @@ import s from './CompareView.module.scss'
 const BEAT_MS = 900
 
 function buildFrames(solution: Solution | undefined, demo: unknown[]): Frame[] {
-  if (!solution) return []
+  if (!solution?.trace) return []
   const t = new Tracer(900)
   try {
     solution.trace(t, demo)

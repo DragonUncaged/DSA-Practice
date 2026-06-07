@@ -6,6 +6,7 @@ import type { Lang, Problem } from '@/lib/types'
 import { useTraceStore, usePrefs, useProgress, useReveal, type RevealLevel } from '@/lib/store'
 import { useTrace, useTraceKeys } from '@/lib/useTrace'
 import { PATTERN_OF_PROBLEM } from '@/patterns'
+import { hasTrace } from '@/problems'
 import { CodePane, StatePane, Stage, Transport } from './PlayerParts'
 import { CompareView } from './CompareView'
 import { Practice } from './Practice'
@@ -15,7 +16,9 @@ import s from './Player.module.scss'
 type Tab = 'trace' | 'compare' | 'practice'
 
 export function Player({ problem }: { problem: Problem }) {
-  const [tab, setTab] = useState<Tab>('trace')
+  // A practice-only problem has no animation, so it opens straight on the editor.
+  const traced = hasTrace(problem)
+  const [tab, setTab] = useState<Tab>(traced ? 'trace' : 'practice')
   const [solutionId, setSolutionId] = useState(problem.solutions[0]?.id)
 
   const prefs = usePrefs()
@@ -47,7 +50,7 @@ export function Player({ problem }: { problem: Problem }) {
   const [watchedMap, setWatchedMap] = useState<Record<string, number[]>>({})
   const watchKey = `${solution?.id ?? ''}:${prefs.lang}`
   const hotLine =
-    solution && player.frame ? solution.code[prefs.lang]?.map[player.frame.step] : undefined
+    solution && player.frame ? solution.code[prefs.lang]?.map?.[player.frame.step] : undefined
   if (hotLine != null && !(watchedMap[watchKey] ?? []).includes(hotLine)) {
     setWatchedMap((m) => ({ ...m, [watchKey]: [...(m[watchKey] ?? []), hotLine] }))
   }
@@ -56,7 +59,7 @@ export function Player({ problem }: { problem: Problem }) {
   const hasBrute = problem.solutions.some((x) => x.kind === 'brute')
   // The two informational tabs sit together; Practice is the primary action
   // and is rendered separately as a pill on the far side of the bar.
-  const infoTabs: Tab[] = ['trace', ...(hasBrute ? (['compare'] as Tab[]) : [])]
+  const infoTabs: Tab[] = traced ? ['trace', ...(hasBrute ? (['compare'] as Tab[]) : [])] : []
 
   // Fullscreen belongs to the body, not to Practice: it hides the header and
   // tab bar so statement, editor and tests share the viewport. Esc exits

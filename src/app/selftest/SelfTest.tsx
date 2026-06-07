@@ -9,6 +9,8 @@ import { PROBLEMS } from '@/problems'
 interface Row {
   problem: string
   solution: string
+  /** No trace authored: the frame and step-mapping checks don't apply. */
+  practiceOnly: boolean
   frames: number
   unmappedSteps: string[]
   testsPassed: number
@@ -23,6 +25,7 @@ function check(problem: Problem): Row[] {
     const row: Row = {
       problem: problem.title,
       solution: sol.label,
+      practiceOnly: sol.trace == null,
       frames: 0,
       unmappedSteps: [],
       testsPassed: 0,
@@ -33,22 +36,27 @@ function check(problem: Problem): Row[] {
     }
 
     // 1. does the trace run, and does every step it emits map to a code line?
-    try {
-      const t = new Tracer()
-      sol.trace(t, problem.demo)
-      row.frames = t.frames.length
-      const steps = new Set(t.frames.map((f) => f.step))
-      for (const step of steps) {
-        for (const lang of ['cpp', 'js'] as const) {
-          const line = sol.code[lang].map[step]
-          if (line == null) row.unmappedSteps.push(`${lang}:${step}`)
-          else if (line < 1 || line > sol.code[lang].lines.length) {
-            row.unmappedSteps.push(`${lang}:${step}=>line ${line} out of range`)
+    // A practice-only solution has neither, so both checks are skipped and the
+    // row is labelled rather than silently passing as a healthy trace.
+    const trace = sol.trace
+    if (trace) {
+      try {
+        const t = new Tracer()
+        trace(t, problem.demo)
+        row.frames = t.frames.length
+        const steps = new Set(t.frames.map((f) => f.step))
+        for (const step of steps) {
+          for (const lang of ['cpp', 'js'] as const) {
+            const line = sol.code[lang].map?.[step]
+            if (line == null) row.unmappedSteps.push(`${lang}:${step}`)
+            else if (line < 1 || line > sol.code[lang].lines.length) {
+              row.unmappedSteps.push(`${lang}:${step}=>line ${line} out of range`)
+            }
           }
         }
+      } catch (e) {
+        row.error = `trace: ${(e as Error).message}`
       }
-    } catch (e) {
-      row.error = `trace: ${(e as Error).message}`
     }
 
     // 2. does the reference solution actually answer its own tests?
@@ -91,8 +99,10 @@ function check(problem: Problem): Row[] {
 
 export function SelfTest() {
   const rows = useMemo(() => PROBLEMS.flatMap(check), [])
+  const practiceOnly = rows.filter((r) => r.practiceOnly).length
   const bad = rows.filter(
-    (r) => r.error || r.frames === 0 || r.unmappedSteps.length || r.failures.length,
+    (r) =>
+      r.error || (!r.practiceOnly && r.frames === 0) || r.unmappedSteps.length || r.failures.length,
   )
 
   const cell: React.CSSProperties = {
@@ -110,6 +120,8 @@ export function SelfTest() {
         {bad.length === 0
           ? `All ${rows.length} solutions across ${PROBLEMS.length} problems are healthy.`
           : `${bad.length} of ${rows.length} solutions have problems.`}
+        {practiceOnly > 0 &&
+          ` ${practiceOnly} ${practiceOnly === 1 ? 'is' : 'are'} practice-only — tests checked, no trace to check.`}
       </p>
 
       <table style={{ borderCollapse: 'collapse', width: '100%' }}>
@@ -127,7 +139,7 @@ export function SelfTest() {
           {rows.map((r, i) => {
             const issues = [
               r.error,
-              r.frames === 0 ? 'no frames' : null,
+              !r.practiceOnly && r.frames === 0 ? 'no frames' : null,
               ...r.unmappedSteps.map((u) => `unmapped ${u}`),
               ...r.failures,
             ].filter(Boolean)
@@ -135,7 +147,7 @@ export function SelfTest() {
               <tr key={i} style={{ color: issues.length ? '#FF7A59' : '#9A9EA7' }}>
                 <td style={cell}>{r.problem}</td>
                 <td style={cell}>{r.solution}</td>
-                <td style={cell}>{r.frames}</td>
+                <td style={cell}>{r.practiceOnly ? 'practice-only' : r.frames}</td>
                 <td style={cell}>
                   {r.testsPassed}/{r.testsTotal}
                 </td>

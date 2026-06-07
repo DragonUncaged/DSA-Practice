@@ -37,7 +37,7 @@ export function PatternIntro({ id }: { id: string }) {
   const player = useTrace(demoSolution, [])
   useTraceKeys(player)
 
-  const hot = player.frame ? pattern.pseudo.map[player.frame.step] : undefined
+  const hot = player.frame ? pattern.pseudo.map?.[player.frame.step] : undefined
   const solvedCount = pattern.ramp.filter((id) => progress[id] === 'solved').length
   const nextUp = pattern.ramp.find((id) => progress[id] !== 'solved') ?? pattern.ramp[0]
 

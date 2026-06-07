@@ -1,6 +1,7 @@
 import type { Difficulty, Problem } from '@/lib/types'
 import { threeSum } from './3sum'
 import { fourSum } from './4sum'
+import { fixturePracticeOnly } from './_fixture-practice-only'
 import { addAndSearchWord } from './add-and-search-word'
 import { alienDictionary } from './alien-dictionary'
 import { bestTimeToBuyAndSellStock } from './best-time-to-buy-and-sell-stock'
@@ -76,7 +77,10 @@ import { wordBreak } from './word-break'
 import { wordSearch } from './word-search'
 import { wordSearchII } from './word-search-ii'
 
-/** Every Blind 75 problem, each with a hand-authored trace. */
+/**
+ * Every Blind 75 problem, each with a hand-authored trace, plus any
+ * practice-only problem — one with tests and a reference solution but no trace.
+ */
 export const PROBLEMS: Problem[] = [
   // Array
   twoSum,
@@ -164,9 +168,17 @@ export const PROBLEMS: Problem[] = [
   // Heap
   topKFrequentElements,
   findMedianFromDataStream,
+  // Practice-only (in no sheet)
+  fixturePracticeOnly,
 ]
 
 export const byId = (id: string) => PROBLEMS.find((p) => p.id === id)
+
+/**
+ * A practice-only problem ships an editor, tests and a reference solution but
+ * no animation, so the player hides Trace and Brute vs Optimal for it.
+ */
+export const hasTrace = (problem: Problem) => problem.solutions.some((s) => s.trace != null)
 
 // ---------------------------------------------------------------------------
 // The full sheet

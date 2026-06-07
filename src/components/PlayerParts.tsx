@@ -179,7 +179,7 @@ export function CodePane({
   children?: React.ReactNode
 }) {
   const block: CodeBlock | undefined = solution?.code[lang]
-  const hot = block && step ? block.map[step] : undefined
+  const hot = block && step ? block.map?.[step] : undefined
   const [copied, setCopied] = useState(false)
 
   const copy = async () => {

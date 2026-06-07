@@ -27,7 +27,8 @@ export interface TracePlayer {
  */
 export function useTrace(solution: Solution | undefined, demo: unknown[]): TracePlayer {
   const frames = useMemo(() => {
-    if (!solution) return []
+    // A practice-only solution has no trace; it plays as zero frames.
+    if (!solution?.trace) return []
     const t = new Tracer()
     try {
       solution.trace(t, demo)

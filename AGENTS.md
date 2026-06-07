@@ -21,7 +21,10 @@ A problem is one file under `src/problems/` exporting a `Problem` (type in `src/
 registered in `src/problems/index.ts`; `src/problems/3sum.ts` is the smallest complete template. A
 sheet row goes live when a registered id equals the row's slugified title (or its explicit id). Write a
 solution and step map for every `Lang`, then serve a build and open `/selftest`: it checks frames,
-unmapped steps and the reference solution against its own tests. Practice compiles C++ on
+unmapped steps and the reference solution against its own tests. A problem whose solutions omit
+`trace` and `code[lang].map` is practice-only — `hasTrace` in `src/problems/index.ts` decides, the
+player hides Trace and Brute vs Optimal and opens on Practice, and `/selftest` labels the row and
+checks only its tests; `_fixture-practice-only.ts` is the template. Practice compiles C++ on
 godbolt.org, so Run tests needs network for that language; JavaScript runs in a local Web Worker.
 
 ## Maintaining this file
