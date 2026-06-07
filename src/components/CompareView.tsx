@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Tracer, type Frame, type Lang, type Problem, type Solution } from '@/lib/types'
+import { Tracer, type Frame, type Lang, type PracticeProblem, type Solution } from '@/lib/types'
 import { Stage } from './PlayerParts'
 import parts from './PlayerParts.module.scss'
 import s from './CompareView.module.scss'
@@ -25,7 +25,7 @@ function buildFrames(solution: Solution | undefined, demo: unknown[]): Frame[] {
  * force is still grinding — that gap is the entire lesson, so nothing here
  * normalises the two timelines to the same length.
  */
-export function CompareView({ problem }: { problem: Problem; lang: Lang }) {
+export function CompareView({ problem }: { problem: PracticeProblem; lang: Lang }) {
   const brute = problem.solutions.find((x) => x.kind === 'brute')
   const optimal = problem.solutions.find((x) => x.kind === 'optimal') ?? problem.solutions[0]
 

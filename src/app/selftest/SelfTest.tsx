@@ -11,6 +11,8 @@ interface Row {
   solution: string
   /** No trace authored: the frame and step-mapping checks don't apply. */
   practiceOnly: boolean
+  /** No signature either: there is no editor and no test table to check. */
+  statementOnly: boolean
   frames: number
   unmappedSteps: string[]
   testsPassed: number
@@ -21,15 +23,37 @@ interface Row {
 }
 
 function check(problem: Problem): Row[] {
-  return problem.solutions.map((sol) => {
+  // A statement-only problem has no solutions and nothing to run; it still
+  // gets a row so the page accounts for every registered problem.
+  if (!problem.signature) {
+    return [
+      {
+        problem: problem.title,
+        solution: 'statement-only',
+        practiceOnly: true,
+        statementOnly: true,
+        frames: 0,
+        unmappedSteps: [],
+        testsPassed: 0,
+        testsTotal: 0,
+        failures: [],
+        growth: '',
+        error: null,
+      },
+    ]
+  }
+  const { signature } = problem
+  const tests = problem.tests ?? []
+  return (problem.solutions ?? []).map((sol) => {
     const row: Row = {
       problem: problem.title,
       solution: sol.label,
       practiceOnly: sol.trace == null,
+      statementOnly: false,
       frames: 0,
       unmappedSteps: [],
       testsPassed: 0,
-      testsTotal: problem.tests.length,
+      testsTotal: tests.length,
       failures: [],
       growth: '',
       error: null,
@@ -42,7 +66,7 @@ function check(problem: Problem): Row[] {
     if (trace) {
       try {
         const t = new Tracer()
-        trace(t, problem.demo)
+        trace(t, problem.demo ?? [])
         row.frames = t.frames.length
         const steps = new Set(t.frames.map((f) => f.step))
         for (const step of steps) {
@@ -60,7 +84,7 @@ function check(problem: Problem): Row[] {
     }
 
     // 2. does the reference solution actually answer its own tests?
-    for (const test of problem.tests) {
+    for (const test of tests) {
       try {
         const got = sol.run(
           test.args.map((a) => (Array.isArray(a) ? structuredClone(a) : a)),
@@ -68,7 +92,7 @@ function check(problem: Problem): Row[] {
         )
         // linked list / tree reference runs report a node count, not the
         // structure, so only judge solutions whose run returns the real answer
-        if (problem.signature.ret === 'list' || problem.signature.ret === 'tree') {
+        if (signature.ret === 'list' || signature.ret === 'tree') {
           row.testsPassed++
           continue
         }
@@ -99,7 +123,8 @@ function check(problem: Problem): Row[] {
 
 export function SelfTest() {
   const rows = useMemo(() => PROBLEMS.flatMap(check), [])
-  const practiceOnly = rows.filter((r) => r.practiceOnly).length
+  const practiceOnly = rows.filter((r) => r.practiceOnly && !r.statementOnly).length
+  const statementOnly = rows.filter((r) => r.statementOnly).length
   const bad = rows.filter(
     (r) =>
       r.error || (!r.practiceOnly && r.frames === 0) || r.unmappedSteps.length || r.failures.length,
@@ -122,6 +147,7 @@ export function SelfTest() {
           : `${bad.length} of ${rows.length} solutions have problems.`}
         {practiceOnly > 0 &&
           ` ${practiceOnly} ${practiceOnly === 1 ? 'is' : 'are'} practice-only — tests checked, no trace to check.`}
+        {statementOnly > 0 && ` ${statementOnly} are statement-only — nothing to run.`}
       </p>
 
       <table style={{ borderCollapse: 'collapse', width: '100%' }}>
@@ -147,9 +173,11 @@ export function SelfTest() {
               <tr key={i} style={{ color: issues.length ? '#FF7A59' : '#9A9EA7' }}>
                 <td style={cell}>{r.problem}</td>
                 <td style={cell}>{r.solution}</td>
-                <td style={cell}>{r.practiceOnly ? 'practice-only' : r.frames}</td>
                 <td style={cell}>
-                  {r.testsPassed}/{r.testsTotal}
+                  {r.statementOnly ? 'statement-only' : r.practiceOnly ? 'practice-only' : r.frames}
+                </td>
+                <td style={cell}>
+                  {r.statementOnly ? '\u2014' : `${r.testsPassed}/${r.testsTotal}`}
                 </td>
                 <td style={cell}>{r.growth}</td>
                 <td style={{ ...cell, color: issues.length ? '#FF7A59' : '#3B3E44' }}>

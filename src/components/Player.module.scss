@@ -546,3 +546,68 @@
     color: $fg-dim;
   }
 }
+
+/* --- statement-only ------------------------------------------------------ */
+/* A design problem has no editor, so the main column carries the statement
+   itself rather than sitting empty behind a collapsible rail. */
+.statementOnly {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 28px;
+}
+
+.soCard {
+  @include panel($ink-850, 14px);
+  max-width: 640px;
+  padding: 26px 28px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.soKind {
+  @include kicker;
+  color: $accent-c;
+}
+
+.soTitle {
+  font-size: 20px;
+  font-weight: 500;
+  color: $fg;
+}
+
+.soBody {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: $fg-soft;
+
+  code {
+    @include mono(12px);
+    color: $lime;
+  }
+}
+
+.soNote {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: $fg-faint;
+  padding-top: 12px;
+  @include hair(t);
+}
+
+.soLink {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: $fg-dim;
+
+  &:hover {
+    color: $lime;
+  }
+}

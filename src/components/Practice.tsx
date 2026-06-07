@@ -5,7 +5,7 @@ import type { editor as MonacoNS } from 'monaco-editor'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildProgram, judge, partitionOutput, prettyValue } from '@/lib/harness'
 import { getDraft, useHydrated, usePrefs, useTraceStore } from '@/lib/store'
-import type { Lang, Problem } from '@/lib/types'
+import type { Lang, PracticeProblem } from '@/lib/types'
 import { runCode } from '@/runners'
 import { LANGS, LANG_LABEL } from './PlayerParts'
 import parts from './PlayerParts.module.scss'
@@ -71,7 +71,7 @@ export function Practice({
   fullscreen,
   onFullscreen,
 }: {
-  problem: Problem
+  problem: PracticeProblem
   lang: Lang
   onLang: (l: Lang) => void
   /** Owned by Player: fullscreen hides the site chrome around the whole body. */

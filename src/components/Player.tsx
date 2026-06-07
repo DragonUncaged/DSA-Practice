@@ -6,7 +6,7 @@ import type { Lang, Problem } from '@/lib/types'
 import { useTraceStore, usePrefs, useProgress, useReveal, type RevealLevel } from '@/lib/store'
 import { useTrace, useTraceKeys } from '@/lib/useTrace'
 import { PATTERN_OF_PROBLEM } from '@/patterns'
-import { hasTrace } from '@/problems'
+import { hasPractice, hasTrace } from '@/problems'
 import { CodePane, StatePane, Stage, Transport } from './PlayerParts'
 import { CompareView } from './CompareView'
 import { Practice } from './Practice'
@@ -16,21 +16,23 @@ import s from './Player.module.scss'
 type Tab = 'trace' | 'compare' | 'practice'
 
 export function Player({ problem }: { problem: Problem }) {
-  // A practice-only problem has no animation, so it opens straight on the editor.
+  // A practice-only problem has no animation, so it opens straight on the editor;
+  // a statement-only problem has neither, and shows the statement alone.
   const traced = hasTrace(problem)
+  const practice = hasPractice(problem) ? problem : null
   const [tab, setTab] = useState<Tab>(traced ? 'trace' : 'practice')
-  const [solutionId, setSolutionId] = useState(problem.solutions[0]?.id)
+  const [solutionId, setSolutionId] = useState(problem.solutions?.[0]?.id)
 
   const prefs = usePrefs()
   const progress = useProgress()
   const solved = progress[problem.id] === 'solved'
 
   const solution = useMemo(
-    () => problem.solutions.find((x) => x.id === solutionId) ?? problem.solutions[0],
+    () => problem.solutions?.find((x) => x.id === solutionId) ?? problem.solutions?.[0],
     [problem, solutionId],
   )
 
-  const player = useTrace(solution, problem.demo)
+  const player = useTrace(solution, problem.demo ?? [])
   // keyboard scrubbing belongs to the trace tab only; elsewhere space is typing
   useTraceKeys(player, tab === 'trace')
 
@@ -56,7 +58,7 @@ export function Player({ problem }: { problem: Problem }) {
   }
   const watched = useMemo(() => new Set(watchedMap[watchKey] ?? []), [watchedMap, watchKey])
 
-  const hasBrute = problem.solutions.some((x) => x.kind === 'brute')
+  const hasBrute = problem.solutions?.some((x) => x.kind === 'brute') ?? false
   // The two informational tabs sit together; Practice is the primary action
   // and is rendered separately as a pill on the far side of the bar.
   const infoTabs: Tab[] = traced ? ['trace', ...(hasBrute ? (['compare'] as Tab[]) : [])] : []
@@ -162,7 +164,7 @@ export function Player({ problem }: { problem: Problem }) {
 
         <span className={s.grow} />
 
-        {solved ? (
+        {!practice ? null : solved ? (
           <span className={`${s.solveBtn} ${s.on} ${s.earnedBadge}`} title="Every test case passed">
             <span>✓</span> Solved
           </span>
@@ -177,21 +179,27 @@ export function Player({ problem }: { problem: Problem }) {
         )}
       </header>
 
-      <nav className={s.tabBar}>
-        {infoTabs.map((t) => (
-          <button key={t} className={`${s.tab} ${tab === t ? s.on : ''}`} onClick={() => setTab(t)}>
-            {t === 'trace' ? 'Trace' : 'Brute vs Optimal'}
+      {practice && (
+        <nav className={s.tabBar}>
+          {infoTabs.map((t) => (
+            <button
+              key={t}
+              className={`${s.tab} ${tab === t ? s.on : ''}`}
+              onClick={() => setTab(t)}
+            >
+              {t === 'trace' ? 'Trace' : 'Brute vs Optimal'}
+            </button>
+          ))}
+          <span className={s.grow} />
+          <button
+            className={`${s.practiceTab} ${tab === 'practice' ? s.on : ''}`}
+            onClick={() => setTab('practice')}
+            title="Solve the problem in the editor and run it against every test case"
+          >
+            <span aria-hidden>&#9654;</span> Practice
           </button>
-        ))}
-        <span className={s.grow} />
-        <button
-          className={`${s.practiceTab} ${tab === 'practice' ? s.on : ''}`}
-          onClick={() => setTab('practice')}
-          title="Solve the problem in the editor and run it against every test case"
-        >
-          <span aria-hidden>&#9654;</span> Practice
-        </button>
-      </nav>
+        </nav>
+      )}
 
       <div className={s.body}>
         {prefs.showRail ? (
@@ -219,12 +227,14 @@ export function Player({ problem }: { problem: Problem }) {
         )}
 
         <section className={s.main}>
-          {tab === 'trace' && (
+          {!practice && <StatementOnly problem={problem} />}
+
+          {practice && tab === 'trace' && (
             <>
-              {problem.solutions.length > 1 && (
+              {(problem.solutions?.length ?? 0) > 1 && (
                 <div className={s.solutionSwitch}>
                   <div className={s.picker}>
-                    {problem.solutions.map((x) => (
+                    {problem.solutions?.map((x) => (
                       <button
                         key={x.id}
                         className={`${s.pick} ${x.id === solution?.id ? s.on : ''}`}
@@ -269,10 +279,10 @@ export function Player({ problem }: { problem: Problem }) {
             </>
           )}
 
-          {tab === 'compare' && <CompareView problem={problem} lang={prefs.lang} />}
-          {tab === 'practice' && (
+          {practice && tab === 'compare' && <CompareView problem={practice} lang={prefs.lang} />}
+          {practice && tab === 'practice' && (
             <Practice
-              problem={problem}
+              problem={practice}
               lang={prefs.lang}
               onLang={setLang}
               fullscreen={isFullscreen}
@@ -280,6 +290,39 @@ export function Player({ problem }: { problem: Problem }) {
             />
           )}
         </section>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+
+/**
+ * A statement-only problem: a class, an iterator or a callback API that no
+ * single function over `ParamType` can express, so there is no editor to open.
+ * The statement is repeated here because the rail beside it can be collapsed.
+ */
+function StatementOnly({ problem }: { problem: Problem }) {
+  return (
+    <div className={s.statementOnly}>
+      <div className={s.soCard}>
+        <div className={s.soKind}>Design problem</div>
+        <h2 className={s.soTitle}>{problem.title}</h2>
+        <p
+          className={s.soBody}
+          dangerouslySetInnerHTML={{ __html: renderStatement(problem.statement) }}
+        />
+        <p className={s.soNote}>
+          The answer here is a class you build up over many calls, not one function over an
+          array &mdash; so there is nothing for the editor to run. Read it, design it on paper,
+          then check yourself against LeetCode.
+        </p>
+        {problem.leetcode && (
+          <a className={s.soLink} href={problem.leetcode} target="_blank" rel="noreferrer">
+            <span>Solve it on LeetCode</span>
+            <span>&#8599;</span>
+          </a>
+        )}
       </div>
     </div>
   )
@@ -296,8 +339,8 @@ function InfoRail({
   width: number | null
   onCollapse: () => void
 }) {
-  const sample = problem.tests[0]
-  const optimal = problem.solutions[0]
+  const sample = problem.tests?.[0]
+  const optimal = problem.solutions?.[0]
   const guide = PATTERN_OF_PROBLEM[problem.id]
 
   return (
@@ -354,7 +397,7 @@ function InfoRail({
         <div className={s.railSection}>
           <div className={s.railTitle}>Example</div>
           <div className={s.io}>
-            {problem.signature.params.map((p, i) => (
+            {problem.signature?.params.map((p, i) => (
               <div key={p.name}>
                 <span className={s.ioKey}>{p.name}</span> = {JSON.stringify(sample.args[i])}
               </div>

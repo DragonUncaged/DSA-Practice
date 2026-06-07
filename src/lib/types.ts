@@ -224,20 +224,35 @@ export interface Problem {
   leetcode?: string
   statement: string
   constraints: string[]
-  signature: Signature
+  /**
+   * Omitted on a statement-only problem — a class, an iterator or a callback
+   * API that no single function over `ParamType` can express. Such a problem
+   * ships statement and constraints alone, and drops `tests`, `demo`,
+   * `starter` and `solutions` with it. `hasPractice` in `src/problems/index.ts`
+   * is the one place that asks; the player then renders the statement with no
+   * editor and no tabs.
+   */
+  signature?: Signature
   /** How a submitted answer is judged. `set`/`sorted` for order-insensitive results. */
   compare?: 'exact' | 'sorted' | 'set'
-  tests: TestCase[]
+  tests?: TestCase[]
   /** Arguments the animation runs on. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  demo: any[]
-  starter: Record<Lang, string>
+  demo?: any[]
+  starter?: Record<Lang, string>
   /** Index 0 is shown by default; a `brute` entry unlocks compare mode. */
-  solutions: Solution[]
+  solutions?: Solution[]
   /** Input generator for the complexity meter. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scale?: (n: number) => any[]
 }
+
+/**
+ * A problem the editor can actually run: everything `buildProgram` and the
+ * test table need is present. `hasPractice` narrows a `Problem` to this.
+ */
+export type PracticeProblem = Problem &
+  Required<Pick<Problem, 'signature' | 'tests' | 'demo' | 'starter' | 'solutions'>>
 
 // ---------------------------------------------------------------------------
 // Tracer

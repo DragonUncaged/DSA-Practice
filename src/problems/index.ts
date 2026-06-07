@@ -1,4 +1,4 @@
-import type { Difficulty, Problem } from '@/lib/types'
+import type { Difficulty, PracticeProblem, Problem } from '@/lib/types'
 import { threeSum } from './3sum'
 import { fourSum } from './4sum'
 import { fixturePracticeOnly } from './_fixture-practice-only'
@@ -178,7 +178,17 @@ export const byId = (id: string) => PROBLEMS.find((p) => p.id === id)
  * A practice-only problem ships an editor, tests and a reference solution but
  * no animation, so the player hides Trace and Brute vs Optimal for it.
  */
-export const hasTrace = (problem: Problem) => problem.solutions.some((s) => s.trace != null)
+export const hasTrace = (problem: Problem) =>
+  problem.solutions?.some((s) => s.trace != null) ?? false
+
+/**
+ * A statement-only problem — a stateful class, an iterator, or a callback API
+ * that no single function over `ParamType` can express — carries no signature,
+ * so there is nothing to put in an editor. Everything else in the player is
+ * driven off this one question.
+ */
+export const hasPractice = (problem: Problem): problem is PracticeProblem =>
+  problem.signature != null
 
 // ---------------------------------------------------------------------------
 // The full sheet
