@@ -77,6 +77,23 @@ import { wordBreak } from './word-break'
 import { wordSearch } from './word-search'
 import { wordSearchII } from './word-search-ii'
 
+// --- Google company track (practice-only) ---------------------------------
+import { addStrings } from './add-strings'
+import { findAnagramMappings } from './find-anagram-mappings'
+import { firstUniqueCharacter } from './first-unique-character-in-a-string'
+import { guessNumberHigherOrLower } from './guess-number-higher-or-lower'
+import { largestNumberAtLeastTwiceOfOthers } from './largest-number-at-least-twice-of-others'
+import { largestTriangleArea } from './largest-triangle-area'
+import { longestPalindrome } from './longest-palindrome'
+import { maxConsecutiveOnes } from './max-consecutive-ones'
+import { maximumAverageSubarray } from './maximum-average-subarray'
+import { plusOne } from './plus-one'
+import { rotatedDigits } from './rotated-digits'
+import { similarRgbColor } from './similar-rgb-color'
+import { subarraySumEqualsK } from './subarray-sum-equals-k'
+import { toeplitzMatrix } from './toeplitz-matrix'
+// --- end Google company track ---------------------------------------------
+
 /**
  * Every Blind 75 problem, each with a hand-authored trace, plus any
  * practice-only problem — one with tests and a reference solution but no trace.
@@ -170,6 +187,22 @@ export const PROBLEMS: Problem[] = [
   findMedianFromDataStream,
   // Practice-only (in no sheet)
   fixturePracticeOnly,
+  // Google company track (practice-only)
+  plusOne,
+  addStrings,
+  similarRgbColor,
+  toeplitzMatrix,
+  maxConsecutiveOnes,
+  firstUniqueCharacter,
+  longestPalindrome,
+  guessNumberHigherOrLower,
+  findAnagramMappings,
+  subarraySumEqualsK,
+  maximumAverageSubarray,
+  largestTriangleArea,
+  rotatedDigits,
+  largestNumberAtLeastTwiceOfOthers,
+  // end Google company track
 ]
 
 export const byId = (id: string) => PROBLEMS.find((p) => p.id === id)
