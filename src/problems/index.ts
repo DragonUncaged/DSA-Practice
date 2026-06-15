@@ -92,6 +92,19 @@ import { rotatedDigits } from './rotated-digits'
 import { similarRgbColor } from './similar-rgb-color'
 import { subarraySumEqualsK } from './subarray-sum-equals-k'
 import { toeplitzMatrix } from './toeplitz-matrix'
+import { binaryTreePaths } from './binary-tree-paths'
+import { boldWordsInString } from './bold-words-in-string'
+import { diameterOfBinaryTree } from './diameter-of-binary-tree'
+import { findModeInBinarySearchTree } from './find-mode-in-binary-search-tree'
+import { judgeRouteCircle } from './judge-route-circle'
+import { longestUnivaluePath } from './longest-univalue-path'
+import { minimumAbsoluteDifferenceInBst } from './minimum-absolute-difference-in-bst'
+import { minimumDifferenceBetweenBstNodes } from './minimum-difference-between-bst-nodes'
+import { nonDecreasingArray } from './non-decreasing-array'
+import { repeatedStringMatch } from './repeated-string-match'
+import { sentenceSimilarity } from './sentence-similarity'
+import { shortestUnsortedContinuousSubarray } from './shortest-unsorted-continuous-subarray'
+import { studentAttendanceRecordI } from './student-attendance-record-i'
 // --- end Google company track ---------------------------------------------
 
 /**
@@ -202,6 +215,19 @@ export const PROBLEMS: Problem[] = [
   largestTriangleArea,
   rotatedDigits,
   largestNumberAtLeastTwiceOfOthers,
+  binaryTreePaths,
+  diameterOfBinaryTree,
+  longestUnivaluePath,
+  minimumDifferenceBetweenBstNodes,
+  minimumAbsoluteDifferenceInBst,
+  findModeInBinarySearchTree,
+  sentenceSimilarity,
+  boldWordsInString,
+  repeatedStringMatch,
+  nonDecreasingArray,
+  judgeRouteCircle,
+  shortestUnsortedContinuousSubarray,
+  studentAttendanceRecordI,
   // end Google company track
 ]
 
