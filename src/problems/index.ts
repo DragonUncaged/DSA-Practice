@@ -105,6 +105,20 @@ import { repeatedStringMatch } from './repeated-string-match'
 import { sentenceSimilarity } from './sentence-similarity'
 import { shortestUnsortedContinuousSubarray } from './shortest-unsorted-continuous-subarray'
 import { studentAttendanceRecordI } from './student-attendance-record-i'
+import { detectCapital } from './detect-capital'
+import { findAllNumbersDisappearedInAnArray } from './find-all-numbers-disappeared-in-an-array'
+import { findTheDifference } from './find-the-difference'
+import { islandPerimeter } from './island-perimeter'
+import { licenseKeyFormatting } from './license-key-formatting'
+import { longestUncommonSubsequenceI } from './longest-uncommon-subsequence-i'
+import { nthDigit } from './nth-digit'
+import { numberOfBoomerangs } from './number-of-boomerangs'
+import { powerOfThree } from './power-of-three'
+import { powerOfTwo } from './power-of-two'
+import { relativeRanks } from './relative-ranks'
+import { repeatedSubstringPattern } from './repeated-substring-pattern'
+import { reverseStringII } from './reverse-string-ii'
+import { reverseVowelsOfAString } from './reverse-vowels-of-a-string'
 // --- end Google company track ---------------------------------------------
 
 /**
@@ -228,6 +242,20 @@ export const PROBLEMS: Problem[] = [
   judgeRouteCircle,
   shortestUnsortedContinuousSubarray,
   studentAttendanceRecordI,
+  reverseStringII,
+  longestUncommonSubsequenceI,
+  detectCapital,
+  relativeRanks,
+  licenseKeyFormatting,
+  islandPerimeter,
+  repeatedSubstringPattern,
+  findAllNumbersDisappearedInAnArray,
+  numberOfBoomerangs,
+  nthDigit,
+  findTheDifference,
+  reverseVowelsOfAString,
+  powerOfThree,
+  powerOfTwo,
   // end Google company track
 ]
 
