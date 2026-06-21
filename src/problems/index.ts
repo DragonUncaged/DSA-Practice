@@ -119,6 +119,14 @@ import { relativeRanks } from './relative-ranks'
 import { repeatedSubstringPattern } from './repeated-substring-pattern'
 import { reverseStringII } from './reverse-string-ii'
 import { reverseVowelsOfAString } from './reverse-vowels-of-a-string'
+import { heaters } from './heaters'
+import { inputStream } from './input-stream'
+import { palindromicRanges } from './palindromic-ranges'
+import { qualityInspection } from './quality-inspection'
+import { removeDuplicateLetters } from './remove-duplicate-letters'
+import { sameNumber } from './same-number'
+import { theJudgesGiveProblem } from './the-judges-give-problem'
+import { twitchWords } from './twitch-words'
 // --- end Google company track ---------------------------------------------
 
 /**
@@ -256,6 +264,15 @@ export const PROBLEMS: Problem[] = [
   reverseVowelsOfAString,
   powerOfThree,
   powerOfTwo,
+  inputStream,
+  twitchWords,
+  removeDuplicateLetters,
+  heaters,
+  // Statement-only: LintCode-specific problems TRACE cannot state exactly.
+  sameNumber,
+  palindromicRanges,
+  theJudgesGiveProblem,
+  qualityInspection,
   // end Google company track
 ]
 
