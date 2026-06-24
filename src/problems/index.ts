@@ -129,6 +129,11 @@ import { theJudgesGiveProblem } from './the-judges-give-problem'
 import { twitchWords } from './twitch-words'
 // --- end Google company track ---------------------------------------------
 
+// --- LeetCode Premium ------------------------------------------------------
+// Authored as one block so this file stays easy to rebase while other tracks
+// land alongside it. Every entry is practice-only or statement-only.
+import { PREMIUM_PROBLEMS } from './premium-index'
+
 /**
  * Every Blind 75 problem, each with a hand-authored trace, plus any
  * practice-only problem — one with tests and a reference solution but no trace.
@@ -274,6 +279,9 @@ export const PROBLEMS: Problem[] = [
   theJudgesGiveProblem,
   qualityInspection,
   // end Google company track
+
+  // LeetCode Premium
+  ...PREMIUM_PROBLEMS,
 ]
 
 export const byId = (id: string) => PROBLEMS.find((p) => p.id === id)
