@@ -1,6 +1,9 @@
 import type { Problem } from '@/lib/types'
 import { threeSumSmaller } from './3sum-smaller'
+import { bestMeetingPoint } from './best-meeting-point'
+import { binaryTreeLongestConsecutive } from './binary-tree-longest-consecutive-sequence'
 import { binaryTreeUpsideDown } from './binary-tree-upside-down'
+import { binaryTreeVerticalOrder } from './binary-tree-vertical-order-traversal'
 import { closestBSTValue } from './closest-binary-search-tree-value'
 import { closestBSTValueII } from './closest-binary-search-tree-value-ii'
 import { countUnivalueSubtrees } from './count-univalue-subtrees'
@@ -9,22 +12,31 @@ import { findTheCelebrity } from './find-the-celebrity'
 import { flatten2DVector } from './flatten-2d-vector'
 import { flipGame } from './flip-game'
 import { flipGameII } from './flip-game-ii'
+import { generalizedAbbreviation } from './generalized-abbreviation'
 import { groupShiftedStrings } from './group-shifted-strings'
 import { inorderSuccessorInBST } from './inorder-successor-in-bst'
+import { largestBSTSubtree } from './largest-bst-subtree'
 import { longestSubstringTwoDistinct } from './longest-substring-with-at-most-two-distinct-characters'
+import { maximumSizeSubarraySumEqualsK } from './maximum-size-subarray-sum-equals-k'
 import { missingRanges } from './missing-ranges'
+import { nestedListWeightSum } from './nested-list-weight-sum'
+import { numberOfIslandsII } from './number-of-islands-ii'
 import { oneEditDistance } from './one-edit-distance'
 import { paintFence } from './paint-fence'
 import { paintHouse } from './paint-house'
 import { paintHouseII } from './paint-house-ii'
 import { palindromePermutation } from './palindrome-permutation'
 import { palindromePermutationII } from './palindrome-permutation-ii'
+import { rangeSumQuery2DMutable } from './range-sum-query-2d-mutable'
 import { readNCharactersGivenRead4 } from './read-n-characters-given-read4'
 import { readNCharactersGivenRead4II } from './read-n-characters-given-read4-ii-call-multiple-times'
 import { reverseWordsII } from './reverse-words-in-a-string-ii'
+import { shortestDistanceFromAllBuildings } from './shortest-distance-from-all-buildings'
 import { shortestWordDistance } from './shortest-word-distance'
 import { shortestWordDistanceII } from './shortest-word-distance-ii'
 import { shortestWordDistanceIII } from './shortest-word-distance-iii'
+import { smallestRectangleEnclosingBlackPixels } from './smallest-rectangle-enclosing-black-pixels'
+import { sparseMatrixMultiplication } from './sparse-matrix-multiplication'
 import { strobogrammaticNumber } from './strobogrammatic-number'
 import { strobogrammaticNumberII } from './strobogrammatic-number-ii'
 import { strobogrammaticNumberIII } from './strobogrammatic-number-iii'
@@ -82,4 +94,16 @@ export const PREMIUM_PROBLEMS: Problem[] = [
   wordPatternII,
   flipGame,
   flipGameII,
+  bestMeetingPoint,
+  binaryTreeLongestConsecutive,
+  smallestRectangleEnclosingBlackPixels,
+  numberOfIslandsII,
+  rangeSumQuery2DMutable,
+  sparseMatrixMultiplication,
+  binaryTreeVerticalOrder,
+  shortestDistanceFromAllBuildings,
+  generalizedAbbreviation,
+  maximumSizeSubarraySumEqualsK,
+  largestBSTSubtree,
+  nestedListWeightSum,
 ]

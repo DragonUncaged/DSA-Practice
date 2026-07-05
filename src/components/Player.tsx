@@ -298,24 +298,25 @@ export function Player({ problem }: { problem: Problem }) {
 // ---------------------------------------------------------------------------
 
 /**
- * A statement-only problem: a class, an iterator or a callback API that no
- * single function over `ParamType` can express, so there is no editor to open.
- * The statement is repeated here because the rail beside it can be collapsed.
+ * A statement-only problem: one that does not reduce to a single function the
+ * runner can call, so there is no editor to open. The reasons vary by track —
+ * a class, an iterator, a callback API, an interactive judge — so the copy here
+ * stays neutral. The statement is repeated because the rail can be collapsed.
  */
 function StatementOnly({ problem }: { problem: Problem }) {
   return (
     <div className={s.statementOnly}>
       <div className={s.soCard}>
-        <div className={s.soKind}>Design problem</div>
+        <div className={s.soKind}>Statement only</div>
         <h2 className={s.soTitle}>{problem.title}</h2>
         <p
           className={s.soBody}
           dangerouslySetInnerHTML={{ __html: renderStatement(problem.statement) }}
         />
         <p className={s.soNote}>
-          The answer here is a class you build up over many calls, not one function over an
-          array &mdash; so there is nothing for the editor to run. Read it, design it on paper,
-          then check yourself against LeetCode.
+          There is no editor for this problem yet &mdash; its shape does not reduce to one
+          function the runner can call against a test table. Read it, work it out on paper,
+          then check yourself on LeetCode.
         </p>
         {problem.leetcode && (
           <a className={s.soLink} href={problem.leetcode} target="_blank" rel="noreferrer">
