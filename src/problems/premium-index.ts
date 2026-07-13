@@ -8,11 +8,15 @@ import { binaryTreeVerticalOrder } from './binary-tree-vertical-order-traversal'
 import { bombEnemy } from './bomb-enemy'
 import { closestBSTValue } from './closest-binary-search-tree-value'
 import { closestBSTValueII } from './closest-binary-search-tree-value-ii'
+import { convertBSTToSortedDoublyLinkedList } from './convert-binary-search-tree-to-sorted-doubly-linked-list'
 import { countUnivalueSubtrees } from './count-univalue-subtrees'
 import { designHitCounter } from './design-hit-counter'
+import { designPhoneDirectory } from './design-phone-directory'
 import { designSnakeGame } from './design-snake-game'
 import { designTicTacToe } from './design-tic-tac-toe'
+import { encodeNaryTreeToBinaryTree } from './encode-n-ary-tree-to-binary-tree'
 import { factorCombinations } from './factor-combinations'
+import { findLeavesOfBinaryTree } from './find-leaves-of-binary-tree'
 import { findTheCelebrity } from './find-the-celebrity'
 import { flatten2DVector } from './flatten-2d-vector'
 import { flipGame } from './flip-game'
@@ -26,6 +30,7 @@ import { loggerRateLimiter } from './logger-rate-limiter'
 import { longestSubstringKDistinct } from './longest-substring-with-at-most-k-distinct-characters'
 import { longestSubstringTwoDistinct } from './longest-substring-with-at-most-two-distinct-characters'
 import { maximumSizeSubarraySumEqualsK } from './maximum-size-subarray-sum-equals-k'
+import { minimumUniqueWordAbbreviation } from './minimum-unique-word-abbreviation'
 import { missingRanges } from './missing-ranges'
 import { movingAverageFromDataStream } from './moving-average-from-data-stream'
 import { nestedListWeightSum } from './nested-list-weight-sum'
@@ -37,11 +42,15 @@ import { paintHouse } from './paint-house'
 import { paintHouseII } from './paint-house-ii'
 import { palindromePermutation } from './palindrome-permutation'
 import { palindromePermutationII } from './palindrome-permutation-ii'
+import { plusOneLinkedList } from './plus-one-linked-list'
+import { rangeAddition } from './range-addition'
 import { rangeSumQuery2DMutable } from './range-sum-query-2d-mutable'
 import { readNCharactersGivenRead4 } from './read-n-characters-given-read4'
 import { readNCharactersGivenRead4II } from './read-n-characters-given-read4-ii-call-multiple-times'
 import { rearrangeStringKDistanceApart } from './rearrange-string-k-distance-apart'
 import { reverseWordsII } from './reverse-words-in-a-string-ii'
+import { sentenceScreenFitting } from './sentence-screen-fitting'
+import { serializeAndDeserializeNaryTree } from './serialize-and-deserialize-n-ary-tree'
 import { shortestDistanceFromAllBuildings } from './shortest-distance-from-all-buildings'
 import { shortestWordDistance } from './shortest-word-distance'
 import { shortestWordDistanceII } from './shortest-word-distance-ii'
@@ -54,10 +63,13 @@ import { strobogrammaticNumberII } from './strobogrammatic-number-ii'
 import { strobogrammaticNumberIII } from './strobogrammatic-number-iii'
 import { twoSumIII } from './two-sum-iii-data-structure-design'
 import { uniqueWordAbbreviation } from './unique-word-abbreviation'
+import { validWordAbbreviation } from './valid-word-abbreviation'
+import { validWordSquare } from './valid-word-square'
 import { verifyPreorderSequence } from './verify-preorder-sequence-in-binary-search-tree'
 import { wallsAndGates } from './walls-and-gates'
 import { wiggleSort } from './wiggle-sort'
 import { wordPatternII } from './word-pattern-ii'
+import { wordSquares } from './word-squares'
 import { zigzagIterator } from './zigzag-iterator'
 
 /**
@@ -130,4 +142,16 @@ export const PREMIUM_PROBLEMS: Problem[] = [
   bombEnemy,
   designHitCounter,
   nestedListWeightSumII,
+  findLeavesOfBinaryTree,
+  plusOneLinkedList,
+  rangeAddition,
+  designPhoneDirectory,
+  validWordAbbreviation,
+  minimumUniqueWordAbbreviation,
+  sentenceScreenFitting,
+  validWordSquare,
+  wordSquares,
+  convertBSTToSortedDoublyLinkedList,
+  serializeAndDeserializeNaryTree,
+  encodeNaryTreeToBinaryTree,
 ]
