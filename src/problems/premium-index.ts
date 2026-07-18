@@ -9,14 +9,17 @@ import { bombEnemy } from './bomb-enemy'
 import { closestBSTValue } from './closest-binary-search-tree-value'
 import { closestBSTValueII } from './closest-binary-search-tree-value-ii'
 import { convertBSTToSortedDoublyLinkedList } from './convert-binary-search-tree-to-sorted-doubly-linked-list'
+import { convexPolygon } from './convex-polygon'
 import { countUnivalueSubtrees } from './count-univalue-subtrees'
 import { designHitCounter } from './design-hit-counter'
 import { designPhoneDirectory } from './design-phone-directory'
 import { designSnakeGame } from './design-snake-game'
 import { designTicTacToe } from './design-tic-tac-toe'
 import { encodeNaryTreeToBinaryTree } from './encode-n-ary-tree-to-binary-tree'
+import { encodeStringWithShortestLength } from './encode-string-with-shortest-length'
 import { factorCombinations } from './factor-combinations'
 import { findLeavesOfBinaryTree } from './find-leaves-of-binary-tree'
+import { findPermutation } from './find-permutation'
 import { findTheCelebrity } from './find-the-celebrity'
 import { flatten2DVector } from './flatten-2d-vector'
 import { flipGame } from './flip-game'
@@ -29,6 +32,7 @@ import { lineReflection } from './line-reflection'
 import { loggerRateLimiter } from './logger-rate-limiter'
 import { longestSubstringKDistinct } from './longest-substring-with-at-most-k-distinct-characters'
 import { longestSubstringTwoDistinct } from './longest-substring-with-at-most-two-distinct-characters'
+import { maxConsecutiveOnesII } from './max-consecutive-ones-ii'
 import { maximumSizeSubarraySumEqualsK } from './maximum-size-subarray-sum-equals-k'
 import { minimumUniqueWordAbbreviation } from './minimum-unique-word-abbreviation'
 import { missingRanges } from './missing-ranges'
@@ -37,6 +41,7 @@ import { nestedListWeightSum } from './nested-list-weight-sum'
 import { nestedListWeightSumII } from './nested-list-weight-sum-ii'
 import { numberOfIslandsII } from './number-of-islands-ii'
 import { oneEditDistance } from './one-edit-distance'
+import { optimalAccountBalancing } from './optimal-account-balancing'
 import { paintFence } from './paint-fence'
 import { paintHouse } from './paint-house'
 import { paintHouseII } from './paint-house-ii'
@@ -49,7 +54,9 @@ import { readNCharactersGivenRead4 } from './read-n-characters-given-read4'
 import { readNCharactersGivenRead4II } from './read-n-characters-given-read4-ii-call-multiple-times'
 import { rearrangeStringKDistanceApart } from './rearrange-string-k-distance-apart'
 import { reverseWordsII } from './reverse-words-in-a-string-ii'
+import { robotRoomCleaner } from './robot-room-cleaner'
 import { sentenceScreenFitting } from './sentence-screen-fitting'
+import { sequenceReconstruction } from './sequence-reconstruction'
 import { serializeAndDeserializeNaryTree } from './serialize-and-deserialize-n-ary-tree'
 import { shortestDistanceFromAllBuildings } from './shortest-distance-from-all-buildings'
 import { shortestWordDistance } from './shortest-word-distance'
@@ -61,6 +68,10 @@ import { sparseMatrixMultiplication } from './sparse-matrix-multiplication'
 import { strobogrammaticNumber } from './strobogrammatic-number'
 import { strobogrammaticNumberII } from './strobogrammatic-number-ii'
 import { strobogrammaticNumberIII } from './strobogrammatic-number-iii'
+import { ternaryExpressionParser } from './ternary-expression-parser'
+import { theMaze } from './the-maze'
+import { theMazeII } from './the-maze-ii'
+import { theMazeIII } from './the-maze-iii'
 import { twoSumIII } from './two-sum-iii-data-structure-design'
 import { uniqueWordAbbreviation } from './unique-word-abbreviation'
 import { validWordAbbreviation } from './valid-word-abbreviation'
@@ -154,4 +165,15 @@ export const PREMIUM_PROBLEMS: Problem[] = [
   convertBSTToSortedDoublyLinkedList,
   serializeAndDeserializeNaryTree,
   encodeNaryTreeToBinaryTree,
+  ternaryExpressionParser,
+  sequenceReconstruction,
+  optimalAccountBalancing,
+  convexPolygon,
+  encodeStringWithShortestLength,
+  findPermutation,
+  maxConsecutiveOnesII,
+  robotRoomCleaner,
+  theMaze,
+  theMazeIII,
+  theMazeII,
 ]
