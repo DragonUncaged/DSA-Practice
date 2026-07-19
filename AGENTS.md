@@ -19,6 +19,8 @@ best-effort and misses for titles we spell differently.
 
 A problem is one file under `src/problems/` exporting a `Problem` (type in `src/lib/types.ts`),
 registered in `src/problems/index.ts`; `src/problems/3sum.ts` is the smallest complete template. A
+whole track registers through one per-track array instead, so parallel work rebases cleanly — see
+`src/problems/premium-index.ts`, spread into `PROBLEMS`. A
 sheet row goes live when a registered id equals the row's slugified title (or its explicit id). Write a
 solution and step map for every `Lang`, then serve a build and open `/selftest`: it checks frames,
 unmapped steps and the reference solution against its own tests. A problem whose solutions omit
