@@ -79,7 +79,7 @@ export const plusOneLinkedList: Problem = {
 
       run([digits]: [number[]], c) {
         // the harness rebuilds the list; the cost here is one visit per digit
-        for (const _ of digits) c.ops++
+        c.ops += digits.length
         return digits.length
       },
     },

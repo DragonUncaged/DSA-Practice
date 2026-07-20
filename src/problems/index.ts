@@ -1,7 +1,6 @@
 import type { Difficulty, PracticeProblem, Problem } from '@/lib/types'
 import { threeSum } from './3sum'
 import { fourSum } from './4sum'
-import { fixturePracticeOnly } from './_fixture-practice-only'
 import { addAndSearchWord } from './add-and-search-word'
 import { alienDictionary } from './alien-dictionary'
 import { bestTimeToBuyAndSellStock } from './best-time-to-buy-and-sell-stock'
@@ -225,8 +224,6 @@ export const PROBLEMS: Problem[] = [
   // Heap
   topKFrequentElements,
   findMedianFromDataStream,
-  // Practice-only (in no sheet)
-  fixturePracticeOnly,
   // Google company track (practice-only)
   plusOne,
   addStrings,

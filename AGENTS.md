@@ -26,7 +26,7 @@ solution and step map for every `Lang`, then serve a build and open `/selftest`:
 unmapped steps and the reference solution against its own tests. A problem whose solutions omit
 `trace` and `code[lang].map` is practice-only — `hasTrace` in `src/problems/index.ts` decides, the
 player hides Trace and Brute vs Optimal and opens on Practice, and `/selftest` labels the row and
-checks only its tests; `_fixture-practice-only.ts` is the template. A problem that also omits
+checks only its tests; `src/problems/plus-one.ts` is the smallest one. A problem that also omits
 `signature` (and so `tests`, `demo`, `starter`, `solutions`) is statement-only — `hasPractice`
 decides, and the player shows the statement with no editor; use it only for a class, iterator or
 callback API no single `ParamType` function can express. Practice compiles C++ on
