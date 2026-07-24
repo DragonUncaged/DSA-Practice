@@ -8,7 +8,7 @@
  * ListNode/TreeNode simply shadows ours instead of colliding with it.
  */
 
-import type { Lang, ParamType, Signature, TestCase } from './types'
+import type { DesignSpec, DesignTestCase, Lang, ParamType, Signature, TestCase } from './types'
 
 /**
  * Prefixes every serialized result line so we can tell it apart from anything
@@ -100,7 +100,7 @@ static TreeNode* __toTree(const vector<string>& a) {
 static void __p(int x) { cout << x; }
 static void __p(long long x) { cout << x; }
 static void __p(bool x) { cout << (x ? "true" : "false"); }
-static void __p(double x) { cout << x; }
+static void __p(double x) { ostringstream o; o << setprecision(17) << x; cout << o.str(); }
 static void __p(char c) { cout << '"' << c << '"'; }
 static void __p(const string& s) { cout << '"' << s << '"'; }
 template <class T> static void __p(const vector<T>& v) {
@@ -260,6 +260,129 @@ ${userCode}
 int main() {
   ios::sync_with_stdio(false);
 ${calls}
+  return 0;
+}`
+}
+
+// ---------------------------------------------------------------------------
+// Design (class) problems
+// ---------------------------------------------------------------------------
+
+/**
+ * A design problem is driven as a class rather than as a function: construct
+ * `design.className` from `args[0]`, then dispatch `ops[i]` on that instance
+ * with `args[i]`. One case emits one value — the whole result list — so the
+ * existing `judge` compares it against `DesignTestCase.expect` in `exact` mode.
+ */
+export function buildDesignProgram(
+  lang: Lang,
+  userCode: string,
+  design: DesignSpec,
+  tests: DesignTestCase[],
+): string {
+  return lang === 'js' ? jsDesign(userCode, design, tests) : cppDesign(userCode, design, tests)
+}
+
+function jsDesign(userCode: string, design: DesignSpec, tests: DesignTestCase[]): string {
+  // Per-method argument builders and result readers, so a method taking a list
+  // or returning a tree gets exactly the wrapping a function signature would.
+  const lambdas = (params: { type: ParamType }[]) =>
+    `[${params.map((p) => `(v) => ${wrapArg('js', p.type, 'v')}`).join(', ')}]`
+
+  const methods = design.methods
+    .map(
+      (m) =>
+        `    ${q(m.name)}: { a: ${lambdas(m.params)}, r: ${
+          m.ret === 'void' ? '() => null' : `(r) => ${wrapRet('js', m.ret, 'r')}`
+        } },`,
+    )
+    .join('\n')
+
+  const cases = JSON.stringify(tests.map((t) => ({ ops: t.ops, args: t.args })))
+
+  return `${JS_PREAMBLE}
+// ---- your code ----
+${userCode}
+// ---- runner ----
+;(function () {
+  const __C = typeof ${design.className} === 'function' ? ${design.className} : null;
+  if (!__C) { console.error('Could not find a class named ${design.className}'); return; }
+  const __emit = (v) => console.log(${JSON.stringify(RESULT_MARK)} + JSON.stringify(v === undefined ? null : v));
+  const __msg = (e) => String((e && e.message) || e);
+  const __id = (v) => v;
+  const __ctor = ${lambdas(design.ctor)};
+  const __M = {
+${methods}
+  };
+  for (const __c of ${cases}) {
+    let __obj;
+    try {
+      __obj = new __C(...(__c.args[0] || []).map((v, i) => (__ctor[i] || __id)(v)));
+    } catch (e) {
+      __emit({ __error: 'constructor: ' + __msg(e) });
+      continue;
+    }
+    // the constructor contributes null, then every op contributes its return;
+    // one throwing op is isolated to its own slot, like a failing test case
+    const __out = [null];
+    for (let __i = 1; __i < __c.ops.length; __i++) {
+      const __spec = __M[__c.ops[__i]];
+      try {
+        if (!__spec) throw new Error('no method named ' + __c.ops[__i]);
+        const __a = (__c.args[__i] || []).map((v, k) => (__spec.a[k] || __id)(v));
+        const __r = __obj[__c.ops[__i]](...__a);
+        __out.push(__spec.r(__r === undefined ? null : __r));
+      } catch (e) {
+        __out.push({ __error: __msg(e) });
+      }
+    }
+    __emit(__out);
+  }
+})();`
+}
+
+function cppDesign(userCode: string, design: DesignSpec, tests: DesignTestCase[]): string {
+  // The if-chain over `design.methods` resolves at generation time: each op is
+  // a typed call, and C++ has no way to pick one at runtime when the branches
+  // take different argument types.
+  const byName = new Map(design.methods.map((m) => [m.name, m]))
+
+  const cases = tests
+    .map((t, ti) => {
+      const ctorArgs = design.ctor.map((p, i) => cppLiteral(p.type, t.args[0]?.[i])).join(', ')
+      const decl = design.ctor.length
+        ? `${design.className} obj(${ctorArgs});`
+        : `${design.className} obj;`
+
+      const calls = t.ops
+        .slice(1)
+        .map((op, k) => {
+          const m = byName.get(op)
+          if (!m) return `    cout << R"(,{"__error":"no method named ${op}"})";`
+          const args = m.params.map((p, i) => cppLiteral(p.type, t.args[k + 1]?.[i])).join(', ')
+          const call = `obj.${m.name}(${args})`
+          return m.ret === 'void'
+            ? `    ${call}; cout << ",null";`
+            : `    cout << ','; __p(${call});`
+        })
+        .join('\n')
+
+      return `  { // case ${ti + 1}
+    ${decl}
+    cout << ${q(RESULT_MARK)} << "[null";
+${calls}
+    cout << "]\\n";
+  }`
+    })
+    .join('\n')
+
+  return `${CPP_PREAMBLE}
+// ---- your code ----
+${userCode}
+// ---- runner ----
+int main() {
+  ios::sync_with_stdio(false);
+${cases}
   return 0;
 }`
 }

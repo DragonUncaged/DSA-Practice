@@ -1,4 +1,4 @@
-import type { Difficulty, PracticeProblem, Problem } from '@/lib/types'
+import type { Difficulty, DesignProblem, PracticeProblem, Problem } from '@/lib/types'
 import { threeSum } from './3sum'
 import { fourSum } from './4sum'
 import { addAndSearchWord } from './add-and-search-word'
@@ -291,13 +291,15 @@ export const hasTrace = (problem: Problem) =>
   problem.solutions?.some((s) => s.trace != null) ?? false
 
 /**
- * A statement-only problem — a stateful class, an iterator, or a callback API
- * that no single function over `ParamType` can express — carries no signature,
- * so there is nothing to put in an editor. Everything else in the player is
- * driven off this one question.
+ * A statement-only problem — an iterator, a callback API, an interactive judge
+ * — carries neither a signature nor a class shape, so there is nothing to put
+ * in an editor. Everything else in the player is driven off this one question.
  */
 export const hasPractice = (problem: Problem): problem is PracticeProblem =>
-  problem.signature != null
+  problem.signature != null || problem.design != null
+
+/** A design problem is run as a class; the runner and the test table both fork on this. */
+export const isDesign = (problem: Problem): problem is DesignProblem => problem.design != null
 
 // ---------------------------------------------------------------------------
 // The full sheet

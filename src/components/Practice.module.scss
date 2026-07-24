@@ -367,6 +367,44 @@
       color: $lime;
     }
   }
+
+  /* design problems: one line per call, so a failure names the op that broke */
+  .opRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    align-items: baseline;
+
+    .op {
+      color: $fg-dim;
+      @include truncate;
+    }
+
+    .val {
+      color: $fg-muted;
+      word-break: break-all;
+    }
+
+    .want {
+      color: $lime;
+    }
+
+    &.opNo {
+      .op,
+      .got {
+        color: $coral;
+      }
+    }
+  }
+
+  .opHead {
+    padding-bottom: 2px;
+
+    .op,
+    .val {
+      color: $fg-trace;
+    }
+  }
 }
 
 .console {

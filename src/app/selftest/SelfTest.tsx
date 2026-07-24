@@ -11,8 +11,10 @@ interface Row {
   solution: string
   /** No trace authored: the frame and step-mapping checks don't apply. */
   practiceOnly: boolean
-  /** No signature either: there is no editor and no test table to check. */
+  /** Neither a signature nor a class shape: no editor and no test table to check. */
   statementOnly: boolean
+  /** Driven as a class: `designTests` stand in for `tests`. */
+  design: boolean
   frames: number
   unmappedSteps: string[]
   testsPassed: number
@@ -25,13 +27,14 @@ interface Row {
 function check(problem: Problem): Row[] {
   // A statement-only problem has no solutions and nothing to run; it still
   // gets a row so the page accounts for every registered problem.
-  if (!problem.signature) {
+  if (!problem.signature && !problem.design) {
     return [
       {
         problem: problem.title,
         solution: 'statement-only',
         practiceOnly: true,
         statementOnly: true,
+        design: false,
         frames: 0,
         unmappedSteps: [],
         testsPassed: 0,
@@ -44,16 +47,18 @@ function check(problem: Problem): Row[] {
   }
   const { signature } = problem
   const tests = problem.tests ?? []
+  const designTests = problem.designTests ?? []
   return (problem.solutions ?? []).map((sol) => {
     const row: Row = {
       problem: problem.title,
       solution: sol.label,
       practiceOnly: sol.trace == null,
       statementOnly: false,
+      design: problem.design != null,
       frames: 0,
       unmappedSteps: [],
       testsPassed: 0,
-      testsTotal: tests.length,
+      testsTotal: problem.design ? designTests.length : tests.length,
       failures: [],
       growth: '',
       error: null,
@@ -83,7 +88,22 @@ function check(problem: Problem): Row[] {
       }
     }
 
-    // 2. does the reference solution actually answer its own tests?
+    // 2. does the reference solution actually answer its own tests? A design
+    // problem's reference takes `[ops, args]` and returns the whole call log,
+    // exactly what the generated driver emits.
+    for (const test of designTests) {
+      try {
+        const got = sol.run([test.ops, structuredClone(test.args)], { ops: 0 })
+        if (judge(got, test.expect, 'exact')) row.testsPassed++
+        else
+          row.failures.push(
+            `${JSON.stringify(test.ops)} => ${JSON.stringify(got)}, want ${JSON.stringify(test.expect)}`,
+          )
+      } catch (e) {
+        row.failures.push(`${JSON.stringify(test.ops)} threw ${(e as Error).message}`)
+      }
+    }
+
     for (const test of tests) {
       try {
         const got = sol.run(
@@ -92,7 +112,7 @@ function check(problem: Problem): Row[] {
         )
         // linked list / tree reference runs report a node count, not the
         // structure, so only judge solutions whose run returns the real answer
-        if (signature.ret === 'list' || signature.ret === 'tree') {
+        if (signature?.ret === 'list' || signature?.ret === 'tree') {
           row.testsPassed++
           continue
         }
@@ -123,8 +143,9 @@ function check(problem: Problem): Row[] {
 
 export function SelfTest() {
   const rows = useMemo(() => PROBLEMS.flatMap(check), [])
-  const practiceOnly = rows.filter((r) => r.practiceOnly && !r.statementOnly).length
+  const practiceOnly = rows.filter((r) => r.practiceOnly && !r.statementOnly && !r.design).length
   const statementOnly = rows.filter((r) => r.statementOnly).length
+  const design = rows.filter((r) => r.design).length
   const bad = rows.filter(
     (r) =>
       r.error || (!r.practiceOnly && r.frames === 0) || r.unmappedSteps.length || r.failures.length,
@@ -147,6 +168,8 @@ export function SelfTest() {
           : `${bad.length} of ${rows.length} solutions have problems.`}
         {practiceOnly > 0 &&
           ` ${practiceOnly} ${practiceOnly === 1 ? 'is' : 'are'} practice-only — tests checked, no trace to check.`}
+        {design > 0 &&
+          ` ${design} ${design === 1 ? 'is a design problem' : 'are design problems'} — design tests checked, no trace to check.`}
         {statementOnly > 0 && ` ${statementOnly} are statement-only — nothing to run.`}
       </p>
 
@@ -174,7 +197,13 @@ export function SelfTest() {
                 <td style={cell}>{r.problem}</td>
                 <td style={cell}>{r.solution}</td>
                 <td style={cell}>
-                  {r.statementOnly ? 'statement-only' : r.practiceOnly ? 'practice-only' : r.frames}
+                  {r.statementOnly
+                    ? 'statement-only'
+                    : r.design
+                      ? 'design'
+                      : r.practiceOnly
+                        ? 'practice-only'
+                        : r.frames}
                 </td>
                 <td style={cell}>
                   {r.statementOnly ? '\u2014' : `${r.testsPassed}/${r.testsTotal}`}

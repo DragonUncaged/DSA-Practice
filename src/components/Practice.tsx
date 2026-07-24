@@ -3,9 +3,10 @@
 import dynamic from 'next/dynamic'
 import type { editor as MonacoNS } from 'monaco-editor'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { buildProgram, judge, partitionOutput, prettyValue } from '@/lib/harness'
+import { buildDesignProgram, buildProgram, judge, partitionOutput, prettyValue } from '@/lib/harness'
 import { getDraft, useHydrated, usePrefs, useTraceStore } from '@/lib/store'
-import type { Lang, PracticeProblem } from '@/lib/types'
+import { isDesign } from '@/problems'
+import type { DesignTestCase, Lang, PracticeProblem } from '@/lib/types'
 import { runCode } from '@/runners'
 import { LANGS, LANG_LABEL } from './PlayerParts'
 import parts from './PlayerParts.module.scss'
@@ -57,12 +58,53 @@ const IconSettings = () => (
 interface CaseResult {
   index: number
   pass: boolean
+  /** Function view: the arguments the case was called with. */
+  args?: unknown[]
   got: unknown
   want: unknown
   note?: string
+  /** Design view: the call log, so a failure points at the op that broke. */
+  ops?: OpResult[]
+}
+
+interface OpResult {
+  op: string
+  args: unknown[]
+  want: unknown
+  got: unknown
+  pass: boolean
+}
+
+/**
+ * A design case is judged as a whole result list, but read op by op: the list
+ * is unzipped against `ops` so a failure names the call that produced it.
+ */
+function designCase(t: DesignTestCase, index: number, value: unknown): CaseResult {
+  const got = Array.isArray(value) ? (value as unknown[]) : []
+  return {
+    index,
+    pass: value !== undefined && judge(value, t.expect, 'exact'),
+    got: value,
+    want: t.expect,
+    ops: t.ops.map((op, k) => ({
+      op,
+      args: t.args[k] ?? [],
+      want: k < t.expect.length ? t.expect[k] : null,
+      got: k < got.length ? got[k] : undefined,
+      pass: k < got.length && judge(got[k], k < t.expect.length ? t.expect[k] : null, 'exact'),
+    })),
+  }
 }
 
 type Line = { kind: 'out' | 'err' | 'sys'; text: string }
+
+/** A run that threw reports its message where the value would have been. */
+const gotText = (got: unknown): string =>
+  got === undefined
+    ? 'nothing'
+    : typeof got === 'object' && got && '__error' in got
+      ? String((got as { __error: string }).__error)
+      : prettyValue(got)
 
 export function Practice({
   problem,
@@ -196,26 +238,35 @@ export function Practice({
       system: (t: string) => push('sys', t),
     }
 
-    const program = buildProgram(lang, code, problem.signature, problem.tests)
+    // one editor, two runner shapes: a design problem is driven as a class,
+    // every other practice problem as a single function
+    const program = isDesign(problem)
+      ? buildDesignProgram(lang, code, problem.design, problem.designTests)
+      : buildProgram(lang, code, problem.signature, problem.tests)
     const { exitCode } = await runCode(lang, program, io)
 
     const { results: values, stdout } = partitionOutput(raw)
     stdout.filter((l) => l.trim()).forEach((l) => push('out', l))
 
     if (exitCode === 0 || values.length) {
-      const cases: CaseResult[] = problem.tests.map((t, i) => ({
-        index: i,
-        pass: i < values.length && judge(values[i], t.expect, problem.compare),
-        got: i < values.length ? values[i] : undefined,
-        want: t.expect,
-        note: t.note,
-      }))
+      const cases: CaseResult[] = isDesign(problem)
+        ? problem.designTests.map((t, i) => designCase(t, i, i < values.length ? values[i] : undefined))
+        : problem.tests.map((t, i) => ({
+            index: i,
+            pass: i < values.length && judge(values[i], t.expect, problem.compare),
+            args: t.args,
+            got: i < values.length ? values[i] : undefined,
+            want: t.expect,
+            note: t.note,
+          }))
       setResults(cases)
       if (cases.length && cases.every((c) => c.pass)) setSolved(problem.id, 'solved')
     }
 
     setRunning(false)
   }, [code, lang, problem, setSolved])
+
+  const caseCount = isDesign(problem) ? problem.designTests.length : problem.tests.length
 
   const tally = useMemo(() => {
     if (!results) return null
@@ -380,7 +431,7 @@ export function Practice({
                 !tally ? s.idle : tally.pass === tally.total ? s.pass : s.fail
               }`}
             >
-              {tally ? `${tally.pass} / ${tally.total} passing` : `${problem.tests.length} cases`}
+              {tally ? `${tally.pass} / ${tally.total} passing` : `${caseCount} cases`}
             </span>
           </div>
 
@@ -393,31 +444,45 @@ export function Practice({
               </div>
             )}
 
-            {results?.map((r) => {
-              const t = problem.tests[r.index]
-              return (
-                <div key={r.index} className={`${s.case} ${r.pass ? s.ok : s.no}`}>
-                  <div className={s.caseHead}>
-                    <span
-                      className={s.mark}
-                      style={{
-                        background: r.pass ? 'rgba(205,255,87,0.16)' : 'rgba(255,122,89,0.16)',
-                        color: r.pass ? '#CDFF57' : '#FF7A59',
-                      }}
-                    >
-                      {r.pass ? '✓' : '✕'}
-                    </span>
-                    <span className={s.label}>
-                      {r.note ?? `Case ${r.index + 1}`}
-                    </span>
-                  </div>
+            {results?.map((r) => (
+              <div key={r.index} className={`${s.case} ${r.pass ? s.ok : s.no}`}>
+                <div className={s.caseHead}>
+                  <span
+                    className={s.mark}
+                    style={{
+                      background: r.pass ? 'rgba(205,255,87,0.16)' : 'rgba(255,122,89,0.16)',
+                      color: r.pass ? '#CDFF57' : '#FF7A59',
+                    }}
+                  >
+                    {r.pass ? '✓' : '✕'}
+                  </span>
+                  <span className={s.label}>{r.note ?? `Case ${r.index + 1}`}</span>
+                </div>
 
-                  {!r.pass && (
+                {!r.pass &&
+                  (r.ops ? (
+                    <div className={s.caseBody}>
+                      <div className={`${s.opRow} ${s.opHead}`}>
+                        <span className={s.op}>call</span>
+                        <span className={s.val}>expected</span>
+                        <span className={s.val}>got</span>
+                      </div>
+                      {r.ops.map((o, k) => (
+                        <div key={k} className={`${s.opRow} ${o.pass ? '' : s.opNo}`}>
+                          <span className={s.op}>
+                            {o.op}({o.args.map((a) => prettyValue(a)).join(', ')})
+                          </span>
+                          <span className={`${s.val} ${s.want}`}>{prettyValue(o.want)}</span>
+                          <span className={`${s.val} ${s.got}`}>{gotText(o.got)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
                     <div className={s.caseBody}>
                       <div className={s.row}>
                         <span className={s.key}>input</span>
                         <span className={s.val}>
-                          {t.args.map((a) => prettyValue(a)).join(', ')}
+                          {(r.args ?? []).map((a) => prettyValue(a)).join(', ')}
                         </span>
                       </div>
                       <div className={s.row}>
@@ -426,19 +491,12 @@ export function Practice({
                       </div>
                       <div className={s.row}>
                         <span className={s.key}>got</span>
-                        <span className={`${s.val} ${s.got}`}>
-                          {r.got === undefined
-                            ? 'nothing'
-                            : typeof r.got === 'object' && r.got && '__error' in r.got
-                              ? String((r.got as { __error: string }).__error)
-                              : prettyValue(r.got)}
-                        </span>
+                        <span className={`${s.val} ${s.got}`}>{gotText(r.got)}</span>
                       </div>
                     </div>
-                  )}
-                </div>
-              )
-            })}
+                  ))}
+              </div>
+            ))}
           </div>
 
           {lines.length > 0 && (

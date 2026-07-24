@@ -156,6 +156,108 @@ export function Transport({ player }: { player: TracePlayer }) {
 
 // ---------------------------------------------------------------------------
 
+/**
+ * The rendered source of one solution: line numbers, an optional hot line, and
+ * an optional mask. Shared by the trace tab's CodePane and the Solutions tab,
+ * so both read identically.
+ */
+export function CodeLines({
+  lines,
+  hot,
+  masked,
+  algoLines,
+  showEarned = false,
+}: {
+  lines: string[]
+  hot?: number
+  /** Returns true for a line still hidden behind the reveal ladder. */
+  masked?: (n: number) => boolean
+  /** Lines the algorithm actually executes; they mask and reveal differently. */
+  algoLines?: Set<number>
+  showEarned?: boolean
+}) {
+  return (
+    <div className={s.codeBody}>
+      {lines.map((src, i) => {
+        const n = i + 1
+        const hide = masked?.(n) ?? false
+        const indent = src.length - src.trimStart().length
+        return (
+          <div key={i} className={`${s.line} ${hot === n ? s.hot : ''}`}>
+            <span className={s.bar} />
+            <span className={s.num}>{n}</span>
+            {hide ? (
+              <span className={s.src} aria-hidden>
+                {' '.repeat(indent)}
+                <span
+                  className={`${s.maskBar} ${algoLines?.has(n) ? s.maskAlgo : ''}`}
+                  style={{ width: `${Math.max(3, src.trim().length)}ch` }}
+                />
+              </span>
+            ) : (
+              <span className={`${s.src} ${showEarned && algoLines?.has(n) ? s.earned : ''}`}>
+                {src}
+              </span>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+/** Copies one solution to the clipboard, falling back when the API is blocked. */
+export function CopyButton({
+  source,
+  title,
+  onCopy,
+}: {
+  source: string
+  title: string
+  /** Runs before the copy — the trace tab uses it to record the reveal. */
+  onCopy?: () => void
+}) {
+  const [copied, setCopied] = useState(false)
+
+  const copy = async () => {
+    onCopy?.()
+    try {
+      await navigator.clipboard.writeText(source)
+    } catch {
+      // clipboard API blocked (http, permissions) — fall back to a hidden textarea
+      const ta = document.createElement('textarea')
+      ta.value = source
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      ta.remove()
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1600)
+  }
+
+  return (
+    <button className={`${s.copyBtn} ${copied ? s.did : ''}`} onClick={copy} title={title}>
+      {copied ? 'Copied ✓' : 'Copy'}
+    </button>
+  )
+}
+
+/** The language picker, shared by every pane that shows code. */
+export function LangPicker({ lang, onLang }: { lang: Lang; onLang: (l: Lang) => void }) {
+  return (
+    <div className={s.segmented}>
+      {LANGS.map((l) => (
+        <button key={l} className={`${s.seg} ${lang === l ? s.on : ''}`} onClick={() => onLang(l)}>
+          {LANG_LABEL[l]}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function CodePane({
   solution,
   lang,
@@ -180,29 +282,6 @@ export function CodePane({
 }) {
   const block: CodeBlock | undefined = solution?.code[lang]
   const hot = block && step ? block.map?.[step] : undefined
-  const [copied, setCopied] = useState(false)
-
-  const copy = async () => {
-    if (!block) return
-    // copying the answer is assistance — it implies a full reveal
-    if (revealLevel < 3) onRevealLevel(3)
-    const source = block.lines.join('\n') + '\n'
-    try {
-      await navigator.clipboard.writeText(source)
-    } catch {
-      // clipboard API blocked (http, permissions) — fall back to a hidden textarea
-      const ta = document.createElement('textarea')
-      ta.value = source
-      ta.style.position = 'fixed'
-      ta.style.opacity = '0'
-      document.body.appendChild(ta)
-      ta.select()
-      document.execCommand('copy')
-      ta.remove()
-    }
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1600)
-  }
 
   // The lines the algorithm actually executes — the ones worth earning.
   // Structural lines (declarations, braces) are visible from "watch" upward.
@@ -247,28 +326,19 @@ export function CodePane({
             </span>
           )}
           <span className={s.spacer} />
-          <button
-            className={`${s.copyBtn} ${copied ? s.did : ''}`}
-            onClick={copy}
+          <CopyButton
+            source={(block?.lines ?? []).join('\n') + '\n'}
             title={
               revealLevel < 3
                 ? 'Reveals the full solution (counts as assisted) and copies it'
                 : 'Copy this solution to the clipboard'
             }
-          >
-            {copied ? 'Copied ✓' : 'Copy'}
-          </button>
-          <div className={s.segmented}>
-            {LANGS.map((l) => (
-              <button
-                key={l}
-                className={`${s.seg} ${lang === l ? s.on : ''}`}
-                onClick={() => onLang(l)}
-              >
-                {LANG_LABEL[l]}
-              </button>
-            ))}
-          </div>
+            // copying the answer is assistance — it implies a full reveal
+            onCopy={() => {
+              if (revealLevel < 3) onRevealLevel(3)
+            }}
+          />
+          <LangPicker lang={lang} onLang={onLang} />
         </div>
 
         {revealLevel >= 1 && solution && (
@@ -286,35 +356,66 @@ export function CodePane({
           </div>
         )}
 
-        <div className={s.codeBody}>
-          {block?.lines.map((src, i) => {
-            const n = i + 1
-            const hide = masked(n)
-            const indent = src.length - src.trimStart().length
-            return (
-              <div key={i} className={`${s.line} ${hot === n ? s.hot : ''}`}>
-                <span className={s.bar} />
-                <span className={s.num}>{n}</span>
-                {hide ? (
-                  <span className={s.src} aria-hidden>
-                    {' '.repeat(indent)}
-                    <span
-                      className={`${s.maskBar} ${algoLines.has(n) ? s.maskAlgo : ''}`}
-                      style={{ width: `${Math.max(3, src.trim().length)}ch` }}
-                    />
-                  </span>
-                ) : (
-                  <span className={`${s.src} ${revealLevel === 2 && algoLines.has(n) ? s.earned : ''}`}>
-                    {src}
-                  </span>
-                )}
-              </div>
-            )
-          })}
-        </div>
+        <CodeLines
+          lines={block?.lines ?? []}
+          hot={hot}
+          masked={masked}
+          algoLines={algoLines}
+          showEarned={revealLevel === 2}
+        />
       </div>
 
       {children}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+
+/**
+ * Every solution as a card. A problem with no animation has no trace tab, so
+ * CodePane never renders for it and this is the only place its reference code
+ * appears. Opening the tab counts as a full reveal — Player records that.
+ */
+export function SolutionsPane({
+  solutions,
+  lang,
+  onLang,
+}: {
+  solutions: Solution[]
+  lang: Lang
+  onLang: (l: Lang) => void
+}) {
+  return (
+    <div className={s.solutionsPane}>
+      <div className={s.paneHead}>
+        <span className={s.paneTitle}>Solutions</span>
+        <span className={s.spacer} />
+        <LangPicker lang={lang} onLang={onLang} />
+      </div>
+
+      <div className={s.solutionsBody}>
+        {solutions.map((sol) => {
+          const block = sol.code[lang]
+          return (
+            <article key={sol.id} className={s.solCard}>
+              <header className={s.solHead}>
+                <span className={s.solLabel}>{sol.label}</span>
+                <span className={`${s.solKind} ${s[sol.kind]}`}>{sol.kind.toUpperCase()}</span>
+                <span className={s.solStat}>TIME {sol.time}</span>
+                <span className={s.solStat}>SPACE {sol.space}</span>
+                <span className={s.spacer} />
+                <CopyButton
+                  source={block.lines.join('\n') + '\n'}
+                  title="Copy this solution to the clipboard"
+                />
+              </header>
+              <p className={s.solBlurb}>{sol.blurb}</p>
+              <CodeLines lines={block.lines} />
+            </article>
+          )
+        })}
+      </div>
     </div>
   )
 }

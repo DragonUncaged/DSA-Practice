@@ -165,7 +165,7 @@ export interface Counter {
 export interface Solution {
   id: string
   label: string
-  kind: 'optimal' | 'brute'
+  kind: 'optimal' | 'better' | 'brute'
   time: string
   space: string
   blurb: string
@@ -179,7 +179,12 @@ export interface Solution {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   trace?: (t: Tracer, args: any) => void
-  /** Untraced run used by the complexity meter; must bump `c.ops` per unit of work. */
+  /**
+   * Untraced run used by the complexity meter; must bump `c.ops` per unit of
+   * work. A design problem has no argument tuple, so its reference solution
+   * takes `[ops, args]` from one `DesignTestCase` and returns that case's
+   * result list — the same list the generated driver emits.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   run: (args: any, c: Counter) => unknown
 }
@@ -215,6 +220,29 @@ export interface TestCase {
   note?: string
 }
 
+/**
+ * The class shape. A design problem is driven by constructing `className` and
+ * dispatching method calls on it, so it carries this instead of a `Signature`.
+ */
+export interface DesignSpec {
+  className: string
+  ctor: { name: string; type: ParamType }[]
+  methods: { name: string; params: { name: string; type: ParamType }[]; ret: ParamType | 'void' }[]
+}
+
+/**
+ * LeetCode's own call-log shape: `ops[0]` is the class name and the rest are
+ * method names, `args[i]` is call `i`'s argument list, and `expect[i]` is what
+ * call `i` returns — `null` for the constructor and for a `void` method.
+ */
+export interface DesignTestCase {
+  ops: string[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  args: any[][]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  expect: any[]
+}
+
 export interface Problem {
   id: string
   title: string
@@ -225,17 +253,25 @@ export interface Problem {
   statement: string
   constraints: string[]
   /**
-   * Omitted on a statement-only problem — a class, an iterator or a callback
-   * API that no single function over `ParamType` can express. Such a problem
-   * ships statement and constraints alone, and drops `tests`, `demo`,
-   * `starter` and `solutions` with it. `hasPractice` in `src/problems/index.ts`
-   * is the one place that asks; the player then renders the statement with no
-   * editor and no tabs.
+   * Omitted on a design problem, which carries `design` instead, and on a
+   * statement-only problem — an iterator or a callback API that neither shape
+   * can express. A statement-only problem ships statement and constraints
+   * alone, and drops `tests`, `demo` and `starter` with it. `hasPractice` in
+   * `src/problems/index.ts` is the one place that asks; the player then
+   * renders the statement with no editor.
    */
   signature?: Signature
+  /**
+   * Set instead of `signature` on a design problem: one the runner drives as a
+   * class rather than as a function. `src/problems/moving-average-from-data-stream.ts`
+   * is the worked example; `designTests` replaces `tests` and `starter` is a
+   * class skeleton.
+   */
+  design?: DesignSpec
   /** How a submitted answer is judged. `set`/`sorted` for order-insensitive results. */
   compare?: 'exact' | 'sorted' | 'set'
   tests?: TestCase[]
+  designTests?: DesignTestCase[]
   /** Arguments the animation runs on. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   demo?: any[]
@@ -248,11 +284,18 @@ export interface Problem {
 }
 
 /**
- * A problem the editor can actually run: everything `buildProgram` and the
- * test table need is present. `hasPractice` narrows a `Problem` to this.
+ * A problem the editor runs as one function: everything `buildProgram` and the
+ * test table need is present.
  */
-export type PracticeProblem = Problem &
+export type FunctionProblem = Problem &
   Required<Pick<Problem, 'signature' | 'tests' | 'demo' | 'starter' | 'solutions'>>
+
+/** A problem the editor runs as a class: `buildDesignProgram` drives it. */
+export type DesignProblem = Problem &
+  Required<Pick<Problem, 'design' | 'designTests' | 'starter' | 'solutions'>>
+
+/** Anything the editor can run at all. `hasPractice` narrows a `Problem` to this. */
+export type PracticeProblem = FunctionProblem | DesignProblem
 
 // ---------------------------------------------------------------------------
 // Tracer

@@ -29,8 +29,10 @@ export function CompareView({ problem }: { problem: PracticeProblem; lang: Lang 
   const brute = problem.solutions.find((x) => x.kind === 'brute')
   const optimal = problem.solutions.find((x) => x.kind === 'optimal') ?? problem.solutions[0]
 
-  const bruteFrames = useMemo(() => buildFrames(brute, problem.demo), [brute, problem.demo])
-  const optFrames = useMemo(() => buildFrames(optimal, problem.demo), [optimal, problem.demo])
+  // only a traced problem reaches this tab, and those always carry a demo
+  const demo = useMemo(() => problem.demo ?? [], [problem.demo])
+  const bruteFrames = useMemo(() => buildFrames(brute, demo), [brute, demo])
+  const optFrames = useMemo(() => buildFrames(optimal, demo), [optimal, demo])
 
   const total = Math.max(bruteFrames.length, optFrames.length)
   const last = Math.max(0, total - 1)

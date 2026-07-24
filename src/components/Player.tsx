@@ -7,20 +7,28 @@ import { useTraceStore, usePrefs, useProgress, useReveal, type RevealLevel } fro
 import { useTrace, useTraceKeys } from '@/lib/useTrace'
 import { PATTERN_OF_PROBLEM } from '@/patterns'
 import { hasPractice, hasTrace } from '@/problems'
-import { CodePane, StatePane, Stage, Transport } from './PlayerParts'
+import { CodePane, SolutionsPane, StatePane, Stage, Transport } from './PlayerParts'
 import { CompareView } from './CompareView'
 import { Practice } from './Practice'
 import { ProblemSwitcher } from './ProblemSwitcher'
 import s from './Player.module.scss'
 
-type Tab = 'trace' | 'compare' | 'practice'
+type Tab = 'trace' | 'compare' | 'solutions' | 'statement' | 'practice'
+
+const TAB_LABEL: Record<Tab, string> = {
+  trace: 'Trace',
+  compare: 'Brute vs Optimal',
+  solutions: 'Solutions',
+  statement: 'Statement',
+  practice: 'Practice',
+}
 
 export function Player({ problem }: { problem: Problem }) {
   // A practice-only problem has no animation, so it opens straight on the editor;
-  // a statement-only problem has neither, and shows the statement alone.
+  // a statement-only problem has neither, and opens on the statement.
   const traced = hasTrace(problem)
   const practice = hasPractice(problem) ? problem : null
-  const [tab, setTab] = useState<Tab>(traced ? 'trace' : 'practice')
+  const [tab, setTab] = useState<Tab>(traced ? 'trace' : practice ? 'practice' : 'statement')
   const [solutionId, setSolutionId] = useState(problem.solutions?.[0]?.id)
 
   const prefs = usePrefs()
@@ -59,9 +67,28 @@ export function Player({ problem }: { problem: Problem }) {
   const watched = useMemo(() => new Set(watchedMap[watchKey] ?? []), [watchedMap, watchKey])
 
   const hasBrute = problem.solutions?.some((x) => x.kind === 'brute') ?? false
-  // The two informational tabs sit together; Practice is the primary action
-  // and is rendered separately as a pill on the far side of the bar.
-  const infoTabs: Tab[] = traced ? ['trace', ...(hasBrute ? (['compare'] as Tab[]) : [])] : []
+  // Without an animation there is no CodePane, so the solutions get a tab of
+  // their own — otherwise the reference code would be unreachable.
+  const solutions = problem.solutions ?? []
+  const showSolutions = !traced && solutions.length > 0
+
+  // The informational tabs sit together; Practice is the primary action and is
+  // rendered separately as a pill on the far side of the bar.
+  const infoTabs: Tab[] = traced
+    ? ['trace', ...(hasBrute ? (['compare'] as Tab[]) : [])]
+    : showSolutions
+      ? [...(practice ? [] : (['statement'] as Tab[])), 'solutions']
+      : []
+
+  // Reading the solution is assistance, exactly as a full reveal in the trace
+  // tab is, so the clean-solve diamond on the sheets stays honest.
+  const openTab = useCallback(
+    (t: Tab) => {
+      setTab(t)
+      if (t === 'solutions' && revealLevel < 3) onRevealLevel(3)
+    },
+    [revealLevel, onRevealLevel],
+  )
 
   // Fullscreen belongs to the body, not to Practice: it hides the header and
   // tab bar so statement, editor and tests share the viewport. Esc exits
@@ -179,25 +206,32 @@ export function Player({ problem }: { problem: Problem }) {
         )}
       </header>
 
-      {practice && (
+      {(practice || infoTabs.length > 0) && (
         <nav className={s.tabBar}>
           {infoTabs.map((t) => (
             <button
               key={t}
               className={`${s.tab} ${tab === t ? s.on : ''}`}
-              onClick={() => setTab(t)}
+              onClick={() => openTab(t)}
+              title={
+                t === 'solutions'
+                  ? 'Read the reference solutions (marks this solve as assisted)'
+                  : undefined
+              }
             >
-              {t === 'trace' ? 'Trace' : 'Brute vs Optimal'}
+              {TAB_LABEL[t]}
             </button>
           ))}
           <span className={s.grow} />
-          <button
-            className={`${s.practiceTab} ${tab === 'practice' ? s.on : ''}`}
-            onClick={() => setTab('practice')}
-            title="Solve the problem in the editor and run it against every test case"
-          >
-            <span aria-hidden>&#9654;</span> Practice
-          </button>
+          {practice && (
+            <button
+              className={`${s.practiceTab} ${tab === 'practice' ? s.on : ''}`}
+              onClick={() => setTab('practice')}
+              title="Solve the problem in the editor and run it against every test case"
+            >
+              <span aria-hidden>&#9654;</span> Practice
+            </button>
+          )}
         </nav>
       )}
 
@@ -227,7 +261,11 @@ export function Player({ problem }: { problem: Problem }) {
         )}
 
         <section className={s.main}>
-          {!practice && <StatementOnly problem={problem} />}
+          {!practice && tab !== 'solutions' && <StatementOnly problem={problem} />}
+
+          {tab === 'solutions' && (
+            <SolutionsPane solutions={solutions} lang={prefs.lang} onLang={setLang} />
+          )}
 
           {practice && tab === 'trace' && (
             <>
