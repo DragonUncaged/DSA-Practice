@@ -16,6 +16,15 @@ export const firstUniqueCharacter: Problem = {
     { args: ['loveleetcode'], expect: 2 },
     { args: ['aabb'], expect: -1, note: 'nothing is unique' },
     { args: ['z'], expect: 0 },
+    { args: ['aadadaad'], expect: -1 },
+    { args: ['dddccdbba'], expect: 8, note: 'the unique letter is last' },
+    { args: ['abcabcx'], expect: 6 },
+    {
+      args: ['abcdefghijklmnopqrstuvwxyz'.repeat(2)],
+      expect: -1,
+      note: 'every letter of the alphabet, twice',
+    },
+    { args: ['a'.repeat(1500) + 'b' + 'a'.repeat(1500)], expect: 1500, note: 'a long string with one odd letter out' },
   ],
   demo: ['loveleetcode'],
   scale: (n) => [Array.from({ length: n }, (_, i) => String.fromCharCode(97 + (i % 26))).join('')],
@@ -32,13 +41,62 @@ export const firstUniqueCharacter: Problem = {
 
   solutions: [
     {
+      id: 'rescan',
+      label: 'Rescan the string for each character',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(1)',
+      blurb:
+        'For each position, look through the rest of the string for the same letter; the first position with no twin is the answer. No extra memory, but every candidate pays a full scan, and a string that repeats everything makes every one of those scans run to the end.',
+      code: {
+        cpp: {
+          lines: [
+            'int firstUniqChar(string s) {',
+            '    int n = s.size();',
+            '    for (int i = 0; i < n; ++i) {',
+            '        bool twin = false;',
+            '        for (int j = 0; j < n && !twin; ++j)',
+            '            if (j != i && s[j] == s[i]) twin = true;',
+            '        if (!twin) return i;',
+            '    }',
+            '    return -1;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function firstUniqChar(s) {',
+            '  for (let i = 0; i < s.length; i++) {',
+            '    let twin = false;',
+            '    for (let j = 0; j < s.length && !twin; j++)',
+            '      if (j !== i && s[j] === s[i]) twin = true;',
+            '    if (!twin) return i;',
+            '  }',
+            '  return -1;',
+            '}',
+          ],
+        },
+      },
+      run([s]: [string], c) {
+        for (let i = 0; i < s.length; i++) {
+          let twin = false
+          for (let j = 0; j < s.length && !twin; j++) {
+            c.ops++
+            if (j !== i && s[j] === s[i]) twin = true
+          }
+          if (!twin) return i
+        }
+        return -1
+      },
+    },
+    {
       id: 'count-then-scan',
       label: 'Count everything, then scan for a one',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Uniqueness cannot be decided until the whole string has been read, so count every letter first. The second pass then walks the string in its original order and stops at the first letter whose count is one — order comes from the scan, not from the counts.',
+        'The rescan repeats the same question — how often does this letter occur — once per position. Answer it once for every letter with a single counting pass, then walk the string in its original order and stop at the first letter whose count is one. Order comes from the scan, not from the counts, and the table has at most 26 entries.',
       code: {
         cpp: {
           lines: [

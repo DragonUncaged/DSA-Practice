@@ -16,6 +16,13 @@ export const plusOne: Problem = {
     { args: [[4, 3, 2, 9]], expect: [4, 3, 3, 0], note: 'one carry' },
     { args: [[9, 9, 9]], expect: [1, 0, 0, 0], note: 'all nines grow the array' },
     { args: [[0]], expect: [1] },
+    { args: [[9]], expect: [1, 0], note: 'a single nine still grows' },
+    { args: [[8, 9, 9, 9]], expect: [9, 0, 0, 0], note: 'the carry stops one short of the front' },
+    {
+      args: [Array.from({ length: 100 }, () => 9)],
+      expect: [1, ...Array.from({ length: 100 }, () => 0)],
+      note: 'the longest input, all nines',
+    },
   ],
   demo: [[1, 2, 3]],
   scale: (n) => [Array.from({ length: n }, () => 9)],
@@ -38,7 +45,7 @@ export const plusOne: Problem = {
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Walk from the last digit. Anything below nine absorbs the increment and the work stops there; a nine becomes zero and passes the carry left. Only a number that is all nines survives the loop, and that answer is always a one followed by zeros.',
+        'Walk from the last digit. Anything below nine absorbs the increment and the work stops there; a nine becomes zero and passes the carry left. Only a number that is all nines survives the loop, and that answer is always a one followed by zeros. There is no slower rung worth showing: parsing the digits into a number is forbidden by the length bound, and any other digit walk is this one in disguise.',
       code: {
         cpp: {
           lines: [

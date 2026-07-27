@@ -18,6 +18,18 @@ export const binaryTreePaths: Problem = {
     { args: [[1]], expect: ['1'], note: 'the root is itself a leaf' },
     { args: [[1, 2]], expect: ['1->2'] },
     { args: [[5, 4, 8, 11, null, 13, 4]], expect: ['5->4->11', '5->8->13', '5->8->4'] },
+    { args: [[-1, -2, null, -3]], expect: ['-1->-2->-3'], note: 'negative values keep their sign' },
+    {
+      args: [[1, null, 2, null, 3, null, 4, null, 5]],
+      expect: ['1->2->3->4->5'],
+      note: 'a right-leaning chain is one long path',
+    },
+    {
+      args: [[1, 2, 3, 4, 5, 6, 7]],
+      expect: ['1->2->4', '1->2->5', '1->3->6', '1->3->7'],
+      note: 'a full tree has one path per leaf',
+    },
+    { args: [[0, 0, 0]], expect: ['0->0', '0->0'], note: 'two identical paths are both reported' },
   ],
   demo: [[1, 2, 3, null, 5]],
   scale: (n) => [Array.from({ length: Math.min(n, 2000) }, (_, i) => i)],
@@ -40,7 +52,7 @@ export const binaryTreePaths: Problem = {
       time: 'O(n * h)',
       space: 'O(h)',
       blurb:
-        'The path to a node is the path to its parent plus this node, so build it on the way down rather than reconstructing it later. Only a leaf finishes a path, which is why the recursion records at nodes with no children and simply extends everywhere else.',
+        'The path to a node is the path to its parent plus this node, so build it on the way down rather than reconstructing it later. Only a leaf finishes a path, which is why the recursion records at nodes with no children and simply extends everywhere else. This is the single rung: every node has to be visited and every path has to be written out, and an explicit stack of (node, path) pairs is this recursion spelled by hand.',
       code: {
         cpp: {
           lines: [

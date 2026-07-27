@@ -27,6 +27,14 @@ export const addStrings: Problem = {
     { args: ['456', '77'], expect: '533', note: 'unequal lengths' },
     { args: ['0', '0'], expect: '0' },
     { args: ['999', '1'], expect: '1000', note: 'carry runs off the end' },
+    { args: ['1', '999'], expect: '1000', note: 'the long carry can come from either side' },
+    { args: ['9', '9'], expect: '18' },
+    { args: ['12345678901234567890', '98765432109876543210'], expect: '111111111011111111100', note: 'past 64-bit range' },
+    {
+      args: ['9'.repeat(2000), '1'],
+      expect: '1' + '0'.repeat(2000),
+      note: 'a long carry chain',
+    },
   ],
   demo: ['11', '123'],
   scale: (n) => ['9'.repeat(n), '1'.repeat(n)],
@@ -49,7 +57,7 @@ export const addStrings: Problem = {
       time: 'O(n + m)',
       space: 'O(n + m)',
       blurb:
-        'Keep one index per string and a carry. At each step take whichever digits still exist, add them with the carry, keep the units digit and pass the tens on. The loop runs while either string has digits left or a carry is still pending, so the shorter number needs no padding.',
+        'Keep one index per string and a carry. At each step take whichever digits still exist, add them with the carry, keep the units digit and pass the tens on. The loop runs while either string has digits left or a carry is still pending, so the shorter number needs no padding. This is the only rung: the problem forbids the shortcut of parsing to a number, and padding the shorter string first is the same walk with extra allocation.',
       code: {
         cpp: {
           lines: [
