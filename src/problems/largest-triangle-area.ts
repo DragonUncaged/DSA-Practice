@@ -4,7 +4,7 @@ export const largestTriangleArea: Problem = {
   id: 'largest-triangle-area',
   title: 'Largest Triangle Area',
   group: 'Math',
-  pattern: 'Brute Force over Triples',
+  pattern: 'Convex Hull',
   difficulty: 'Easy',
   leetcode: 'https://leetcode.com/problems/largest-triangle-area/',
   statement:
@@ -62,6 +62,47 @@ export const largestTriangleArea: Problem = {
       expect: 3,
       note: 'three of the points are collinear',
     },
+    {
+      args: [
+        [
+          [0, 0],
+          [1, 1],
+          [2, 2],
+        ],
+      ],
+      expect: 0,
+      note: 'every triple is collinear',
+    },
+    {
+      args: [
+        [
+          [-50, -50],
+          [50, -50],
+          [50, 50],
+          [-50, 50],
+          [0, 0],
+          [10, -3],
+        ],
+      ],
+      expect: 5000,
+      note: 'the coordinate bounds, with interior points that never win',
+    },
+    {
+      args: [
+        [
+          [4, 6],
+          [6, 5],
+          [3, 1],
+        ],
+      ],
+      expect: 5.5,
+      note: 'a fractional answer',
+    },
+    {
+      args: [Array.from({ length: 50 }, (_, i) => [i - 25, ((i * 37) % 101) - 50])],
+      expect: 2121,
+      note: 'the most points allowed',
+    },
   ],
   demo: [
     [
@@ -91,11 +132,11 @@ export const largestTriangleArea: Problem = {
     {
       id: 'shoelace',
       label: 'Shoelace formula on every triple',
-      kind: 'optimal',
+      kind: 'brute',
       time: 'O(n^3)',
       space: 'O(1)',
       blurb:
-        'With at most fifty points there are only a few thousand triples, so checking them all is cheap. The shoelace formula gives a triangle\'s area straight from its coordinates — half the absolute cross product of two of its edges — with no square roots and no floating-point drift.',
+        'With at most fifty points there are only a few thousand triples, so checking them all is affordable. The shoelace formula gives a triangle\'s area straight from its coordinates — half the absolute cross product of two of its edges — with no square roots and no floating-point drift. The cost is cubic in the point count, and almost all of those triples use an interior point that can never win.',
       code: {
         cpp: {
           lines: [
@@ -149,6 +190,99 @@ export const largestTriangleArea: Problem = {
             }
           }
         }
+        return best
+      },
+    },
+    {
+      id: 'hull-then-triples',
+      label: 'Convex hull first, then triples on the hull',
+      kind: 'optimal',
+      time: 'O(n log n + h^3)',
+      space: 'O(n)',
+      blurb:
+        'A largest triangle never has a vertex strictly inside the point set: sliding an interior vertex outward, away from the opposite edge, only grows the area. So build the convex hull with the monotone chain sweep and run the same shoelace check over hull vertices only. For scattered points the hull is a small fraction of the input, and the cubic part shrinks with it.',
+      code: {
+        cpp: {
+          lines: [
+            'double largestTriangleArea(vector<vector<int>>& points) {',
+            '    vector<vector<int>> p = points;',
+            '    sort(p.begin(), p.end());',
+            '    auto cross = [](const vector<int>& o, const vector<int>& a, const vector<int>& b) {',
+            '        return (long long)(a[0] - o[0]) * (b[1] - o[1]) - (long long)(a[1] - o[1]) * (b[0] - o[0]);',
+            '    };',
+            '    vector<vector<int>> hull;',
+            '    for (int pass = 0; pass < 2; ++pass) {',
+            '        size_t base = hull.size();',
+            '        for (auto& q : p) {',
+            '            while (hull.size() >= base + 2 &&',
+            '                   cross(hull[hull.size() - 2], hull.back(), q) <= 0) hull.pop_back();',
+            '            hull.push_back(q);',
+            '        }',
+            '        hull.pop_back();',
+            '        reverse(p.begin(), p.end());',
+            '    }',
+            '    if (hull.size() < 3) return 0;',
+            '    double best = 0;',
+            '    int h = hull.size();',
+            '    for (int i = 0; i < h; ++i)',
+            '        for (int j = i + 1; j < h; ++j)',
+            '            for (int k = j + 1; k < h; ++k)',
+            '                best = max(best, abs(cross(hull[i], hull[j], hull[k])) / 2.0);',
+            '    return best;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function largestTriangleArea(points) {',
+            '  const p = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);',
+            '  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);',
+            '  const hull = [];',
+            '  for (let pass = 0; pass < 2; pass++) {',
+            '    const base = hull.length;',
+            '    for (const q of p) {',
+            '      while (hull.length >= base + 2 && cross(hull[hull.length - 2], hull[hull.length - 1], q) <= 0)',
+            '        hull.pop();',
+            '      hull.push(q);',
+            '    }',
+            '    hull.pop();',
+            '    p.reverse();',
+            '  }',
+            '  if (hull.length < 3) return 0;',
+            '  let best = 0;',
+            '  for (let i = 0; i < hull.length; i++)',
+            '    for (let j = i + 1; j < hull.length; j++)',
+            '      for (let k = j + 1; k < hull.length; k++)',
+            '        best = Math.max(best, Math.abs(cross(hull[i], hull[j], hull[k])) / 2);',
+            '  return best;',
+            '}',
+          ],
+        },
+      },
+      run([points]: [number[][]], c) {
+        const p = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1])
+        const cross = (o: number[], a: number[], b: number[]) =>
+          (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+        const hull: number[][] = []
+        for (let pass = 0; pass < 2; pass++) {
+          const base = hull.length
+          for (const q of p) {
+            c.ops++
+            while (hull.length >= base + 2 && cross(hull[hull.length - 2], hull[hull.length - 1], q) <= 0)
+              hull.pop()
+            hull.push(q)
+          }
+          hull.pop()
+          p.reverse()
+        }
+        if (hull.length < 3) return 0
+        let best = 0
+        for (let i = 0; i < hull.length; i++)
+          for (let j = i + 1; j < hull.length; j++)
+            for (let k = j + 1; k < hull.length; k++) {
+              c.ops++
+              best = Math.max(best, Math.abs(cross(hull[i], hull[j], hull[k])) / 2)
+            }
         return best
       },
     },

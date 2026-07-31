@@ -18,6 +18,14 @@ export const longestUnivaluePath: Problem = {
     { args: [[1]], expect: 0 },
     { args: [[]], expect: 0 },
     { args: [[1, 1, 1]], expect: 2, note: 'the whole tree is one value' },
+    { args: [[1, null, 1, 1, 1, 1, 1, 1]], expect: 4, note: 'the best path turns below the root' },
+    { args: [[-1, -1, -1]], expect: 2, note: 'negative values compare like any other' },
+    { args: [[1, 2, 3]], expect: 0, note: 'no two adjacent nodes agree' },
+    {
+      args: [Array.from({ length: 1999 }, (_, i) => (i % 2 ? null : 7))],
+      expect: 999,
+      note: 'a right-leaning chain of 1000 sevens',
+    },
   ],
   demo: [[5, 4, 5, 1, 1, null, 5]],
   scale: (n) => [Array.from({ length: Math.min(n, 2000) }, () => 7)],
@@ -34,13 +42,81 @@ export const longestUnivaluePath: Problem = {
 
   solutions: [
     {
+      id: 'arm-per-node',
+      label: 'Measure both arms afresh at every node',
+      kind: 'brute',
+      time: 'O(n * h)',
+      space: 'O(h)',
+      blurb:
+        'The best path turns at some node, so try every node as the turning point: walk down its left side while the values match, walk down its right side the same way, and add the two lengths. The walks are correct but not shared — a deep chain of equal values is re-walked from every one of its nodes.',
+      code: {
+        cpp: {
+          lines: [
+            'int longestUnivaluePath(TreeNode* root) {',
+            '    function<int(TreeNode*, int)> arm = [&](TreeNode* node, int val) -> int {',
+            '        if (!node || node->val != val) return 0;',
+            '        return 1 + max(arm(node->left, val), arm(node->right, val));',
+            '    };',
+            '    int best = 0;',
+            '    function<void(TreeNode*)> visit = [&](TreeNode* node) {',
+            '        if (!node) return;',
+            '        best = max(best, arm(node->left, node->val) + arm(node->right, node->val));',
+            '        visit(node->left);',
+            '        visit(node->right);',
+            '    };',
+            '    visit(root);',
+            '    return best;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function longestUnivaluePath(root) {',
+            '  const arm = (node, val) => {',
+            '    if (!node || node.val !== val) return 0;',
+            '    return 1 + Math.max(arm(node.left, val), arm(node.right, val));',
+            '  };',
+            '  let best = 0;',
+            '  const visit = (node) => {',
+            '    if (!node) return;',
+            '    best = Math.max(best, arm(node.left, node.val) + arm(node.right, node.val));',
+            '    visit(node.left);',
+            '    visit(node.right);',
+            '  };',
+            '  visit(root);',
+            '  return best;',
+            '}',
+          ],
+        },
+      },
+      run([level]: [(number | null)[]], c) {
+        const model = buildTreeModel(level)
+        const arm = (id: number | null, val: number): number => {
+          if (id == null || model.nodes[id].value !== val) return 0
+          c.ops++
+          return 1 + Math.max(arm(model.nodes[id].left, val), arm(model.nodes[id].right, val))
+        }
+        let best = 0
+        const visit = (id: number | null) => {
+          if (id == null) return
+          c.ops++
+          const nd = model.nodes[id]
+          best = Math.max(best, arm(nd.left, nd.value) + arm(nd.right, nd.value))
+          visit(nd.left)
+          visit(nd.right)
+        }
+        visit(model.root)
+        return best
+      },
+    },
+    {
       id: 'arm-lengths',
       label: 'Longest matching arm from each node',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(h)',
       blurb:
-        'Like the diameter, the answer turns at some node — there it is the left matching arm plus the right one. A child only extends an arm when its value equals its parent\'s, so the recursion returns the longer usable arm upward and records left plus right on the way out.',
+        'The arm below a node is one more than the arm below its matching child, so compute arms bottom-up and each is measured once. Like the diameter, the answer turns at some node — there it is the left matching arm plus the right one. A child only extends an arm when its value equals its parent\'s, so the recursion returns the longer usable arm upward and records left plus right on the way out.',
       code: {
         cpp: {
           lines: [

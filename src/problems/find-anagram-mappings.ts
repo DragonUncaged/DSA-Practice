@@ -46,6 +46,27 @@ export const findAnagramMappings: Problem = {
       expect: [4, 3, 2, 1, 0],
       note: 'a full reversal',
     },
+    {
+      args: [
+        [3, 1, 2],
+        [3, 1, 2],
+      ],
+      expect: [0, 1, 2],
+      note: 'already in the same order',
+    },
+    {
+      args: [
+        [100000, 0, 99999],
+        [99999, 100000, 0],
+      ],
+      expect: [1, 2, 0],
+      note: 'the value bounds',
+    },
+    {
+      args: [Array.from({ length: 100 }, (_, i) => i * 7), Array.from({ length: 100 }, (_, i) => (99 - i) * 7)],
+      expect: Array.from({ length: 100 }, (_, i) => 99 - i),
+      note: 'the longest input, reversed',
+    },
   ],
   demo: [
     [12, 28, 46, 32, 50],
@@ -67,6 +88,51 @@ export const findAnagramMappings: Problem = {
   },
 
   solutions: [
+    {
+      id: 'scan-b',
+      label: 'Search B for each element of A',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(1)',
+      blurb:
+        'For every element of A, walk B from the front until the same value appears and record where it was. It needs nothing beyond the two arrays, but each of the n lookups is its own linear scan, so the searches add up to quadratic work even though the answer for every value is fixed before the first lookup starts.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<int> anagramMappings(vector<int>& A, vector<int>& B) {',
+            '    vector<int> out;',
+            '    for (int x : A)',
+            '        for (int j = 0; j < (int)B.size(); ++j)',
+            '            if (B[j] == x) { out.push_back(j); break; }',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function anagramMappings(A, B) {',
+            '  const out = [];',
+            '  for (const x of A)',
+            '    for (let j = 0; j < B.length; j++)',
+            '      if (B[j] === x) { out.push(j); break; }',
+            '  return out;',
+            '}',
+          ],
+        },
+      },
+      run([A, B]: [number[], number[]], c) {
+        const out: number[] = []
+        for (const x of A)
+          for (let j = 0; j < B.length; j++) {
+            c.ops++
+            if (B[j] === x) {
+              out.push(j)
+              break
+            }
+          }
+        return out
+      },
+    },
     {
       id: 'index-map',
       label: 'Index B once, then read it off',

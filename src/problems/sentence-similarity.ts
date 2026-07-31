@@ -55,6 +55,14 @@ export const sentenceSimilarity: Problem = {
       expect: false,
       note: 'different lengths can never be similar',
     },
+    { args: [['great'], ['fine'], [['fine', 'great']]], expect: true, note: 'a pair works in both directions' },
+    {
+      args: [['great'], ['good'], [['great', 'fine'], ['fine', 'good']]],
+      expect: false,
+      note: 'similarity is not transitive',
+    },
+    { args: [[], [], []], expect: true, note: 'two empty sentences' },
+    { args: [['a', 'b'], ['b', 'a'], [['a', 'b']]], expect: true },
   ],
   demo: [
     ['great', 'acting', 'skills'],
@@ -79,13 +87,72 @@ export const sentenceSimilarity: Problem = {
 
   solutions: [
     {
+      id: 'scan-pairs',
+      label: 'Scan the pair list at every position',
+      kind: 'brute',
+      time: 'O(n * p)',
+      space: 'O(1)',
+      blurb:
+        'Walk the two sentences together. Where the words differ, look through the whole pair list for a pair holding both words in either order, and give up if no pair does. It stores nothing, but every mismatched position re-reads the entire list, so long sentences against long pair lists multiply out.',
+      code: {
+        cpp: {
+          lines: [
+            'bool areSentencesSimilar(vector<string>& words1, vector<string>& words2,',
+            '                         vector<vector<string>>& pairs) {',
+            '    if (words1.size() != words2.size()) return false;',
+            '    for (size_t i = 0; i < words1.size(); ++i) {',
+            '        if (words1[i] == words2[i]) continue;',
+            '        bool found = false;',
+            '        for (auto& p : pairs)',
+            '            if ((p[0] == words1[i] && p[1] == words2[i]) ||',
+            '                (p[1] == words1[i] && p[0] == words2[i])) { found = true; break; }',
+            '        if (!found) return false;',
+            '    }',
+            '    return true;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function areSentencesSimilar(words1, words2, pairs) {',
+            '  if (words1.length !== words2.length) return false;',
+            '  for (let i = 0; i < words1.length; i++) {',
+            '    if (words1[i] === words2[i]) continue;',
+            '    const found = pairs.some(',
+            '      ([a, b]) => (a === words1[i] && b === words2[i]) || (b === words1[i] && a === words2[i]),',
+            '    );',
+            '    if (!found) return false;',
+            '  }',
+            '  return true;',
+            '}',
+          ],
+        },
+      },
+      run([words1, words2, pairs]: [string[], string[], string[][]], c) {
+        if (words1.length !== words2.length) return false
+        for (let i = 0; i < words1.length; i++) {
+          if (words1[i] === words2[i]) continue
+          let found = false
+          for (const [a, b] of pairs) {
+            c.ops++
+            if ((a === words1[i] && b === words2[i]) || (b === words1[i] && a === words2[i])) {
+              found = true
+              break
+            }
+          }
+          if (!found) return false
+        }
+        return true
+      },
+    },
+    {
       id: 'pair-set',
       label: 'Put the pairs in a set',
       kind: 'optimal',
       time: 'O(n + p)',
       space: 'O(p)',
       blurb:
-        'Because similarity is not transitive there are no groups to merge — union-find would be the wrong tool here. Every allowed substitution is exactly one listed pair, so store the pairs in a set keyed both ways round and check each position in constant time.',
+        'Rescanning the list is the waste: every allowed substitution is exactly one listed pair, so store the pairs in a set keyed both ways round and each position becomes a constant-time lookup. Because similarity is not transitive there are no groups to merge — union-find would be the wrong tool here.',
       code: {
         cpp: {
           lines: [
