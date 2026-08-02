@@ -17,6 +17,12 @@ export const judgeRouteCircle: Problem = {
     { args: [''], expect: true, note: 'no moves, still at the origin' },
     { args: ['LDRRLRUULR'], expect: false },
     { args: ['RLUURDDDLU'], expect: true },
+    { args: ['U'], expect: false, note: 'a single move never returns' },
+    { args: ['UDLR'], expect: true, note: 'one of each' },
+    { args: ['RRDD'], expect: false },
+    { args: ['UUDDLLRR'], expect: true, note: 'the route loops, order does not matter' },
+    { args: ['UDLR'.repeat(2500)], expect: true, note: 'the longest route' },
+    { args: ['UD'.repeat(4999) + 'U'], expect: false, note: 'balanced except for the last move' },
   ],
   demo: ['UD'],
   scale: (n) => ['UDLR'.repeat(Math.max(1, n >> 2))],
@@ -39,7 +45,7 @@ export const judgeRouteCircle: Problem = {
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'The route itself is irrelevant — moves commute, so the robot ends at the origin exactly when the ups cancel the downs and the lefts cancel the rights. Two counters, one pass, no coordinates to simulate.',
+        'The route itself is irrelevant — moves commute, so the robot ends at the origin exactly when the ups cancel the downs and the lefts cancel the rights. Two counters, one pass. There is no slower rung worth showing: simulating the walk step by step is these same two counters under different names, and every move has to be read once regardless.',
       code: {
         cpp: {
           lines: [

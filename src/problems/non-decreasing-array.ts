@@ -17,6 +17,17 @@ export const nonDecreasingArray: Problem = {
     { args: [[3, 4, 2, 3]], expect: false, note: 'one violation, but neither repair works' },
     { args: [[1, 2, 3]], expect: true, note: 'already sorted' },
     { args: [[-1, 4, 2, 3]], expect: true },
+    { args: [[1]], expect: true, note: 'a single element' },
+    { args: [[5, 7, 1, 8]], expect: true, note: 'raise the 1' },
+    { args: [[1, 2, 4, 5, 3]], expect: true, note: 'the drop is at the very end' },
+    { args: [[2, 3, 3, 2, 4]], expect: true, note: 'the element two back blocks lowering, so raise instead' },
+    { args: [[1, 1, 1, 0]], expect: true, note: 'duplicates are allowed' },
+    { args: [[-100000, 100000, -100000]], expect: true, note: 'the value bounds' },
+    {
+      args: [Array.from({ length: 5000 }, (_, i) => (i === 2500 ? -1 : i))],
+      expect: true,
+      note: 'a long sorted array with one dip',
+    },
   ],
   demo: [[4, 2, 3]],
   scale: (n) => [Array.from({ length: n }, (_, i) => i)],
@@ -33,13 +44,72 @@ export const nonDecreasingArray: Problem = {
 
   solutions: [
     {
+      id: 'drop-each',
+      label: 'Try leaving out each element in turn',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(1)',
+      blurb:
+        'Changing one element can succeed exactly when the rest of the array, read without that element, is already non-decreasing — the changed value can then be set to match a neighbour. So for every index, check the array with that index skipped. Each check is a full pass, and the array is rechecked from the start for every candidate.',
+      code: {
+        cpp: {
+          lines: [
+            'bool checkPossibility(vector<int>& nums) {',
+            '    int n = nums.size();',
+            '    for (int skip = 0; skip < n; ++skip) {',
+            '        bool ok = true;',
+            '        int prev = INT_MIN;',
+            '        for (int i = 0; i < n && ok; ++i) {',
+            '            if (i == skip) continue;',
+            '            if (nums[i] < prev) ok = false;',
+            '            prev = nums[i];',
+            '        }',
+            '        if (ok) return true;',
+            '    }',
+            '    return false;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function checkPossibility(nums) {',
+            '  for (let skip = 0; skip < nums.length; skip++) {',
+            '    let ok = true, prev = -Infinity;',
+            '    for (let i = 0; i < nums.length && ok; i++) {',
+            '      if (i === skip) continue;',
+            '      if (nums[i] < prev) ok = false;',
+            '      prev = nums[i];',
+            '    }',
+            '    if (ok) return true;',
+            '  }',
+            '  return false;',
+            '}',
+          ],
+        },
+      },
+      run([nums]: [number[]], c) {
+        for (let skip = 0; skip < nums.length; skip++) {
+          let ok = true
+          let prev = -Infinity
+          for (let i = 0; i < nums.length && ok; i++) {
+            c.ops++
+            if (i === skip) continue
+            if (nums[i] < prev) ok = false
+            prev = nums[i]
+          }
+          if (ok) return true
+        }
+        return false
+      },
+    },
+    {
       id: 'greedy-repair',
       label: 'Repair the first drop, then keep checking',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Counting violations is not enough — which element you change matters. At a drop, lowering the left value is always at least as good as raising the right one, because it leaves the rest of the array smaller. That is only possible when the element two back is small enough; otherwise raise the right value instead. A second drop after that repair settles it.',
+        'Only the first drop needs a decision, so one pass suffices. At a drop, lowering the left value is always at least as good as raising the right one, because it leaves the rest of the array smaller; that is only possible when the element two back is small enough, and otherwise the right value is raised instead. A second drop after that repair settles it — no index other than the first drop ever needed trying.',
       code: {
         cpp: {
           lines: [

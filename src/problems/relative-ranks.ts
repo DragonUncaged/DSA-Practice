@@ -26,6 +26,15 @@ export const relativeRanks: Problem = {
     },
     { args: [[1]], expect: ['Gold Medal'] },
     { args: [[2, 1]], expect: ['Gold Medal', 'Silver Medal'], note: 'fewer than three athletes' },
+    { args: [[1, 2, 3]], expect: ['Bronze Medal', 'Silver Medal', 'Gold Medal'], note: 'ascending scores' },
+    { args: [[1000000, 0]], expect: ['Gold Medal', 'Silver Medal'], note: 'the score bounds' },
+    {
+      args: [Array.from({ length: 3000 }, (_, i) => i)],
+      expect: Array.from({ length: 3000 }, (_, i) =>
+        i === 2999 ? 'Gold Medal' : i === 2998 ? 'Silver Medal' : i === 2997 ? 'Bronze Medal' : String(3000 - i),
+      ),
+      note: 'a long field in ascending order',
+    },
   ],
   demo: [[10, 3, 8, 9, 4]],
   scale: (n) => [Array.from({ length: n }, (_, i) => i)],
@@ -42,13 +51,62 @@ export const relativeRanks: Problem = {
 
   solutions: [
     {
+      id: 'count-better',
+      label: 'Count how many scores beat each athlete',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(1)',
+      blurb:
+        'An athlete\'s placement is one more than the number of scores above theirs, so count that for each athlete with a scan over everyone else. Nothing needs sorting and the output lands in the original order by construction, but every athlete pays a full pass over the field.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<string> findRelativeRanks(vector<int>& score) {',
+            '    int n = score.size();',
+            '    vector<string> out(n);',
+            '    const char* medal[3] = {"Gold Medal", "Silver Medal", "Bronze Medal"};',
+            '    for (int i = 0; i < n; ++i) {',
+            '        int place = 0;',
+            '        for (int j = 0; j < n; ++j) if (score[j] > score[i]) ++place;',
+            '        out[i] = place < 3 ? medal[place] : to_string(place + 1);',
+            '    }',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function findRelativeRanks(score) {',
+            '  const medal = ["Gold Medal", "Silver Medal", "Bronze Medal"];',
+            '  return score.map((s) => {',
+            '    let place = 0;',
+            '    for (const other of score) if (other > s) place++;',
+            '    return place < 3 ? medal[place] : String(place + 1);',
+            '  });',
+            '}',
+          ],
+        },
+      },
+      run([score]: [number[]], c) {
+        const medal = ['Gold Medal', 'Silver Medal', 'Bronze Medal']
+        return score.map((s) => {
+          let place = 0
+          for (const other of score) {
+            c.ops++
+            if (other > s) place++
+          }
+          return place < 3 ? medal[place] : String(place + 1)
+        })
+      },
+    },
+    {
       id: 'sort-indices',
       label: 'Sort the indices, not the scores',
       kind: 'optimal',
       time: 'O(n log n)',
       space: 'O(n)',
       blurb:
-        'The answer must come back in the original order, so sorting the scores themselves loses exactly the information needed. Sort the indices by their score instead: walking that sorted list gives placements in order, and each entry still names the slot to write into.',
+        'One sort settles every placement at once. The answer must come back in the original order, so sorting the scores themselves loses exactly the information needed; sort the indices by their score instead. Walking that sorted list gives placements in order, and each entry still names the slot to write into.',
       code: {
         cpp: {
           lines: [

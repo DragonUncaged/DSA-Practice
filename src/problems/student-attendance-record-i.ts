@@ -18,6 +18,14 @@ export const studentAttendanceRecordI: Problem = {
     { args: ['AA'], expect: false },
     { args: ['LLL'], expect: false },
     { args: ['ALLAPLL'], expect: false, note: 'two absences, wherever they sit' },
+    { args: ['P'], expect: true },
+    { args: ['LL'], expect: true, note: 'two lates in a row is allowed' },
+    { args: ['LPLPLPLL'], expect: true, note: 'many lates, never three together' },
+    { args: ['LALAL'], expect: false, note: 'the lates are split up, but there are two absences' },
+    { args: ['PLLAPLL'], expect: true },
+    { args: ['PL'.repeat(500)], expect: true, note: 'the longest record' },
+    { args: ['P'.repeat(999) + 'A'], expect: true },
+    { args: ['P'.repeat(997) + 'LLL'], expect: false, note: 'the run of lates is at the very end' },
   ],
   demo: ['PPALLP'],
   scale: (n) => ['PL'.repeat(Math.max(1, n >> 1))],
@@ -40,7 +48,7 @@ export const studentAttendanceRecordI: Problem = {
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'The two rules need different kinds of memory: absences are a total that never resets, lates are a run that resets on anything else. Keep both counters and bail out the moment either crosses its limit — there is nothing later in the string that could redeem it.',
+        'The two rules need different kinds of memory: absences are a total that never resets, lates are a run that resets on anything else. Keep both counters and bail out the moment either crosses its limit — there is nothing later in the string that could redeem it. This is the only rung: counting the absences and searching for "LLL" separately is the same linear read done twice.',
       code: {
         cpp: {
           lines: [

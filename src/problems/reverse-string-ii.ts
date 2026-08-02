@@ -23,6 +23,11 @@ export const reverseStringII: Problem = {
     { args: ['abcd', 2], expect: 'bacd' },
     { args: ['abcdefg', 8], expect: 'gfedcba', note: 'fewer than k left, so reverse it all' },
     { args: ['a', 1], expect: 'a' },
+    { args: ['abcdefg', 1], expect: 'abcdefg', note: 'k = 1 reverses single characters' },
+    { args: ['abcdefg', 3], expect: 'cbadefg', note: 'the tail of 1 is between 0 and k, reversed whole' },
+    { args: ['abcde', 3], expect: 'cbade', note: 'between k and 2k remain, so only the first k flip' },
+    { args: ['abcdef', 3], expect: 'cbadef', note: 'exactly 2k characters' },
+    { args: ['ab'.repeat(5000), 2], expect: 'baab'.repeat(2500), note: 'the longest string' },
   ],
   demo: ['abcdefg', 2],
   scale: (n) => ['ab'.repeat(Math.max(1, n >> 1)), 3],
@@ -45,7 +50,7 @@ export const reverseStringII: Problem = {
       time: 'O(n)',
       space: 'O(n)',
       blurb:
-        'The rule reads as three cases, but they collapse into one: reverse from `i` up to `min(i + k, n)`. Striding the start index by `2k` handles the skipped halves for free, and clamping the end handles the short tail without a special branch.',
+        'The rule reads as three cases, but they collapse into one: reverse from `i` up to `min(i + k, n)`. Striding the start index by `2k` handles the skipped halves for free, and clamping the end handles the short tail without a special branch. There is no slower rung: every character is touched at most once, and slicing the string into chunks is this loop with extra copies.',
       code: {
         cpp: {
           lines: [
