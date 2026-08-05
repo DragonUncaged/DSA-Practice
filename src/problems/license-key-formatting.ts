@@ -25,8 +25,13 @@ export const licenseKeyFormatting: Problem = {
   tests: [
     { args: ['5F3Z-2e-9-w', 4], expect: '5F3Z-2E9W' },
     { args: ['2-5g-3-J', 2], expect: '2-5G-3J', note: 'the first group is the short one' },
+    { args: ['2-4A0r7-4k', 4], expect: '24A0-R74K', note: 'the groups divide evenly' },
+    { args: ['2-4A0r7-4k', 3], expect: '24-A0R-74K' },
     { args: ['---', 3], expect: '', note: 'nothing but dashes' },
     { args: ['a-a-a', 1], expect: 'A-A-A' },
+    { args: ['a', 1], expect: 'A', note: 'a single character' },
+    { args: ['ab', 5], expect: 'AB', note: 'k is larger than the whole key' },
+    { args: ['a-'.repeat(2000), 4], expect: 'AAAA-'.repeat(500).slice(0, -1), note: 'a long key of 500 full groups' },
   ],
   demo: ['5F3Z-2e-9-w', 4],
   scale: (n) => ['ab-'.repeat(Math.max(1, Math.floor(n / 3))), 4],
@@ -43,13 +48,63 @@ export const licenseKeyFormatting: Problem = {
 
   solutions: [
     {
+      id: 'clean-then-slice',
+      label: 'Strip the dashes, size the first group, slice',
+      kind: 'brute',
+      time: 'O(n)',
+      space: 'O(n)',
+      blurb:
+        'Remove every dash and upper-case what is left, so the key is one clean string. Its length modulo k is the size of the first group (or k when that is zero); emit that prefix, then slice the rest into groups of k. Two passes and an intermediate copy, but each step is the statement read literally.',
+      code: {
+        cpp: {
+          lines: [
+            'string licenseKeyFormatting(string s, int k) {',
+            '    string clean;',
+            '    for (char ch : s) if (ch != \'-\') clean += toupper((unsigned char)ch);',
+            '    if (clean.empty()) return "";',
+            '    int first = clean.size() % k;',
+            '    if (first == 0) first = k;',
+            '    string out = clean.substr(0, first);',
+            '    for (size_t i = first; i < clean.size(); i += k)',
+            '        out += "-" + clean.substr(i, k);',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function licenseKeyFormatting(s, k) {',
+            '  const clean = s.replace(/-/g, "").toUpperCase();',
+            '  if (!clean) return "";',
+            '  const first = clean.length % k || k;',
+            '  const groups = [clean.slice(0, first)];',
+            '  for (let i = first; i < clean.length; i += k) groups.push(clean.slice(i, i + k));',
+            '  return groups.join("-");',
+            '}',
+          ],
+        },
+      },
+      run([s, k]: [string, number], c) {
+        c.ops += s.length
+        const clean = s.replace(/-/g, '').toUpperCase()
+        if (!clean) return ''
+        const first = clean.length % k || k
+        const groups = [clean.slice(0, first)]
+        for (let i = first; i < clean.length; i += k) {
+          c.ops += k
+          groups.push(clean.slice(i, i + k))
+        }
+        return groups.join('-')
+      },
+    },
+    {
       id: 'build-backwards',
       label: 'Build it backwards, then flip',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(n)',
       blurb:
-        'Groups are anchored to the end, not the start, so the only irregular group is the first — and its size is not known until the dashes have been counted. Walking from the right sidesteps that: emit a dash every k characters, then reverse. The leftover simply becomes the short leading group.',
+        'The cleaned copy and the modulo arithmetic both go away by changing direction. Groups are anchored to the end, not the start, so walking from the right makes every group regular: emit a dash every k characters, skip dashes, upper-case as you go, then reverse once. The leftover at the far end simply becomes the short leading group.',
       code: {
         cpp: {
           lines: [

@@ -46,6 +46,16 @@ export const numberOfBoomerangs: Problem = {
       args: [
         [
           [0, 0],
+          [1, 1],
+        ],
+      ],
+      expect: 0,
+      note: 'two points make no triple either',
+    },
+    {
+      args: [
+        [
+          [0, 0],
           [1, 0],
           [-1, 0],
           [0, 1],
@@ -53,6 +63,47 @@ export const numberOfBoomerangs: Problem = {
         ],
       ],
       expect: 20,
+    },
+    {
+      args: [
+        [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+          [1, 1],
+        ],
+      ],
+      expect: 8,
+      note: 'the corners of a square',
+    },
+    {
+      args: [
+        [
+          [0, 0],
+          [1, 0],
+          [2, 0],
+          [3, 0],
+          [4, 0],
+        ],
+      ],
+      expect: 8,
+      note: 'five points on a line',
+    },
+    {
+      args: [
+        [
+          [-10000, 10000],
+          [10000, -10000],
+          [0, 0],
+        ],
+      ],
+      expect: 2,
+      note: 'the coordinate bounds: squared distances need 64 bits',
+    },
+    {
+      args: [Array.from({ length: 200 }, (_, i) => [i % 17, Math.floor(i / 17) * 3])],
+      expect: 64158,
+      note: 'a grid of 200 points',
     },
   ],
   demo: [
@@ -79,13 +130,67 @@ export const numberOfBoomerangs: Problem = {
 
   solutions: [
     {
+      id: 'all-triples',
+      label: 'Check every ordered triple',
+      kind: 'brute',
+      time: 'O(n^3)',
+      space: 'O(1)',
+      blurb:
+        'A boomerang is an ordered triple, so enumerate all of them: for each pivot i and each ordered pair of other points j and k, count it when the two squared distances from i agree. Nothing subtle — but the distance from i to j is recomputed for every k, and the triple loop is cubic in the point count.',
+      code: {
+        cpp: {
+          lines: [
+            'int numberOfBoomerangs(vector<vector<int>>& points) {',
+            '    int n = points.size(), total = 0;',
+            '    auto dist = [&](int a, int b) {',
+            '        long long dx = points[a][0] - points[b][0], dy = points[a][1] - points[b][1];',
+            '        return dx * dx + dy * dy;',
+            '    };',
+            '    for (int i = 0; i < n; ++i)',
+            '        for (int j = 0; j < n; ++j)',
+            '            for (int k = 0; k < n; ++k)',
+            '                if (i != j && i != k && j != k && dist(i, j) == dist(i, k)) total++;',
+            '    return total;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function numberOfBoomerangs(points) {',
+            '  const n = points.length;',
+            '  const dist = (a, b) => (points[a][0] - points[b][0]) ** 2 + (points[a][1] - points[b][1]) ** 2;',
+            '  let total = 0;',
+            '  for (let i = 0; i < n; i++)',
+            '    for (let j = 0; j < n; j++)',
+            '      for (let k = 0; k < n; k++)',
+            '        if (i !== j && i !== k && j !== k && dist(i, j) === dist(i, k)) total++;',
+            '  return total;',
+            '}',
+          ],
+        },
+      },
+      run([points]: [number[][]], c) {
+        const n = points.length
+        const dist = (a: number, b: number) =>
+          (points[a][0] - points[b][0]) ** 2 + (points[a][1] - points[b][1]) ** 2
+        let total = 0
+        for (let i = 0; i < n; i++)
+          for (let j = 0; j < n; j++)
+            for (let k = 0; k < n; k++) {
+              c.ops++
+              if (i !== j && i !== k && j !== k && dist(i, j) === dist(i, k)) total++
+            }
+        return total
+      },
+    },
+    {
       id: 'distance-buckets',
       label: 'Bucket distances around each pivot',
       kind: 'optimal',
       time: 'O(n^2)',
       space: 'O(n)',
       blurb:
-        'The first point of the triple is special — it is the one both distances are measured from — so fix it and bucket every other point by its squared distance. A bucket of size m contributes m * (m - 1) ordered pairs. Squared distances keep the arithmetic exact; there is no reason to take a square root.',
+        'The third loop is unnecessary. The first point of the triple is special — it is the one both distances are measured from — so fix it and bucket every other point by its squared distance in one pass. A bucket of size m contributes m * (m - 1) ordered pairs, which counts every j and k at once. Squared distances keep the arithmetic exact; there is no reason to take a square root.',
       code: {
         cpp: {
           lines: [
