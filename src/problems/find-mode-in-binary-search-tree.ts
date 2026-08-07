@@ -23,6 +23,14 @@ export const findModeInBinarySearchTree: Problem = {
     { args: [[1, null, 1]], expect: [1] },
     { args: [[2, 1, 3]], expect: [1, 2, 3], note: 'everything ties at one occurrence' },
     { args: [[6, 2, 8, 1, 2]], expect: [2] },
+    { args: [[1, 1, 2]], expect: [1], note: 'the duplicate sits on the left' },
+    { args: [[3, 1, 4, null, 2]], expect: [1, 2, 3, 4] },
+    { args: [[-1, -1]], expect: [-1], note: 'negative values' },
+    {
+      args: [Array.from({ length: 1999 }, (_, i) => (i % 2 ? null : 7))],
+      expect: [7],
+      note: 'a right-leaning chain of 1000 equal values',
+    },
   ],
   demo: [[1, null, 2, 2]],
   scale: (n) => [Array.from({ length: Math.min(n, 2000) }, (_, i) => i)],
@@ -39,13 +47,147 @@ export const findModeInBinarySearchTree: Problem = {
 
   solutions: [
     {
+      id: 'count-per-node',
+      label: 'Count each node\'s value with a full traversal',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(h)',
+      blurb:
+        'For every node, walk the whole tree counting how many nodes share its value, and keep the values whose count is the largest seen. It needs no extra structure and ignores the search-tree ordering completely, which is exactly why every node pays a full traversal — quadratic on a tree that already groups equal values together.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<int> findMode(TreeNode* root) {',
+            '    vector<TreeNode*> nodes;',
+            '    function<void(TreeNode*)> collect = [&](TreeNode* node) {',
+            '        if (!node) return;',
+            '        nodes.push_back(node);',
+            '        collect(node->left);',
+            '        collect(node->right);',
+            '    };',
+            '    collect(root);',
+            '    vector<int> best;',
+            '    int bestCount = 0;',
+            '    for (TreeNode* node : nodes) {',
+            '        int count = 0;',
+            '        for (TreeNode* other : nodes) if (other->val == node->val) count++;',
+            '        if (count > bestCount) { bestCount = count; best = {node->val}; }',
+            '        else if (count == bestCount && find(best.begin(), best.end(), node->val) == best.end())',
+            '            best.push_back(node->val);',
+            '    }',
+            '    return best;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function findMode(root) {',
+            '  const nodes = [];',
+            '  const collect = (node) => {',
+            '    if (!node) return;',
+            '    nodes.push(node);',
+            '    collect(node.left);',
+            '    collect(node.right);',
+            '  };',
+            '  collect(root);',
+            '  let best = [], bestCount = 0;',
+            '  for (const node of nodes) {',
+            '    let count = 0;',
+            '    for (const other of nodes) if (other.val === node.val) count++;',
+            '    if (count > bestCount) { bestCount = count; best = [node.val]; }',
+            '    else if (count === bestCount && !best.includes(node.val)) best.push(node.val);',
+            '  }',
+            '  return best;',
+            '}',
+          ],
+        },
+      },
+      run([level]: [(number | null)[]], c) {
+        const model = buildTreeModel(level)
+        let best: number[] = []
+        let bestCount = 0
+        for (const node of model.nodes) {
+          let count = 0
+          for (const other of model.nodes) {
+            c.ops++
+            if (other.value === node.value) count++
+          }
+          if (count > bestCount) {
+            bestCount = count
+            best = [node.value]
+          } else if (count === bestCount && !best.includes(node.value)) best.push(node.value)
+        }
+        return best
+      },
+    },
+    {
+      id: 'count-map',
+      label: 'Tally every value in a map',
+      kind: 'better',
+      time: 'O(n)',
+      space: 'O(n)',
+      blurb:
+        'One traversal tallies each value in a hash map, and a second pass over the map keeps the keys with the highest count. Linear time, and it works on any tree — but the map holds every distinct value, and a search tree could have handed the counts over in order without one.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<int> findMode(TreeNode* root) {',
+            '    unordered_map<int, int> count;',
+            '    function<void(TreeNode*)> walk = [&](TreeNode* node) {',
+            '        if (!node) return;',
+            '        count[node->val]++;',
+            '        walk(node->left);',
+            '        walk(node->right);',
+            '    };',
+            '    walk(root);',
+            '    int bestCount = 0;',
+            '    for (auto& [v, n] : count) bestCount = max(bestCount, n);',
+            '    vector<int> best;',
+            '    for (auto& [v, n] : count) if (n == bestCount) best.push_back(v);',
+            '    return best;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function findMode(root) {',
+            '  const count = new Map();',
+            '  const walk = (node) => {',
+            '    if (!node) return;',
+            '    count.set(node.val, (count.get(node.val) ?? 0) + 1);',
+            '    walk(node.left);',
+            '    walk(node.right);',
+            '  };',
+            '  walk(root);',
+            '  const bestCount = Math.max(...count.values());',
+            '  return [...count].filter(([, n]) => n === bestCount).map(([v]) => v);',
+            '}',
+          ],
+        },
+      },
+      run([level]: [(number | null)[]], c) {
+        const model = buildTreeModel(level)
+        const count = new Map<number, number>()
+        for (const node of model.nodes) {
+          c.ops++
+          count.set(node.value, (count.get(node.value) ?? 0) + 1)
+        }
+        let bestCount = 0
+        for (const n of count.values()) {
+          c.ops++
+          bestCount = Math.max(bestCount, n)
+        }
+        return [...count].filter(([, n]) => n === bestCount).map(([v]) => v)
+      },
+    },
+    {
       id: 'inorder-runs',
       label: 'Count runs in the in-order sequence',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(h)',
       blurb:
-        'A hash map of counts works but ignores what the BST already gives you: in-order, equal values arrive consecutively. So a single run length is enough state — extend it while the value repeats, and when it beats the best seen, restart the answer list; when it ties, append to it.',
+        'The map ignores what the BST already gives you: in-order, equal values arrive consecutively. So a single run length is enough state — extend it while the value repeats, and when it beats the best seen, restart the answer list; when it ties, append to it. Only the recursion stack and the answer itself are kept.',
       code: {
         cpp: {
           lines: [

@@ -27,6 +27,23 @@ export const twitchWords: Problem = {
       ],
       note: 'a run of two does not count',
     },
+    { args: [''], expect: [], note: 'the empty string' },
+    { args: ['a'], expect: [] },
+    { args: ['aaaa'], expect: [[0, 3]], note: 'one run longer than three' },
+    { args: ['aabaaa'], expect: [[3, 5]], note: 'the same letter, but only the second run is long enough' },
+    {
+      args: ['aaabbb'],
+      expect: [
+        [0, 2],
+        [3, 5],
+      ],
+      note: 'two runs back to back',
+    },
+    {
+      args: ['aaab'.repeat(500)],
+      expect: Array.from({ length: 500 }, (_, i) => [4 * i, 4 * i + 2]),
+      note: 'a long string of 500 runs',
+    },
   ],
   demo: ['abbbcedddd'],
   scale: (n) => ['aaab'.repeat(Math.max(1, n >> 2))],
@@ -49,7 +66,7 @@ export const twitchWords: Problem = {
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Runs never overlap, so a single pointer can jump from the start of one run straight to the start of the next. Advance a second index while the character repeats; the gap between the two is the run length, and only runs of three or more are recorded.',
+        'Runs never overlap, so a single pointer can jump from the start of one run straight to the start of the next. Advance a second index while the character repeats; the gap between the two is the run length, and only runs of three or more are recorded. This is the only rung: every character has to be read once, and any other scan that finds the run boundaries is this one with different bookkeeping.',
       code: {
         cpp: {
           lines: [
