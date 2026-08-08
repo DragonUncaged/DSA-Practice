@@ -27,7 +27,9 @@ unmapped steps and the reference solution against its own tests. A problem whose
 `trace` and `code[lang].map` is practice-only — `hasTrace` in `src/problems/index.ts` decides, the
 player hides Trace and Brute vs Optimal and opens on Practice, and `/selftest` labels the row and
 checks only its tests; `src/problems/plus-one.ts` is the smallest one. A problem with no trace shows
-its `solutions` under a Solutions tab, and opening that tab counts as a full reveal.
+its `solutions` under a Solutions tab in array order, so list its rungs `brute`, `better`, `optimal`
+(traced problems keep the optimal at index 0); a `brute` reference `run` may throw an error
+containing `too slow` on an input it cannot finish, and `/selftest` counts that as a pass.
 A problem carrying `design` instead of `signature` is a design problem: the runner builds a class
 and dispatches method calls on it, driven by `designTests` (LeetCode's `ops`/`args`/`expect` call
 log) with a class skeleton for `starter` — see `src/problems/moving-average-from-data-stream.ts`,
