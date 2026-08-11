@@ -37,7 +37,13 @@ export const shortestWordDistance: Problem = {
       expect: 1,
       note: 'repeats on both sides',
     },
+    {
+      args: [['a', 'b', 'c', 'd', 'e', 'f', 'g', 'a'], 'a', 'g'],
+      expect: 1,
+      note: 'the closer a comes after g',
+    },
   ],
+  scale: (n) => [Array.from({ length: n }, (_, i) => (i % 2 ? 'a' : 'b')), 'a', 'b'],
   demo: [['practice', 'makes', 'perfect', 'coding', 'makes'], 'coding', 'practice'],
   starter: {
     js: `function shortestDistance(wordsDict, word1, word2) {
@@ -52,13 +58,65 @@ export const shortestWordDistance: Problem = {
 
   solutions: [
     {
+      id: 'every-pair',
+      label: 'Compare every occurrence of one word with every occurrence of the other',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(1)',
+      blurb:
+        'For each index holding `word1`, scan the whole array for `word2` and keep the smallest gap. Correct, but a word that appears often makes the inner scan run again and again over the same positions.',
+      code: {
+        cpp: {
+          lines: [
+            'int shortestDistance(vector<string>& wordsDict, string word1, string word2) {',
+            '    int best = wordsDict.size();',
+            '    for (int i = 0; i < (int)wordsDict.size(); ++i) {',
+            '        if (wordsDict[i] != word1) continue;',
+            '        for (int j = 0; j < (int)wordsDict.size(); ++j) {',
+            '            if (wordsDict[j] == word2) best = min(best, abs(i - j));',
+            '        }',
+            '    }',
+            '    return best;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function shortestDistance(wordsDict, word1, word2) {',
+            '  let best = wordsDict.length;',
+            '  for (let i = 0; i < wordsDict.length; i++) {',
+            '    if (wordsDict[i] !== word1) continue;',
+            '    for (let j = 0; j < wordsDict.length; j++) {',
+            '      if (wordsDict[j] === word2) best = Math.min(best, Math.abs(i - j));',
+            '    }',
+            '  }',
+            '  return best;',
+            '}',
+          ],
+        },
+      },
+
+      run([words, word1, word2]: [string[], string, string], c) {
+        let best = words.length
+        for (let i = 0; i < words.length; i++) {
+          if (words[i] !== word1) continue
+          for (let j = 0; j < words.length; j++) {
+            c.ops++
+            if (words[j] === word2) best = Math.min(best, Math.abs(i - j))
+          }
+        }
+        return best
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'last-seen',
       label: 'Remember the last index of each word',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'The closest pair always uses the most recent sighting of the other word, so one pass keeping the latest index of each is enough. Every time both have been seen, measure the gap.',
+        'The inner scan is wasted: the closest partner for any occurrence is always the most recent sighting of the other word, so one pass keeping the latest index of each is enough. Every time both have been seen, measure the gap.',
       code: {
         cpp: {
           lines: [

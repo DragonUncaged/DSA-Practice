@@ -78,13 +78,138 @@ export const shortestWordDistanceII: Problem = {
 
   solutions: [
     {
+      id: 'rescan',
+      label: 'Rescan the array for every query',
+      kind: 'brute',
+      time: 'O(q * n)',
+      space: 'O(1)',
+      blurb:
+        'Answer each query the way Shortest Word Distance did: one pass over `wordsDict` tracking the latest index of each word. Correct, and fine for one query, but thousands of queries mean thousands of full passes over an array that never changes.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<int> shortest(vector<string>& wordsDict, vector<vector<string>>& queries) {',
+            '    vector<int> out;',
+            '    for (auto& qy : queries) {',
+            '        int i1 = -1, i2 = -1, best = INT_MAX;',
+            '        for (int i = 0; i < (int)wordsDict.size(); ++i) {',
+            '            if (wordsDict[i] == qy[0]) i1 = i;',
+            '            else if (wordsDict[i] == qy[1]) i2 = i;',
+            '            if (i1 >= 0 && i2 >= 0) best = min(best, abs(i1 - i2));',
+            '        }',
+            '        out.push_back(best);',
+            '    }',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function shortest(wordsDict, queries) {',
+            '  return queries.map(([w1, w2]) => {',
+            '    let i1 = -1, i2 = -1, best = Infinity;',
+            '    for (let i = 0; i < wordsDict.length; i++) {',
+            '      if (wordsDict[i] === w1) i1 = i;',
+            '      else if (wordsDict[i] === w2) i2 = i;',
+            '      if (i1 >= 0 && i2 >= 0) best = Math.min(best, Math.abs(i1 - i2));',
+            '    }',
+            '    return best;',
+            '  });',
+            '}',
+          ],
+        },
+      },
+
+      run([words, queries]: [string[], string[][]], c) {
+        return queries.map(([w1, w2]) => {
+          let i1 = -1
+          let i2 = -1
+          let best = Infinity
+          for (let i = 0; i < words.length; i++) {
+            c.ops++
+            if (words[i] === w1) i1 = i
+            else if (words[i] === w2) i2 = i
+            if (i1 >= 0 && i2 >= 0) best = Math.min(best, Math.abs(i1 - i2))
+          }
+          return best
+        })
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
+      id: 'index-pairs',
+      label: 'Index the positions, then compare every pair',
+      kind: 'better',
+      time: 'O(n + q * a * b)',
+      space: 'O(n)',
+      blurb:
+        'Record every position of every word once, so a query only touches the two words it asks about. Comparing each position of one against each position of the other is still quadratic in the two lists, but it no longer looks at the rest of the array.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<int> shortest(vector<string>& wordsDict, vector<vector<string>>& queries) {',
+            '    unordered_map<string, vector<int>> at;',
+            '    for (int i = 0; i < (int)wordsDict.size(); ++i) at[wordsDict[i]].push_back(i);',
+            '',
+            '    vector<int> out;',
+            '    for (auto& qy : queries) {',
+            '        int best = INT_MAX;',
+            '        for (int i : at[qy[0]])',
+            '            for (int j : at[qy[1]]) best = min(best, abs(i - j));',
+            '        out.push_back(best);',
+            '    }',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function shortest(wordsDict, queries) {',
+            '  const at = new Map();',
+            '  wordsDict.forEach((w, i) => {',
+            '    if (!at.has(w)) at.set(w, []);',
+            '    at.get(w).push(i);',
+            '  });',
+            '',
+            '  return queries.map(([w1, w2]) => {',
+            '    let best = Infinity;',
+            '    for (const i of at.get(w1) ?? [])',
+            '      for (const j of at.get(w2) ?? []) best = Math.min(best, Math.abs(i - j));',
+            '    return best;',
+            '  });',
+            '}',
+          ],
+        },
+      },
+
+      run([words, queries]: [string[], string[][]], c) {
+        const at = new Map<string, number[]>()
+        words.forEach((w, i) => {
+          c.ops++
+          if (!at.has(w)) at.set(w, [])
+          at.get(w)!.push(i)
+        })
+        return queries.map(([w1, w2]) => {
+          let best = Infinity
+          for (const i of at.get(w1) ?? []) {
+            for (const j of at.get(w2) ?? []) {
+              c.ops++
+              best = Math.min(best, Math.abs(i - j))
+            }
+          }
+          return best
+        })
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'index-merge',
       label: 'Index the positions, then merge two lists',
       kind: 'optimal',
       time: 'O(n + q * (a + b))',
       space: 'O(n)',
       blurb:
-        'One pass records every position of every word. Each word list is already sorted, so a query walks the two lists together the way merge does, always advancing the smaller index — the closest pair shows up on the way.',
+        'The position lists are already sorted, so the pairwise comparison is doing too much. Walk the two lists together the way merge does, always advancing the smaller index: the closest pair shows up on the way, in one pass over both lists instead of a pass over their product.',
       code: {
         cpp: {
           lines: [

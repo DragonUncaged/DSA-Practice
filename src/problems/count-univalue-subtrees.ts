@@ -19,7 +19,11 @@ export const countUnivalueSubtrees: Problem = {
     { args: [[1]], expect: 1, note: 'a lone leaf' },
     { args: [[1, 1, 1]], expect: 3 },
     { args: [[1, 2]], expect: 1, note: 'only the leaf qualifies' },
+    { args: [[-1, -1, null, -1]], expect: 3, note: 'negative values, left-skewed' },
+    { args: [[2, 2, 2, 5, 2]], expect: 3, note: 'one odd leaf spoils every ancestor' },
   ],
+  // a left-skewed chain, so the brute force re-checks every node once per ancestor
+  scale: (n) => [[7, ...Array.from({ length: n - 1 }, () => [7, null]).flat()]],
   demo: [[5, 1, 5, 5, 5, null, 5]],
   starter: {
     js: `function countUnivalSubtrees(root) {
@@ -34,13 +38,68 @@ export const countUnivalueSubtrees: Problem = {
 
   solutions: [
     {
+      id: 'check-each-subtree',
+      label: 'Check every subtree from scratch',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(h)',
+      blurb:
+        'For each node, walk its whole subtree and ask whether every value matches the node. Correct, and quadratic on a skewed tree: a node deep down is re-examined once by every ancestor above it.',
+      code: {
+        cpp: {
+          lines: [
+            'static bool uniform(TreeNode* node, int val) {',
+            '    if (!node) return true;',
+            '    return node->val == val && uniform(node->left, val) && uniform(node->right, val);',
+            '}',
+            '',
+            'int countUnivalSubtrees(TreeNode* root) {',
+            '    if (!root) return 0;',
+            '    int here = uniform(root, root->val) ? 1 : 0;',
+            '    return here + countUnivalSubtrees(root->left) + countUnivalSubtrees(root->right);',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function countUnivalSubtrees(root) {',
+            '  const uniform = (node, val) =>',
+            '    !node || (node.val === val && uniform(node.left, val) && uniform(node.right, val));',
+            '',
+            '  if (!root) return 0;',
+            '  const here = uniform(root, root.val) ? 1 : 0;',
+            '  return here + countUnivalSubtrees(root.left) + countUnivalSubtrees(root.right);',
+            '}',
+          ],
+        },
+      },
+
+      run([level]: [(number | null)[]], c) {
+        const { nodes, root } = buildTreeModel(level)
+        const uniform = (id: number | null, val: number): boolean => {
+          if (id == null) return true
+          c.ops++
+          const node = nodes[id]
+          return node.value === val && uniform(node.left, val) && uniform(node.right, val)
+        }
+        const count = (id: number | null): number => {
+          if (id == null) return 0
+          const node = nodes[id]
+          const here = uniform(id, node.value) ? 1 : 0
+          return here + count(node.left) + count(node.right)
+        }
+        return count(root)
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'postorder',
       label: 'Post-order, reporting uni-value upward',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(h)',
       blurb:
-        'A subtree is uni-value when both children are uni-value and each child that exists carries the same value as its parent. Ask the children first and count on the way back up, so every node is visited once.',
+        "Each subtree check repeats work its children already did. Ask the children first: a subtree is uni-value when both children are uni-value and each child that exists carries the parent's value. Counting on the way back up visits every node exactly once.",
       code: {
         cpp: {
           lines: [

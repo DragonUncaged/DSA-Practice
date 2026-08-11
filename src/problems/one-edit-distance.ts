@@ -29,7 +29,11 @@ export const oneEditDistance: Problem = {
     { args: ['cab', 'ad'], expect: false, note: 'lengths differ by one but the tails disagree' },
     { args: ['1203', '1213'], expect: true, note: 'one replace in the middle' },
     { args: ['abc', 'abcde'], expect: false, note: 'two inserts' },
+    { args: ['a', 'b'], expect: true, note: 'single characters that differ' },
+    { args: ['abcd', 'abce'], expect: true, note: 'replace at the very end' },
+    { args: ['abc', 'bc'], expect: true, note: 'delete the first character' },
   ],
+  scale: (n) => ['a'.repeat(n), 'a'.repeat(n - 1) + 'b'],
   demo: ['ab', 'acb'],
   starter: {
     js: `function isOneEditDistance(s, t) {
@@ -44,13 +48,77 @@ export const oneEditDistance: Problem = {
 
   solutions: [
     {
+      id: 'edit-distance-table',
+      label: 'Compute the full edit distance and test for one',
+      kind: 'brute',
+      time: 'O(m * n)',
+      space: 'O(m * n)',
+      blurb:
+        'The general Edit Distance recurrence answers a harder question than was asked: fill the whole table, then check whether the corner equals one. Correct, but it does quadratic work to confirm a fact that a single scan can settle.',
+      code: {
+        cpp: {
+          lines: [
+            'bool isOneEditDistance(string s, string t) {',
+            '    int m = s.size(), n = t.size();',
+            '    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));',
+            '    for (int i = 0; i <= m; ++i) dp[i][0] = i;',
+            '    for (int j = 0; j <= n; ++j) dp[0][j] = j;',
+            '    for (int i = 1; i <= m; ++i) {',
+            '        for (int j = 1; j <= n; ++j) {',
+            '            if (s[i - 1] == t[j - 1]) dp[i][j] = dp[i - 1][j - 1];',
+            '            else dp[i][j] = 1 + min({dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]});',
+            '        }',
+            '    }',
+            '    return dp[m][n] == 1;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function isOneEditDistance(s, t) {',
+            '  const m = s.length;',
+            '  const n = t.length;',
+            '  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));',
+            '  for (let i = 0; i <= m; i++) dp[i][0] = i;',
+            '  for (let j = 0; j <= n; j++) dp[0][j] = j;',
+            '  for (let i = 1; i <= m; i++) {',
+            '    for (let j = 1; j <= n; j++) {',
+            '      if (s[i - 1] === t[j - 1]) dp[i][j] = dp[i - 1][j - 1];',
+            '      else dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);',
+            '    }',
+            '  }',
+            '  return dp[m][n] === 1;',
+            '}',
+          ],
+        },
+      },
+
+      run([s, t]: [string, string], c): boolean {
+        const m = s.length
+        const n = t.length
+        if (m * n > 4_000_000) throw new Error('too slow')
+        const dp = Array.from({ length: m + 1 }, () => new Array<number>(n + 1).fill(0))
+        for (let i = 0; i <= m; i++) dp[i][0] = i
+        for (let j = 0; j <= n; j++) dp[0][j] = j
+        for (let i = 1; i <= m; i++) {
+          for (let j = 1; j <= n; j++) {
+            c.ops++
+            if (s[i - 1] === t[j - 1]) dp[i][j] = dp[i - 1][j - 1]
+            else dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1])
+          }
+        }
+        return dp[m][n] === 1
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'scan',
       label: 'Walk to the first mismatch',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Make `s` the shorter string, then scan until the characters differ. At that point equal lengths must be a replace and unequal lengths an insert, so one tail comparison settles it. No mismatch at all means the answer is whether `t` is exactly one character longer.',
+        'The table computes every prefix pair when only one mismatch matters. Make `s` the shorter string and scan until the characters differ: equal lengths must then be a replace and unequal lengths an insert, so one tail comparison settles it. No mismatch at all means the answer is whether `t` is exactly one character longer.',
       code: {
         cpp: {
           lines: [

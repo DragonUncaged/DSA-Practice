@@ -32,7 +32,13 @@ export const reverseWordsII: Problem = {
       expect: ['y', 'o', 'u', ' ', 'h', 'i'],
       note: 'words of different lengths',
     },
+    {
+      args: [['1', '2', ' ', 'a', 'b', ' ', 'c', 'd']],
+      expect: ['c', 'd', ' ', 'a', 'b', ' ', '1', '2'],
+      note: 'digits count as word characters',
+    },
   ],
+  scale: (n) => [Array.from({ length: n }, (_, i) => (i % 3 === 2 ? ' ' : 'x'))],
   demo: [['t', 'h', 'e', ' ', 's', 'k', 'y', ' ', 'i', 's', ' ', 'b', 'l', 'u', 'e']],
   starter: {
     js: `function reverseWords(s) {
@@ -47,13 +53,73 @@ export const reverseWordsII: Problem = {
 
   solutions: [
     {
+      id: 'split-join',
+      label: 'Split into words, reverse the list, write it back',
+      kind: 'brute',
+      time: 'O(n)',
+      space: 'O(n)',
+      blurb:
+        'Cut the array at the spaces, reverse the list of words, and copy the joined result back over the input. Linear, but it builds a second copy of the whole string, which is exactly what the in-place requirement forbids.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<string> reverseWords(vector<string>& s) {',
+            '    vector<vector<string>> words(1);',
+            '    for (const string& ch : s) {',
+            '        if (ch == " ") words.emplace_back();',
+            '        else words.back().push_back(ch);',
+            '    }',
+            '    vector<string> flat;',
+            '    for (int w = (int)words.size() - 1; w >= 0; --w) {',
+            '        for (const string& ch : words[w]) flat.push_back(ch);',
+            '        if (w > 0) flat.push_back(" ");',
+            '    }',
+            '    for (size_t i = 0; i < s.size(); ++i) s[i] = flat[i];',
+            '    return s;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function reverseWords(s) {',
+            "  const words = s.join('').split(' ');",
+            '  words.reverse();',
+            "  const flat = words.join(' ').split('');",
+            '  for (let i = 0; i < s.length; i++) s[i] = flat[i];',
+            '  return s;',
+            '}',
+          ],
+        },
+      },
+
+      run([s]: [string[]], c) {
+        const words: string[][] = [[]]
+        for (const ch of s) {
+          c.ops++
+          if (ch === ' ') words.push([])
+          else words[words.length - 1].push(ch)
+        }
+        const flat: string[] = []
+        for (let w = words.length - 1; w >= 0; w--) {
+          for (const ch of words[w]) {
+            c.ops++
+            flat.push(ch)
+          }
+          if (w > 0) flat.push(' ')
+        }
+        for (let i = 0; i < s.length; i++) s[i] = flat[i]
+        return s
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'reverse-twice',
       label: 'Reverse everything, then each word',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Reversing the whole array puts the words in the right order but spells each one backwards. Reversing every word in place afterwards fixes the letters and leaves the order alone.',
+        'The copy can be avoided with two reversals. Reversing the whole array puts the words in the right order but spells each one backwards; reversing every word in place afterwards fixes the letters and leaves the order alone. Both passes swap within the input, so no second array is needed.',
       code: {
         cpp: {
           lines: [

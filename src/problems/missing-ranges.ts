@@ -31,7 +31,14 @@ export const missingRanges: Problem = {
     { args: [[], -5, 5], expect: [[-5, 5]], note: 'empty nums, whole range missing' },
     { args: [[1, 2, 3], 1, 3], expect: [], note: 'nums covers the range exactly' },
     { args: [[2], 0, 4], expect: [[0, 1], [3, 4]], note: 'a gap on each side' },
+    { args: [[-3, 0, 4], -5, 5], expect: [[-5, -4], [-2, -1], [1, 3], [5, 5]], note: 'negative values' },
+    {
+      args: [[], 999999990, 1000000000],
+      expect: [[999999990, 1000000000]],
+      note: 'values at the top of the constraint range',
+    },
   ],
+  scale: (n) => [Array.from({ length: n }, (_, i) => 2 * i), 0, 2 * n],
   demo: [[0, 1, 3, 50, 75], 0, 99],
   starter: {
     js: `function findMissingRanges(nums, lower, upper) {
@@ -46,13 +53,78 @@ export const missingRanges: Problem = {
 
   solutions: [
     {
+      id: 'walk-every-integer',
+      label: 'Test every integer in the range against a set',
+      kind: 'brute',
+      time: 'O(upper - lower)',
+      space: 'O(n)',
+      blurb:
+        'Put `nums` in a set and walk every integer from `lower` to `upper`, opening a range at the first absent value and closing it at the next present one. It works, but the cost tracks the size of the range, not the array — two billion steps for a range that `nums` describes in a hundred numbers.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<vector<int>> findMissingRanges(vector<int>& nums, int lower, int upper) {',
+            '    unordered_set<int> present(nums.begin(), nums.end());',
+            '    vector<vector<int>> out;',
+            '    long long x = lower;',
+            '    while (x <= upper) {',
+            '        if (present.count((int)x)) { ++x; continue; }',
+            '        long long start = x;',
+            '        while (x <= upper && !present.count((int)x)) ++x;',
+            '        out.push_back({(int)start, (int)(x - 1)});',
+            '    }',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function findMissingRanges(nums, lower, upper) {',
+            '  const present = new Set(nums);',
+            '  const out = [];',
+            '  let x = lower;',
+            '  while (x <= upper) {',
+            '    if (present.has(x)) { x++; continue; }',
+            '    const start = x;',
+            '    while (x <= upper && !present.has(x)) x++;',
+            '    out.push([start, x - 1]);',
+            '  }',
+            '  return out;',
+            '}',
+          ],
+        },
+      },
+
+      run([nums, lower, upper]: [number[], number, number], c) {
+        if (upper - lower > 2_000_000) throw new Error('too slow')
+        const present = new Set(nums)
+        const out: number[][] = []
+        let x = lower
+        while (x <= upper) {
+          c.ops++
+          if (present.has(x)) {
+            x++
+            continue
+          }
+          const start = x
+          while (x <= upper && !present.has(x)) {
+            c.ops++
+            x++
+          }
+          out.push([start, x - 1])
+        }
+        return out
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'scan',
       label: 'Track the next number still owed',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Keep a cursor on the smallest number not yet accounted for. Each element of `nums` closes off the gap in front of it, and whatever is left when the array runs out is one final range.',
+        'Walking the range visits every integer; walking `nums` visits only the boundaries. Keep a cursor on the smallest number not yet accounted for: each element closes off the gap in front of it, and whatever is left when the array runs out is one final range.',
       code: {
         cpp: {
           lines: [

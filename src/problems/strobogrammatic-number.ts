@@ -24,7 +24,11 @@ export const strobogrammaticNumber: Problem = {
     { args: ['6'], expect: false, note: '6 rotates to 9, not to itself' },
     { args: ['1691'], expect: true, note: 'odd pairs on the outside' },
     { args: ['818'], expect: true, note: 'odd length, centre must rotate to itself' },
+    { args: ['619'], expect: true, note: '6 faces 9 across a self-rotating centre' },
+    { args: ['968'], expect: false, note: 'every digit rotates, but not into the right place' },
+    { args: ['1001'], expect: true, note: 'zeros inside are allowed' },
   ],
+  scale: (n) => ['1'.repeat(n)],
   demo: ['69'],
   starter: {
     js: `function isStrobogrammatic(num) {
@@ -39,13 +43,63 @@ export const strobogrammaticNumber: Problem = {
 
   solutions: [
     {
+      id: 'build-rotated',
+      label: 'Build the rotated string and compare',
+      kind: 'brute',
+      time: 'O(n)',
+      space: 'O(n)',
+      blurb:
+        'Do literally what the statement says: read the digits from the right, map each through the rotation table, and see whether the string you built is the one you started with. Any digit with no rotation fails immediately. Simple, but it allocates a full copy just to compare it.',
+      code: {
+        cpp: {
+          lines: [
+            'bool isStrobogrammatic(string num) {',
+            '    unordered_map<char, char> flip{',
+            "        {'0', '0'}, {'1', '1'}, {'6', '9'}, {'8', '8'}, {'9', '6'}};",
+            '    string rotated;',
+            '    for (int i = (int)num.size() - 1; i >= 0; --i) {',
+            '        if (!flip.count(num[i])) return false;',
+            '        rotated += flip[num[i]];',
+            '    }',
+            '    return rotated == num;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function isStrobogrammatic(num) {',
+            "  const flip = { 0: '0', 1: '1', 6: '9', 8: '8', 9: '6' };",
+            "  let rotated = '';",
+            '  for (let i = num.length - 1; i >= 0; i--) {',
+            '    if (!(num[i] in flip)) return false;',
+            '    rotated += flip[num[i]];',
+            '  }',
+            '  return rotated === num;',
+            '}',
+          ],
+        },
+      },
+
+      run([num]: [string], c) {
+        const flip: Record<string, string> = { '0': '0', '1': '1', '6': '9', '8': '8', '9': '6' }
+        let rotated = ''
+        for (let i = num.length - 1; i >= 0; i--) {
+          c.ops++
+          if (!(num[i] in flip)) return false
+          rotated += flip[num[i]]
+        }
+        return rotated === num
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'two-pointer',
       label: 'Walk in from both ends',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Rotating the whole string reverses it and maps each digit, so position `l` must rotate into position `r`. Close the two pointers in step and check that one pairing at a time; the middle digit of an odd-length number is checked against itself.',
+        'The copy is unnecessary: rotating reverses the string and maps each digit, so position `l` must rotate into position `r`. Close two pointers in step and check that one pairing at a time, in constant extra space; the middle digit of an odd-length number is checked against itself.',
       code: {
         cpp: {
           lines: [

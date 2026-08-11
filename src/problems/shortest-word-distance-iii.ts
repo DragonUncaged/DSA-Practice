@@ -38,7 +38,9 @@ export const shortestWordDistanceIII: Problem = {
       expect: 2,
       note: 'closest pair is the last two',
     },
+    { args: [['a', 'b', 'c', 'a'], 'a', 'a'], expect: 3, note: 'the same word at both ends' },
   ],
+  scale: (n) => [Array.from({ length: n }, (_, i) => (i % 3 ? 'x' : 'a')), 'a', 'a'],
   demo: [['practice', 'makes', 'perfect', 'coding', 'makes'], 'makes', 'makes'],
   starter: {
     js: `function shortestWordDistance(wordsDict, word1, word2) {
@@ -53,13 +55,65 @@ export const shortestWordDistanceIII: Problem = {
 
   solutions: [
     {
+      id: 'every-pair',
+      label: 'Compare every pair of distinct indices',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(1)',
+      blurb:
+        'For each index holding `word1`, scan every other index for `word2` and keep the smallest gap. Skipping `j == i` is what makes the same-word case correct, but the scan is still quadratic.',
+      code: {
+        cpp: {
+          lines: [
+            'int shortestWordDistance(vector<string>& wordsDict, string word1, string word2) {',
+            '    int best = wordsDict.size();',
+            '    for (int i = 0; i < (int)wordsDict.size(); ++i) {',
+            '        if (wordsDict[i] != word1) continue;',
+            '        for (int j = 0; j < (int)wordsDict.size(); ++j) {',
+            '            if (j != i && wordsDict[j] == word2) best = min(best, abs(i - j));',
+            '        }',
+            '    }',
+            '    return best;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function shortestWordDistance(wordsDict, word1, word2) {',
+            '  let best = wordsDict.length;',
+            '  for (let i = 0; i < wordsDict.length; i++) {',
+            '    if (wordsDict[i] !== word1) continue;',
+            '    for (let j = 0; j < wordsDict.length; j++) {',
+            '      if (j !== i && wordsDict[j] === word2) best = Math.min(best, Math.abs(i - j));',
+            '    }',
+            '  }',
+            '  return best;',
+            '}',
+          ],
+        },
+      },
+
+      run([words, word1, word2]: [string[], string, string], c) {
+        let best = words.length
+        for (let i = 0; i < words.length; i++) {
+          if (words[i] !== word1) continue
+          for (let j = 0; j < words.length; j++) {
+            c.ops++
+            if (j !== i && words[j] === word2) best = Math.min(best, Math.abs(i - j))
+          }
+        }
+        return best
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'last-seen',
       label: 'One cursor each, swapped when the words match',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'The two-cursor scan still works; the only new case is `word1 == word2`, where a hit should update one cursor and push the previous value into the other. Swapping the pair before writing does exactly that, so a single loop handles both cases.',
+        'The two-cursor scan from Shortest Word Distance replaces the inner loop; the only new case is `word1 == word2`, where a hit should update one cursor and push the previous value into the other. Swapping the pair before writing does exactly that, so a single linear loop handles both cases.',
       code: {
         cpp: {
           lines: [

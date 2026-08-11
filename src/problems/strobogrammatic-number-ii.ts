@@ -33,6 +33,16 @@ export const strobogrammaticNumberII: Problem = {
       ],
       note: 'odd length keeps a self-rotating digit in the middle',
     },
+    {
+      args: [4],
+      expect: [
+        '1001', '1111', '1691', '1881', '1961',
+        '6009', '6119', '6699', '6889', '6969',
+        '8008', '8118', '8698', '8888', '8968',
+        '9006', '9116', '9696', '9886', '9966',
+      ],
+      note: 'inner pairs may start with zero, the outer pair may not',
+    },
   ],
   demo: [2],
   starter: {
@@ -48,13 +58,106 @@ export const strobogrammaticNumberII: Problem = {
 
   solutions: [
     {
+      id: 'enumerate-and-filter',
+      label: 'Enumerate every string over the five digits and keep the rotatable ones',
+      kind: 'brute',
+      time: 'O(n * 5^n)',
+      space: 'O(n)',
+      blurb:
+        'Only `0`, `1`, `6`, `8` and `9` can appear at all, so generate every `n`-digit string over those five and test each with the Strobogrammatic Number check. It works, but almost everything it generates is thrown away: the two halves of a valid number are not independent, and the enumeration pretends they are.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<string> findStrobogrammatic(int n) {',
+            "    const string digits = \"01689\";",
+            "    unordered_map<char, char> flip{{'0','0'},{'1','1'},{'6','9'},{'8','8'},{'9','6'}};",
+            '    vector<string> out;',
+            '    string cur;',
+            '    function<void()> build = [&]() {',
+            '        if ((int)cur.size() == n) {',
+            '            for (int l = 0, r = n - 1; l <= r; ++l, --r)',
+            '                if (flip[cur[l]] != cur[r]) return;',
+            '            out.push_back(cur);',
+            '            return;',
+            '        }',
+            '        for (char d : digits) {',
+            "            if (cur.empty() && d == '0' && n > 1) continue;",
+            '            cur.push_back(d);',
+            '            build();',
+            '            cur.pop_back();',
+            '        }',
+            '    };',
+            '    build();',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function findStrobogrammatic(n) {',
+            "  const digits = ['0', '1', '6', '8', '9'];",
+            "  const flip = { 0: '0', 1: '1', 6: '9', 8: '8', 9: '6' };",
+            '  const isStrobo = (s) => {',
+            '    for (let l = 0, r = s.length - 1; l <= r; l++, r--) {',
+            '      if (flip[s[l]] !== s[r]) return false;',
+            '    }',
+            '    return true;',
+            '  };',
+            '',
+            '  const out = [];',
+            '  const build = (cur) => {',
+            '    if (cur.length === n) {',
+            '      if (isStrobo(cur)) out.push(cur);',
+            '      return;',
+            '    }',
+            '    for (const d of digits) {',
+            "      if (cur.length === 0 && d === '0' && n > 1) continue;",
+            '      build(cur + d);',
+            '    }',
+            '  };',
+            "  build('');",
+            '  return out;',
+            '}',
+          ],
+        },
+      },
+
+      run([n]: [number], c) {
+        if (n > 9) throw new Error('too slow')
+        const digits = ['0', '1', '6', '8', '9']
+        const flip: Record<string, string> = { '0': '0', '1': '1', '6': '9', '8': '8', '9': '6' }
+        const isStrobo = (s: string) => {
+          for (let l = 0, r = s.length - 1; l <= r; l++, r--) {
+            c.ops++
+            if (flip[s[l]] !== s[r]) return false
+          }
+          return true
+        }
+        const out: string[] = []
+        const build = (cur: string) => {
+          c.ops++
+          if (cur.length === n) {
+            if (isStrobo(cur)) out.push(cur)
+            return
+          }
+          for (const d of digits) {
+            if (cur.length === 0 && d === '0' && n > 1) continue
+            build(cur + d)
+          }
+        }
+        build('')
+        return out
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'grow-outward',
       label: 'Grow from the middle outward',
       kind: 'optimal',
       time: 'O(5^(n/2))',
       space: 'O(5^(n/2))',
       blurb:
-        'A strobogrammatic number of length `n` is a rotating pair wrapped around one of length `n - 2`. Build the middle first — `""` for even lengths, one of `0`, `1`, `8` for odd — then wrap pairs until the length is right, dropping a leading zero only at the outermost layer.',
+        'Instead of generating both halves and checking, choose them together. A strobogrammatic number of length `n` is a rotating pair wrapped around one of length `n - 2`: build the middle first — `""` for even lengths, one of `0`, `1`, `8` for odd — then wrap pairs until the length is right, dropping a leading zero only at the outermost layer. Every string built is an answer.',
       code: {
         cpp: {
           lines: [
