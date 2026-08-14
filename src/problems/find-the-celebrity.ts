@@ -27,7 +27,19 @@ export const findTheCelebrity: Problem = {
       expect: 1,
       note: 'everyone knows 1 and 1 knows nobody',
     },
+    {
+      args: [[[1, 1, 0], [1, 1, 0], [0, 0, 1]]],
+      expect: -1,
+      note: '2 knows nobody, but nobody knows 2 either',
+    },
+    {
+      args: [[[1, 0, 0, 1], [1, 1, 0, 1], [1, 0, 1, 1], [0, 0, 0, 1]]],
+      expect: 3,
+      note: 'the celebrity is the last person checked',
+    },
   ],
+  // everyone knows everyone after them: each candidate survives about as many checks as its index
+  scale: (n) => [Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (j >= i ? 1 : 0)))],
   demo: [[[1, 1, 0], [0, 1, 0], [1, 1, 1]]],
   starter: {
     js: `function findCelebrity(graph) {
@@ -42,13 +54,76 @@ export const findTheCelebrity: Problem = {
 
   solutions: [
     {
+      id: 'check-everyone',
+      label: 'Check every person against everyone else',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(1)',
+      blurb:
+        'Take each person in turn as a candidate and verify the definition directly: they know nobody else, and everybody else knows them. Correct, but a candidate who fails late has already cost nearly `n` questions, and there are `n` candidates.',
+      code: {
+        cpp: {
+          lines: [
+            'int findCelebrity(vector<vector<int>>& graph) {',
+            '    int n = graph.size();',
+            '    auto knows = [&](int a, int b) { return graph[a][b] == 1; };',
+            '    for (int c = 0; c < n; ++c) {',
+            '        bool ok = true;',
+            '        for (int i = 0; i < n && ok; ++i) {',
+            '            if (i == c) continue;',
+            '            if (knows(c, i) || !knows(i, c)) ok = false;',
+            '        }',
+            '        if (ok) return c;',
+            '    }',
+            '    return -1;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function findCelebrity(graph) {',
+            '  const n = graph.length;',
+            '  const knows = (a, b) => graph[a][b] === 1;',
+            '  for (let c = 0; c < n; c++) {',
+            '    let ok = true;',
+            '    for (let i = 0; i < n && ok; i++) {',
+            '      if (i === c) continue;',
+            '      if (knows(c, i) || !knows(i, c)) ok = false;',
+            '    }',
+            '    if (ok) return c;',
+            '  }',
+            '  return -1;',
+            '}',
+          ],
+        },
+      },
+
+      run([graph]: [number[][]], c) {
+        const n = graph.length
+        const knows = (a: number, b: number) => {
+          c.ops++
+          return graph[a][b] === 1
+        }
+        for (let cand = 0; cand < n; cand++) {
+          let ok = true
+          for (let i = 0; i < n && ok; i++) {
+            if (i === cand) continue
+            if (knows(cand, i) || !knows(i, cand)) ok = false
+          }
+          if (ok) return cand
+        }
+        return -1
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'eliminate',
       label: 'One pass to eliminate, one to verify',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Every question rules somebody out: if `a` knows `b` then `a` cannot be the celebrity, and if not then `b` cannot. Walking the line with a single candidate leaves the only person who could possibly be it — then one verification pass confirms or rejects them.',
+        'Checking candidates one at a time wastes what each answer reveals. Every question rules somebody out: if `a` knows `b` then `a` cannot be the celebrity, and if not then `b` cannot. Walking the line with a single candidate leaves the only person who could possibly be it — then one verification pass confirms or rejects them, in under `3n` questions.',
       code: {
         cpp: {
           lines: [

@@ -29,6 +29,9 @@ export const paintFence: Problem = {
     { args: [2, 3], expect: 9, note: 'two posts are free to match' },
     { args: [1, 5], expect: 5, note: 'a single post has k choices' },
     { args: [3, 1], expect: 0, note: 'one colour makes three in a row unavoidable' },
+    { args: [2, 1], expect: 1, note: 'two posts may match' },
+    { args: [4, 3], expect: 66 },
+    { args: [50, 1], expect: 0, note: 'the longest fence with one colour' },
   ],
   demo: [3, 2],
   starter: {
@@ -44,13 +47,145 @@ export const paintFence: Problem = {
 
   solutions: [
     {
+      id: 'try-every-painting',
+      label: 'Try every painting, post by post',
+      kind: 'brute',
+      time: 'O(k^n)',
+      space: 'O(n)',
+      blurb:
+        'Paint post by post, trying all `k` colours each time and refusing a colour that would make three in a row; count the paintings that reach the end. Correct, and the definition of the problem — but every post multiplies the number of paths by nearly `k`.',
+      code: {
+        cpp: {
+          lines: [
+            'int numWays(int n, int k) {',
+            '    // run: how many posts in a row already share colour prev',
+            '    function<long long(int, int, int)> paint = [&](int i, int prev, int run) {',
+            '        if (i == n) return 1LL;',
+            '        long long total = 0;',
+            '        for (int c = 0; c < k; ++c) {',
+            '            if (c == prev) { if (run < 2) total += paint(i + 1, c, run + 1); }',
+            '            else total += paint(i + 1, c, 1);',
+            '        }',
+            '        return total;',
+            '    };',
+            '    return (int)paint(0, -1, 0);',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function numWays(n, k) {',
+            '  // run: how many posts in a row already share colour prev',
+            '  const paint = (i, prev, run) => {',
+            '    if (i === n) return 1;',
+            '    let total = 0;',
+            '    for (let c = 0; c < k; c++) {',
+            '      if (c === prev) {',
+            '        if (run < 2) total += paint(i + 1, c, run + 1);',
+            '      } else {',
+            '        total += paint(i + 1, c, 1);',
+            '      }',
+            '    }',
+            '    return total;',
+            '  };',
+            '  return paint(0, -1, 0);',
+            '}',
+          ],
+        },
+      },
+
+      run([n, k]: [number, number], c) {
+        if (Math.pow(k, n) > 2_000_000) throw new Error('too slow')
+        const paint = (i: number, prev: number, run: number): number => {
+          c.ops++
+          if (i === n) return 1
+          let total = 0
+          for (let col = 0; col < k; col++) {
+            if (col === prev) {
+              if (run < 2) total += paint(i + 1, col, run + 1)
+            } else {
+              total += paint(i + 1, col, 1)
+            }
+          }
+          return total
+        }
+        return paint(0, -1, 0)
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
+      id: 'memoise',
+      label: 'Memoise on the post and whether the last two match',
+      kind: 'better',
+      time: 'O(n)',
+      space: 'O(n)',
+      blurb:
+        'The recursion never needed the actual colours, only whether the previous two posts match: a different colour can be chosen `k - 1` ways, and repeating is allowed only when they do not. That leaves `2n` distinct states, so caching them turns the exponential search into a linear one.',
+      code: {
+        cpp: {
+          lines: [
+            'int numWays(int n, int k) {',
+            '    if (n == 0) return 0;',
+            '    vector<long long> memo(2 * n + 2, -1);',
+            '    // ways to paint posts i.. given whether posts i-1 and i-2 already match',
+            '    function<long long(int, bool)> ways = [&](int i, bool lastTwoMatch) {',
+            '        if (i == n) return 1LL;',
+            '        int key = i * 2 + (lastTwoMatch ? 1 : 0);',
+            '        if (memo[key] >= 0) return memo[key];',
+            '        long long total = (k - 1) * ways(i + 1, false);',
+            '        if (!lastTwoMatch) total += ways(i + 1, true);',
+            '        return memo[key] = total;',
+            '    };',
+            '    return (int)(k * ways(1, false));',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function numWays(n, k) {',
+            '  if (n === 0) return 0;',
+            '  const memo = new Map();',
+            '  // ways to paint posts i.. given whether posts i-1 and i-2 already match',
+            '  const ways = (i, lastTwoMatch) => {',
+            '    if (i === n) return 1;',
+            '    const key = i * 2 + (lastTwoMatch ? 1 : 0);',
+            '    if (memo.has(key)) return memo.get(key);',
+            '    let total = (k - 1) * ways(i + 1, false);',
+            '    if (!lastTwoMatch) total += ways(i + 1, true);',
+            '    memo.set(key, total);',
+            '    return total;',
+            '  };',
+            '  return k * ways(1, false);',
+            '}',
+          ],
+        },
+      },
+
+      run([n, k]: [number, number], c) {
+        if (n === 0) return 0
+        const memo = new Map<number, number>()
+        const ways = (i: number, lastTwoMatch: boolean): number => {
+          c.ops++
+          if (i === n) return 1
+          const key = i * 2 + (lastTwoMatch ? 1 : 0)
+          if (memo.has(key)) return memo.get(key)!
+          let total = (k - 1) * ways(i + 1, false)
+          if (!lastTwoMatch) total += ways(i + 1, true)
+          memo.set(key, total)
+          return total
+        }
+        return k * ways(1, false)
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'same-diff',
       label: 'Split the count by whether the last two match',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'The only thing the next post cares about is whether the last two posts share a colour. Keep those two counts: a new post can always differ from its neighbour in `k - 1` ways, and it may only match when the pair before it did not.',
+        'The memo only ever looks one post ahead, so the cache can shrink to two numbers. Keep the count of paintings whose last two posts match and the count whose last two differ: a new post can always differ from its neighbour in `k - 1` ways, and it may only match when the pair before it did not.',
       code: {
         cpp: {
           lines: [

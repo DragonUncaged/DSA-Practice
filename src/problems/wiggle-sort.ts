@@ -22,6 +22,8 @@ export const wiggleSort: Problem = {
     { args: [[2, 1]], expect: [1, 2], note: 'one swap' },
     { args: [[1, 2, 3]], expect: [1, 3, 2] },
     { args: [[4, 4, 4, 4]], expect: [4, 4, 4, 4], note: 'all equal' },
+    { args: [[5, 4, 3, 2, 1]], expect: [4, 5, 2, 3, 1], note: 'strictly decreasing input' },
+    { args: [[0, 10000]], expect: [0, 10000], note: 'the extremes of the value range' },
   ],
   demo: [[3, 5, 2, 1, 6, 4]],
   scale: (n) => [Array.from({ length: n }, (_, i) => (i * 37) % 101)],
@@ -44,7 +46,7 @@ export const wiggleSort: Problem = {
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'Sorting is unnecessary. Walk left to right and, whenever a neighbouring pair points the wrong way, swap it. The swap can only improve the pair behind it too, so one pass leaves the whole array wiggling.',
+        'Sorting and then swapping neighbours in pairs also works, but it costs `O(n log n)` and produces a different valid arrangement from the one these tests pin down, so this single pass is the one shown. Walk left to right and, whenever a neighbouring pair points the wrong way, swap it. The swap can only improve the pair behind it too, so one pass leaves the whole array wiggling.',
       code: {
         cpp: {
           lines: [
