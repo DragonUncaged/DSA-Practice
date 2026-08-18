@@ -47,7 +47,16 @@ export const wallsAndGates: Problem = {
       expect: [[0, 1], [1, 0]],
       note: 'two gates, each room takes the nearer one',
     },
+    {
+      args: [[[0, -1, INF], [-1, -1, INF]]],
+      expect: [[0, -1, INF], [-1, -1, INF]],
+      note: 'rooms walled off from the gate stay INF',
+    },
   ],
+  scale: (n) => {
+    const side = Math.max(2, Math.round(Math.sqrt(n)))
+    return [Array.from({ length: side }, (_, r) => Array.from({ length: side }, (_, c) => (r === 0 && c === 0 ? 0 : INF)))]
+  },
   demo: [
     [
       [INF, -1, 0, INF],
@@ -69,13 +78,121 @@ export const wallsAndGates: Problem = {
 
   solutions: [
     {
+      id: 'bfs-per-room',
+      label: 'Search outward from every empty room',
+      kind: 'brute',
+      time: 'O((m * n)^2)',
+      space: 'O(m * n)',
+      blurb:
+        'For each empty room, run a breadth-first search until it bumps into a gate and write down how far that was. Correct, but rooms next to each other repeat almost the same search, so a big open floor costs a full sweep per room.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<vector<int>> wallsAndGates(vector<vector<int>>& rooms) {',
+            '    const int INF = 2147483647;',
+            '    int m = rooms.size(), n = rooms[0].size();',
+            '    const int dr[4] = {1, -1, 0, 0}, dc[4] = {0, 0, 1, -1};',
+            '    vector<vector<int>> out = rooms;',
+            '    for (int sr = 0; sr < m; ++sr) for (int sc = 0; sc < n; ++sc) {',
+            '        if (rooms[sr][sc] != INF) continue;',
+            '        vector<vector<int>> dist(m, vector<int>(n, -1));',
+            '        queue<pair<int, int>> q;',
+            '        q.push({sr, sc}); dist[sr][sc] = 0;',
+            '        while (!q.empty()) {',
+            '            auto [r, c] = q.front(); q.pop();',
+            '            if (rooms[r][c] == 0) { out[sr][sc] = dist[r][c]; break; }',
+            '            for (int d = 0; d < 4; ++d) {',
+            '                int nr = r + dr[d], nc = c + dc[d];',
+            '                if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;',
+            '                if (rooms[nr][nc] == -1 || dist[nr][nc] != -1) continue;',
+            '                dist[nr][nc] = dist[r][c] + 1;',
+            '                q.push({nr, nc});',
+            '            }',
+            '        }',
+            '    }',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function wallsAndGates(rooms) {',
+            '  const INF = 2147483647;',
+            '  const m = rooms.length;',
+            '  const n = rooms[0].length;',
+            '  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];',
+            '  const out = rooms.map((row) => row.slice());',
+            '',
+            '  for (let sr = 0; sr < m; sr++) for (let sc = 0; sc < n; sc++) {',
+            '    if (rooms[sr][sc] !== INF) continue;',
+            '    const dist = Array.from({ length: m }, () => new Array(n).fill(-1));',
+            '    const queue = [[sr, sc]];',
+            '    dist[sr][sc] = 0;',
+            '    for (let head = 0; head < queue.length; head++) {',
+            '      const [r, c] = queue[head];',
+            '      if (rooms[r][c] === 0) { out[sr][sc] = dist[r][c]; break; }',
+            '      for (const [dr, dc] of dirs) {',
+            '        const nr = r + dr;',
+            '        const nc = c + dc;',
+            '        if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;',
+            '        if (rooms[nr][nc] === -1 || dist[nr][nc] !== -1) continue;',
+            '        dist[nr][nc] = dist[r][c] + 1;',
+            '        queue.push([nr, nc]);',
+            '      }',
+            '    }',
+            '  }',
+            '  return out;',
+            '}',
+          ],
+        },
+      },
+
+      run([rooms]: [number[][]], c) {
+        const m = rooms.length
+        const n = rooms[0].length
+        if (m * n > 2500) throw new Error('too slow')
+        const dirs = [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ]
+        const out = rooms.map((row) => row.slice())
+        for (let sr = 0; sr < m; sr++)
+          for (let sc = 0; sc < n; sc++) {
+            if (rooms[sr][sc] !== INF) continue
+            const dist = Array.from({ length: m }, () => new Array<number>(n).fill(-1))
+            const queue: [number, number][] = [[sr, sc]]
+            dist[sr][sc] = 0
+            for (let head = 0; head < queue.length; head++) {
+              const [r, col] = queue[head]
+              if (rooms[r][col] === 0) {
+                out[sr][sc] = dist[r][col]
+                break
+              }
+              for (const [dr, dc] of dirs) {
+                c.ops++
+                const nr = r + dr
+                const nc = col + dc
+                if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue
+                if (rooms[nr][nc] === -1 || dist[nr][nc] !== -1) continue
+                dist[nr][nc] = dist[r][col] + 1
+                queue.push([nr, nc])
+              }
+            }
+          }
+        return out
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'multi-source-bfs',
       label: 'BFS out of every gate at once',
       kind: 'optimal',
       time: 'O(m * n)',
       space: 'O(m * n)',
       blurb:
-        'Running a search from each room would repeat the same work over and over. Start the queue with every gate instead: the wave spreads outward one step at a time, so the first time it touches a room, that is the nearest gate by definition.',
+        'Running a search from each room repeats the same work over and over. Start the queue with every gate instead: the wave spreads outward one step at a time, so the first time it touches a room, that is the nearest gate by definition. Every cell is visited once, for one sweep of the grid in total.',
       code: {
         cpp: {
           lines: [

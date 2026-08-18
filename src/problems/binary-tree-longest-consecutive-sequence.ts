@@ -22,7 +22,11 @@ export const binaryTreeLongestConsecutive: Problem = {
     { args: [[1, 2, 3]], expect: 2 },
     { args: [[1, null, 2, null, 3]], expect: 3, note: 'a straight right spine' },
     { args: [[5, 4, 3]], expect: 1, note: 'no two neighbours are consecutive' },
+    { args: [[-3, -2, null, -1, null, 0]], expect: 4, note: 'negative values, a left spine' },
+    { args: [[1, 2, 2, 3, null, null, 3]], expect: 3, note: 'two equal runs on both sides' },
   ],
+  // a left-skewed chain of consecutive values: the brute force re-walks it from every node
+  scale: (n) => [[0, ...Array.from({ length: n - 1 }, (_, i) => [i + 1, null]).flat()]],
   demo: [[1, null, 3, 2, 4, null, null, null, 5]],
   starter: {
     js: `function longestConsecutive(root) {
@@ -37,13 +41,71 @@ export const binaryTreeLongestConsecutive: Problem = {
 
   solutions: [
     {
+      id: 'start-everywhere',
+      label: 'Start a fresh run at every node',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(h)',
+      blurb:
+        'For each node, walk downward following children whose value is exactly one more, and measure how far that gets. Correct, but a node deep in a long run is re-walked by every ancestor that started a run above it, so a skewed tree makes the work quadratic.',
+      code: {
+        cpp: {
+          lines: [
+            'static int runFrom(TreeNode* node) {',
+            '    int best = 1;',
+            '    if (node->left && node->left->val == node->val + 1) best = max(best, 1 + runFrom(node->left));',
+            '    if (node->right && node->right->val == node->val + 1) best = max(best, 1 + runFrom(node->right));',
+            '    return best;',
+            '}',
+            '',
+            'int longestConsecutive(TreeNode* root) {',
+            '    if (!root) return 0;',
+            '    return max({runFrom(root), longestConsecutive(root->left), longestConsecutive(root->right)});',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function longestConsecutive(root) {',
+            '  const runFrom = (node) => {',
+            '    let best = 1;',
+            '    if (node.left && node.left.val === node.val + 1) best = Math.max(best, 1 + runFrom(node.left));',
+            '    if (node.right && node.right.val === node.val + 1) best = Math.max(best, 1 + runFrom(node.right));',
+            '    return best;',
+            '  };',
+            '  if (!root) return 0;',
+            '  return Math.max(runFrom(root), longestConsecutive(root.left), longestConsecutive(root.right));',
+            '}',
+          ],
+        },
+      },
+
+      run([level]: [(number | null)[]], c) {
+        const { nodes, root } = buildTreeModel(level)
+        const runFrom = (id: number): number => {
+          c.ops++
+          const node = nodes[id]
+          let best = 1
+          if (node.left != null && nodes[node.left].value === node.value + 1) best = Math.max(best, 1 + runFrom(node.left))
+          if (node.right != null && nodes[node.right].value === node.value + 1) best = Math.max(best, 1 + runFrom(node.right))
+          return best
+        }
+        const longest = (id: number | null): number => {
+          if (id == null) return 0
+          return Math.max(runFrom(id), longest(nodes[id].left), longest(nodes[id].right))
+        }
+        return longest(root)
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'carry-run',
       label: 'Carry the current run length downward',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(h)',
       blurb:
-        'A path only ever grows downward, so each node needs one number from its parent: how long the run arriving here is. Extend it when the values are consecutive, otherwise start again at one, and keep the largest ever seen.',
+        'Instead of restarting at every node, carry the run down. A path only ever grows downward, so each node needs one number from its parent: how long the run arriving here is. Extend it when the values are consecutive, otherwise start again at one, and keep the largest ever seen — every node is visited once.',
       code: {
         cpp: {
           lines: [

@@ -29,6 +29,9 @@ export const maximumSizeSubarraySumEqualsK: Problem = {
     { args: [[1], 0], expect: 0, note: 'no subarray sums to k' },
     { args: [[0, 0, 0], 0], expect: 3, note: 'the earliest prefix wins' },
     { args: [[1, 2, 3], 7], expect: 0 },
+    { args: [[-10000, 10000, -10000, 10000], 0], expect: 4, note: 'extreme values cancel to zero' },
+    { args: [[3, -3, 3, -3, 3], 3], expect: 5, note: 'the whole array' },
+    { args: [[1, 1, 1, 1], -1], expect: 0, note: 'negative target, all positive values' },
   ],
   demo: [[1, -1, 5, -2, 3], 3],
   scale: (n) => [Array.from({ length: n }, (_, i) => (i % 7) - 3), 3],
@@ -45,13 +48,68 @@ export const maximumSizeSubarraySumEqualsK: Problem = {
 
   solutions: [
     {
+      id: 'every-subarray',
+      label: 'Sum every subarray',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(1)',
+      blurb:
+        'Fix a start, extend the end one step at a time while keeping a running sum, and record the length whenever the sum hits `k`. Correct, and every subarray is examined exactly once — which is the problem, since there are quadratically many.',
+      code: {
+        cpp: {
+          lines: [
+            'int maxSubArrayLen(vector<int>& nums, int k) {',
+            '    int best = 0;',
+            '    for (int i = 0; i < (int)nums.size(); ++i) {',
+            '        long long sum = 0;',
+            '        for (int j = i; j < (int)nums.size(); ++j) {',
+            '            sum += nums[j];',
+            '            if (sum == k) best = max(best, j - i + 1);',
+            '        }',
+            '    }',
+            '    return best;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function maxSubArrayLen(nums, k) {',
+            '  let best = 0;',
+            '  for (let i = 0; i < nums.length; i++) {',
+            '    let sum = 0;',
+            '    for (let j = i; j < nums.length; j++) {',
+            '      sum += nums[j];',
+            '      if (sum === k) best = Math.max(best, j - i + 1);',
+            '    }',
+            '  }',
+            '  return best;',
+            '}',
+          ],
+        },
+      },
+
+      run([nums, k]: [number[], number], c) {
+        let best = 0
+        for (let i = 0; i < nums.length; i++) {
+          let sum = 0
+          for (let j = i; j < nums.length; j++) {
+            c.ops++
+            sum += nums[j]
+            if (sum === k) best = Math.max(best, j - i + 1)
+          }
+        }
+        return best
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'prefix-first-seen',
       label: 'Prefix sums, remembering the earliest index',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(n)',
       blurb:
-        'A subarray sums to `k` exactly when two prefix sums differ by `k`. Store the first index at which each prefix sum appeared — first, because the earliest match gives the longest span — and seed the map with sum `0` before the array starts.',
+        'A subarray sums to `k` exactly when two prefix sums differ by `k`, so the inner loop can become a lookup. Store the first index at which each prefix sum appeared — first, because the earliest match gives the longest span — and seed the map with sum `0` before the array starts. One pass, one hash map.',
       code: {
         cpp: {
           lines: [

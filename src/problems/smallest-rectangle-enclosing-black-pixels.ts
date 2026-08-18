@@ -39,7 +39,27 @@ export const smallestRectangleEnclosingBlackPixels: Problem = {
       expect: 1,
       note: 'the pixel sits in the corner',
     },
+    {
+      args: [[['1', '1', '1'], ['1', '0', '1'], ['1', '1', '1']], 0, 0],
+      expect: 9,
+      note: 'a ring: the rectangle covers the white hole too',
+    },
+    {
+      args: [[['0', '0', '0', '0'], ['0', '1', '0', '0'], ['0', '1', '1', '0'], ['0', '0', '1', '0']], 2, 2],
+      expect: 6,
+      note: 'a diagonal staircase, seed in the middle',
+    },
   ],
+  scale: (n) => {
+    const side = Math.max(2, Math.round(Math.sqrt(n)))
+    const mid = side >> 1
+    // a plus sign through the middle: black is O(side), the image is O(side^2)
+    return [
+      Array.from({ length: side }, (_, r) => Array.from({ length: side }, (_, c) => (r === mid || c === mid ? '1' : '0'))),
+      mid,
+      mid,
+    ]
+  },
   demo: [[['0', '0', '1', '0'], ['0', '1', '1', '0'], ['0', '1', '0', '0']], 0, 2],
   starter: {
     js: `function minArea(image, x, y) {
@@ -54,13 +74,175 @@ export const smallestRectangleEnclosingBlackPixels: Problem = {
 
   solutions: [
     {
+      id: 'scan-everything',
+      label: 'Scan the whole image for the extreme black pixels',
+      kind: 'brute',
+      time: 'O(m * n)',
+      space: 'O(1)',
+      blurb:
+        'Look at every pixel and track the smallest and largest row and column that hold black. Correct, and it never uses the seed pixel or the fact that the black region is connected — which is exactly what the statement asks you to exploit.',
+      code: {
+        cpp: {
+          lines: [
+            'int minArea(vector<vector<char>>& image, int x, int y) {',
+            '    int m = image.size(), n = image[0].size();',
+            '    int top = m, bottom = -1, left = n, right = -1;',
+            '    for (int r = 0; r < m; ++r) for (int c = 0; c < n; ++c) {',
+            "        if (image[r][c] != '1') continue;",
+            '        top = min(top, r); bottom = max(bottom, r);',
+            '        left = min(left, c); right = max(right, c);',
+            '    }',
+            '    return (bottom - top + 1) * (right - left + 1);',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function minArea(image, x, y) {',
+            '  const m = image.length;',
+            '  const n = image[0].length;',
+            '  let top = m, bottom = -1, left = n, right = -1;',
+            '  for (let r = 0; r < m; r++) {',
+            '    for (let c = 0; c < n; c++) {',
+            "      if (image[r][c] !== '1') continue;",
+            '      top = Math.min(top, r); bottom = Math.max(bottom, r);',
+            '      left = Math.min(left, c); right = Math.max(right, c);',
+            '    }',
+            '  }',
+            '  return (bottom - top + 1) * (right - left + 1);',
+            '}',
+          ],
+        },
+      },
+
+      run([image]: [string[][], number, number], c) {
+        const m = image.length
+        const n = image[0].length
+        let top = m
+        let bottom = -1
+        let left = n
+        let right = -1
+        for (let r = 0; r < m; r++) {
+          for (let col = 0; col < n; col++) {
+            c.ops++
+            if (image[r][col] !== '1') continue
+            top = Math.min(top, r)
+            bottom = Math.max(bottom, r)
+            left = Math.min(left, col)
+            right = Math.max(right, col)
+          }
+        }
+        return (bottom - top + 1) * (right - left + 1)
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
+      id: 'flood-fill',
+      label: 'Flood outward from the given pixel',
+      kind: 'better',
+      time: 'O(b)',
+      space: 'O(b)',
+      blurb:
+        'The black pixels are one connected region and you are handed a pixel inside it, so a breadth-first flood from there visits every black pixel and nothing else — `b` of them, not `m * n`. Track the extremes as the flood spreads. Better than scanning when the region is small, but the region can still be the whole image.',
+      code: {
+        cpp: {
+          lines: [
+            'int minArea(vector<vector<char>>& image, int x, int y) {',
+            '    int m = image.size(), n = image[0].size();',
+            '    vector<vector<bool>> seen(m, vector<bool>(n, false));',
+            '    queue<pair<int, int>> q;',
+            '    q.push({x, y}); seen[x][y] = true;',
+            '    int top = x, bottom = x, left = y, right = y;',
+            '    const int dr[4] = {1, -1, 0, 0}, dc[4] = {0, 0, 1, -1};',
+            '    while (!q.empty()) {',
+            '        auto [r, c] = q.front(); q.pop();',
+            '        top = min(top, r); bottom = max(bottom, r);',
+            '        left = min(left, c); right = max(right, c);',
+            '        for (int d = 0; d < 4; ++d) {',
+            '            int nr = r + dr[d], nc = c + dc[d];',
+            '            if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;',
+            "            if (seen[nr][nc] || image[nr][nc] != '1') continue;",
+            '            seen[nr][nc] = true;',
+            '            q.push({nr, nc});',
+            '        }',
+            '    }',
+            '    return (bottom - top + 1) * (right - left + 1);',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function minArea(image, x, y) {',
+            '  const m = image.length;',
+            '  const n = image[0].length;',
+            '  const seen = Array.from({ length: m }, () => new Array(n).fill(false));',
+            '  const queue = [[x, y]];',
+            '  seen[x][y] = true;',
+            '  let top = x, bottom = x, left = y, right = y;',
+            '  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];',
+            '  for (let head = 0; head < queue.length; head++) {',
+            '    const [r, c] = queue[head];',
+            '    top = Math.min(top, r); bottom = Math.max(bottom, r);',
+            '    left = Math.min(left, c); right = Math.max(right, c);',
+            '    for (const [dr, dc] of dirs) {',
+            '      const nr = r + dr;',
+            '      const nc = c + dc;',
+            '      if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;',
+            "      if (seen[nr][nc] || image[nr][nc] !== '1') continue;",
+            '      seen[nr][nc] = true;',
+            '      queue.push([nr, nc]);',
+            '    }',
+            '  }',
+            '  return (bottom - top + 1) * (right - left + 1);',
+            '}',
+          ],
+        },
+      },
+
+      run([image, x, y]: [string[][], number, number], c) {
+        const m = image.length
+        const n = image[0].length
+        const seen = Array.from({ length: m }, () => new Array<boolean>(n).fill(false))
+        const queue: [number, number][] = [[x, y]]
+        seen[x][y] = true
+        let top = x
+        let bottom = x
+        let left = y
+        let right = y
+        const dirs = [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ]
+        for (let head = 0; head < queue.length; head++) {
+          const [r, col] = queue[head]
+          top = Math.min(top, r)
+          bottom = Math.max(bottom, r)
+          left = Math.min(left, col)
+          right = Math.max(right, col)
+          for (const [dr, dc] of dirs) {
+            c.ops++
+            const nr = r + dr
+            const nc = col + dc
+            if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue
+            if (seen[nr][nc] || image[nr][nc] !== '1') continue
+            seen[nr][nc] = true
+            queue.push([nr, nc])
+          }
+        }
+        return (bottom - top + 1) * (right - left + 1)
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'binary-search-edges',
       label: 'Binary search each of the four edges',
       kind: 'optimal',
       time: 'O((m + n) * log(m * n))',
       space: 'O(1)',
       blurb:
-        'Because the black pixels are connected, "does this row contain black?" is false, then true, then false again as the row index climbs — and the given pixel sits inside the true stretch. That makes each of the four edges a binary search over rows or columns, with one linear sweep per probe.',
+        'Neither scan needs to touch the black pixels at all. Because they are connected, "does this row contain black?" is false, then true, then false again as the row index climbs — and the given pixel sits inside the true stretch. That makes each of the four edges a binary search over rows or columns, with one linear sweep per probe: logarithmically many sweeps instead of a walk over the region.',
       code: {
         cpp: {
           lines: [

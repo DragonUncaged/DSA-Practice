@@ -34,7 +34,17 @@ export const numberOfIslandsII: Problem = {
       note: 'the third cell joins two islands into one',
     },
     { args: [1, 3, [[0, 0], [0, 2], [0, 1]]], expect: [1, 2, 1], note: 'a bridge in a row' },
+    {
+      args: [3, 3, [[0, 0], [0, 2], [2, 0], [2, 2], [1, 1], [0, 1], [1, 0], [1, 2], [2, 1]]],
+      expect: [1, 2, 3, 4, 5, 3, 2, 1, 1],
+      note: 'the centre joins nothing, then each edge cell merges islands',
+    },
+    { args: [2, 3, []], expect: [], note: 'no operations' },
   ],
+  scale: (n) => {
+    const side = Math.max(2, Math.round(Math.sqrt(n)))
+    return [side, side, Array.from({ length: n }, (_, i) => [Math.floor(i / side) % side, i % side])]
+  },
   demo: [3, 3, [[0, 0], [0, 1], [1, 2], [2, 1]]],
   starter: {
     js: `function numIslands2(m, n, positions) {
@@ -49,13 +59,129 @@ export const numberOfIslandsII: Problem = {
 
   solutions: [
     {
+      id: 'recount',
+      label: 'Recount the islands after every addition',
+      kind: 'brute',
+      time: 'O(k * m * n)',
+      space: 'O(m * n)',
+      blurb:
+        'Add the cell, then run the ordinary Number of Islands flood fill over the whole grid and report the count. Correct, and it ignores that only the neighbourhood of the new cell changed — every operation pays for the entire grid.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<int> numIslands2(int m, int n, vector<vector<int>>& positions) {',
+            '    vector<vector<int>> land(m, vector<int>(n, 0));',
+            '    const int dr[4] = {1, -1, 0, 0}, dc[4] = {0, 0, 1, -1};',
+            '    vector<int> out;',
+            '    for (auto& p : positions) {',
+            '        land[p[0]][p[1]] = 1;',
+            '        vector<vector<bool>> seen(m, vector<bool>(n, false));',
+            '        int count = 0;',
+            '        for (int r = 0; r < m; ++r) for (int c = 0; c < n; ++c) {',
+            '            if (!land[r][c] || seen[r][c]) continue;',
+            '            ++count;',
+            '            queue<pair<int, int>> q;',
+            '            q.push({r, c}); seen[r][c] = true;',
+            '            while (!q.empty()) {',
+            '                auto [cr, cc] = q.front(); q.pop();',
+            '                for (int d = 0; d < 4; ++d) {',
+            '                    int nr = cr + dr[d], nc = cc + dc[d];',
+            '                    if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;',
+            '                    if (!land[nr][nc] || seen[nr][nc]) continue;',
+            '                    seen[nr][nc] = true;',
+            '                    q.push({nr, nc});',
+            '                }',
+            '            }',
+            '        }',
+            '        out.push_back(count);',
+            '    }',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function numIslands2(m, n, positions) {',
+            '  const land = Array.from({ length: m }, () => new Array(n).fill(0));',
+            '  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];',
+            '  const out = [];',
+            '  for (const [pr, pc] of positions) {',
+            '    land[pr][pc] = 1;',
+            '    const seen = Array.from({ length: m }, () => new Array(n).fill(false));',
+            '    let count = 0;',
+            '    for (let r = 0; r < m; r++) for (let c = 0; c < n; c++) {',
+            '      if (!land[r][c] || seen[r][c]) continue;',
+            '      count++;',
+            '      const queue = [[r, c]];',
+            '      seen[r][c] = true;',
+            '      for (let head = 0; head < queue.length; head++) {',
+            '        const [cr, cc] = queue[head];',
+            '        for (const [dr, dc] of dirs) {',
+            '          const nr = cr + dr;',
+            '          const nc = cc + dc;',
+            '          if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;',
+            '          if (!land[nr][nc] || seen[nr][nc]) continue;',
+            '          seen[nr][nc] = true;',
+            '          queue.push([nr, nc]);',
+            '        }',
+            '      }',
+            '    }',
+            '    out.push(count);',
+            '  }',
+            '  return out;',
+            '}',
+          ],
+        },
+      },
+
+      run([m, n, positions]: [number, number, number[][]], c) {
+        if (positions.length * m * n > 5_000_000) throw new Error('too slow')
+        const land = Array.from({ length: m }, () => new Array<number>(n).fill(0))
+        const dirs = [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ]
+        const out: number[] = []
+        for (const [pr, pc] of positions) {
+          land[pr][pc] = 1
+          const seen = Array.from({ length: m }, () => new Array<boolean>(n).fill(false))
+          let count = 0
+          for (let r = 0; r < m; r++)
+            for (let col = 0; col < n; col++) {
+              c.ops++
+              if (!land[r][col] || seen[r][col]) continue
+              count++
+              const queue: [number, number][] = [[r, col]]
+              seen[r][col] = true
+              for (let head = 0; head < queue.length; head++) {
+                const [cr, cc] = queue[head]
+                for (const [dr, dc] of dirs) {
+                  c.ops++
+                  const nr = cr + dr
+                  const nc = cc + dc
+                  if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue
+                  if (!land[nr][nc] || seen[nr][nc]) continue
+                  seen[nr][nc] = true
+                  queue.push([nr, nc])
+                }
+              }
+            }
+          out.push(count)
+        }
+        return out
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'union-find',
       label: 'Union find, counting sets as they merge',
       kind: 'optimal',
       time: 'O(k * a(m * n))',
       space: 'O(m * n)',
       blurb:
-        'Land is only ever added, never removed, so the island count only changes in two ways: a new cell adds one, and every neighbour it joins to removes one. Union find tracks exactly that — find the roots, and decrement the count on each merge that actually happened.',
+        'Land is only ever added, never removed, so the island count only changes in two ways: a new cell adds one, and every distinct neighbouring island it joins removes one. Union find tracks exactly that without touching the rest of the grid — find the roots of the four neighbours, and decrement the count on each merge that actually happened. Near-constant work per operation.',
       code: {
         cpp: {
           lines: [

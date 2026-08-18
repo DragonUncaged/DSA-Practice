@@ -40,6 +40,7 @@ export const generalizedAbbreviation: Problem = {
     },
     { args: ['a'], expect: ['1', 'a'], note: 'one letter, two abbreviations' },
     { args: ['ab'], expect: ['2', '1b', 'a1', 'ab'] },
+    { args: ['abc'], expect: ['3', '2c', '1b1', '1bc', 'a2', 'a1c', 'ab1', 'abc'], note: 'eight, never "12" or "21"' },
   ],
   demo: ['word'],
   starter: {
@@ -61,7 +62,7 @@ export const generalizedAbbreviation: Problem = {
       time: 'O(2^n * n)',
       space: 'O(n)',
       blurb:
-        'Every letter is either written out or swallowed by a number, which is one binary choice per position. Carrying "did I just write a number?" down the recursion is what forbids two adjacent counts, so the run has to be closed by a letter before another can open.',
+        'Every letter is either written out or swallowed by a number, which is one binary choice per position, and the output has all `2^n` results in it — so no approach does less than this, and the only real alternative (enumerating bitmasks and rendering each) does the same work in a different order. Carrying "did I just write a number?" down the recursion is what forbids two adjacent counts, so the run has to be closed by a letter before another can open.',
       code: {
         cpp: {
           lines: [

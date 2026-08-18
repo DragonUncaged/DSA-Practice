@@ -22,7 +22,17 @@ export const bestMeetingPoint: Problem = {
     { args: [[[1, 0, 1]]], expect: 2 },
     { args: [[[1, 1, 1]]], expect: 2, note: 'the median is one of the homes' },
     { args: [[[1, 1], [1, 1]]], expect: 4, note: 'a square of friends' },
+    { args: [[[1, 0, 0, 0, 0, 0, 0, 1]]], expect: 7, note: 'any cell between them is optimal' },
+    {
+      args: [[[0, 0, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1], [1, 0, 0, 0]]],
+      expect: 6,
+      note: 'the median row and column need not hold a home',
+    },
   ],
+  scale: (n) => {
+    const side = Math.max(2, Math.round(Math.sqrt(n)))
+    return [Array.from({ length: side }, (_, r) => Array.from({ length: side }, (_, c) => ((r * 3 + c) % 4 === 0 ? 1 : 0)))]
+  },
   demo: [[[1, 0, 0, 0, 1], [0, 0, 0, 0, 0], [0, 0, 1, 0, 0]]],
   starter: {
     js: `function minTotalDistance(grid) {
@@ -37,13 +47,165 @@ export const bestMeetingPoint: Problem = {
 
   solutions: [
     {
+      id: 'every-cell',
+      label: 'Measure every cell against every home',
+      kind: 'brute',
+      time: 'O(m * n * h)',
+      space: 'O(h)',
+      blurb:
+        'Collect the homes, then for every cell of the grid add up its Manhattan distance to each of them and keep the smallest total. Correct, and the direct reading of the statement, but every candidate cell pays for every home.',
+      code: {
+        cpp: {
+          lines: [
+            'int minTotalDistance(vector<vector<int>>& grid) {',
+            '    int m = grid.size(), n = grid[0].size();',
+            '    vector<pair<int, int>> homes;',
+            '    for (int r = 0; r < m; ++r) for (int c = 0; c < n; ++c)',
+            '        if (grid[r][c] == 1) homes.push_back({r, c});',
+            '    int best = INT_MAX;',
+            '    for (int r = 0; r < m; ++r) for (int c = 0; c < n; ++c) {',
+            '        int total = 0;',
+            '        for (auto [hr, hc] : homes) total += abs(hr - r) + abs(hc - c);',
+            '        best = min(best, total);',
+            '    }',
+            '    return best;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function minTotalDistance(grid) {',
+            '  const m = grid.length;',
+            '  const n = grid[0].length;',
+            '  const homes = [];',
+            '  for (let r = 0; r < m; r++)',
+            '    for (let c = 0; c < n; c++)',
+            '      if (grid[r][c] === 1) homes.push([r, c]);',
+            '',
+            '  let best = Infinity;',
+            '  for (let r = 0; r < m; r++) {',
+            '    for (let c = 0; c < n; c++) {',
+            '      let total = 0;',
+            '      for (const [hr, hc] of homes) total += Math.abs(hr - r) + Math.abs(hc - c);',
+            '      best = Math.min(best, total);',
+            '    }',
+            '  }',
+            '  return best;',
+            '}',
+          ],
+        },
+      },
+
+      run([grid]: [number[][]], c) {
+        const m = grid.length
+        const n = grid[0].length
+        const homes: [number, number][] = []
+        for (let r = 0; r < m; r++) for (let col = 0; col < n; col++) if (grid[r][col] === 1) homes.push([r, col])
+        let best = Infinity
+        for (let r = 0; r < m; r++) {
+          for (let col = 0; col < n; col++) {
+            let total = 0
+            for (const [hr, hc] of homes) {
+              c.ops++
+              total += Math.abs(hr - r) + Math.abs(hc - col)
+            }
+            best = Math.min(best, total)
+          }
+        }
+        return best
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
+      id: 'per-axis',
+      label: 'Solve rows and columns separately',
+      kind: 'better',
+      time: 'O((m + n) * h)',
+      space: 'O(h)',
+      blurb:
+        'Manhattan distance is a row part plus a column part, and the two never interact, so the best row and the best column can be chosen independently. Try every row against the homes\' rows and every column against their columns: the grid of candidates collapses to a line of them on each axis.',
+      code: {
+        cpp: {
+          lines: [
+            'int minTotalDistance(vector<vector<int>>& grid) {',
+            '    int m = grid.size(), n = grid[0].size();',
+            '    vector<int> rows, cols;',
+            '    for (int r = 0; r < m; ++r) for (int c = 0; c < n; ++c)',
+            '        if (grid[r][c] == 1) { rows.push_back(r); cols.push_back(c); }',
+            '    auto bestOn = [](const vector<int>& pts, int limit) {',
+            '        int best = INT_MAX;',
+            '        for (int x = 0; x < limit; ++x) {',
+            '            int total = 0;',
+            '            for (int p : pts) total += abs(p - x);',
+            '            best = min(best, total);',
+            '        }',
+            '        return best;',
+            '    };',
+            '    return bestOn(rows, m) + bestOn(cols, n);',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function minTotalDistance(grid) {',
+            '  const m = grid.length;',
+            '  const n = grid[0].length;',
+            '  const rows = [];',
+            '  const cols = [];',
+            '  for (let r = 0; r < m; r++)',
+            '    for (let c = 0; c < n; c++)',
+            '      if (grid[r][c] === 1) { rows.push(r); cols.push(c); }',
+            '',
+            '  const bestOn = (pts, limit) => {',
+            '    let best = Infinity;',
+            '    for (let x = 0; x < limit; x++) {',
+            '      let total = 0;',
+            '      for (const p of pts) total += Math.abs(p - x);',
+            '      best = Math.min(best, total);',
+            '    }',
+            '    return best;',
+            '  };',
+            '  return bestOn(rows, m) + bestOn(cols, n);',
+            '}',
+          ],
+        },
+      },
+
+      run([grid]: [number[][]], c) {
+        const m = grid.length
+        const n = grid[0].length
+        const rows: number[] = []
+        const cols: number[] = []
+        for (let r = 0; r < m; r++)
+          for (let col = 0; col < n; col++)
+            if (grid[r][col] === 1) {
+              rows.push(r)
+              cols.push(col)
+            }
+        const bestOn = (pts: number[], limit: number) => {
+          let best = Infinity
+          for (let x = 0; x < limit; x++) {
+            let total = 0
+            for (const p of pts) {
+              c.ops++
+              total += Math.abs(p - x)
+            }
+            best = Math.min(best, total)
+          }
+          return best
+        }
+        return bestOn(rows, m) + bestOn(cols, n)
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'median',
       label: 'Take the median row and the median column',
       kind: 'optimal',
       time: 'O(m * n)',
       space: 'O(m * n)',
       blurb:
-        'Manhattan distance splits cleanly into a row part and a column part, so the two axes can be solved separately. On a line, the point minimising the total distance is the median — collect the rows in order, sort the columns, and sum the distances to each median.',
+        'On a line there is no need to try every candidate: the point minimising the total distance is the median. Collect the rows in order, sort the columns, and sum the distances to each median. One pass to gather the homes and one to add up the distances.',
       code: {
         cpp: {
           lines: [

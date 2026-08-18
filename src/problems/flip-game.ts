@@ -23,6 +23,8 @@ export const flipGame: Problem = {
     { args: ['++'], expect: ['--'], note: 'the only move' },
     { args: ['+-+'], expect: [], note: 'the plusses are not adjacent' },
     { args: ['+++'], expect: ['--+', '+--'] },
+    { args: ['-++-'], expect: ['----'], note: 'the pair sits between minuses' },
+    { args: ['++-++'], expect: ['---++', '++---'], note: 'two separate pairs' },
   ],
   demo: ['++++'],
   scale: (n) => ['+'.repeat(n)],
@@ -45,7 +47,7 @@ export const flipGame: Problem = {
       time: 'O(n^2)',
       space: 'O(n)',
       blurb:
-        'Every move is decided by where the pair starts, so walk the string once and, at each `++`, write out the string with that pair flipped. Building each result costs `O(n)`, which is where the quadratic total comes from.',
+        'There is only one shape of answer here: every move is decided by where the pair starts, so walk the string once and, at each `++`, write out the string with that pair flipped. Building each result costs `O(n)`, which is where the quadratic total comes from, and no approach avoids it — the output itself is that large.',
       code: {
         cpp: {
           lines: [
@@ -80,6 +82,7 @@ export const flipGame: Problem = {
         for (let i = 0; i + 1 < state.length; i++) {
           c.ops++
           if (state[i] !== '+' || state[i + 1] !== '+') continue
+          c.ops += state.length // each result is a fresh copy of the string
           out.push(state.slice(0, i) + '--' + state.slice(i + 2))
         }
         return out

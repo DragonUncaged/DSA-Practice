@@ -40,6 +40,21 @@ export const uniqueWordAbbreviation: Problem = {
       note: 'a duplicate in the dictionary is still one word',
     },
     { args: [['hello'], ['world']], expect: [1], note: 'different abbreviation entirely' },
+    {
+      args: [['dear', 'door'], ['dear']],
+      expect: [0],
+      note: 'the query is in the dictionary but shares d2r with another word',
+    },
+    {
+      args: [['internationalization'], ['intercommunication', 'internationalization']],
+      expect: [1, 1],
+      note: 'i18n against i16n: different counts, both unique',
+    },
+  ],
+  // dictionary words abbreviate to a5z, queries to a4z: nothing ever matches early
+  scale: (n) => [
+    Array.from({ length: n }, (_, i) => 'a' + String(i).padStart(5, 'x') + 'z'),
+    Array.from({ length: n }, (_, i) => 'a' + String(i).padStart(4, 'y') + 'z'),
   ],
   demo: [
     ['deer', 'door', 'cake', 'card'],
@@ -58,13 +73,71 @@ export const uniqueWordAbbreviation: Problem = {
 
   solutions: [
     {
+      id: 'scan-per-query',
+      label: 'Scan the dictionary for every query',
+      kind: 'brute',
+      time: 'O(q * d)',
+      space: 'O(1)',
+      blurb:
+        'For each query, abbreviate every dictionary word and look for one with the same abbreviation but different spelling. Correct, but the dictionary never changes, and thousands of queries re-abbreviate all thirty thousand words each time.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<int> isUnique(vector<string>& dictionary, vector<string>& words) {',
+            '    auto abbr = [](const string& w) {',
+            '        return w.size() < 3 ? w : w.substr(0, 1) + to_string(w.size() - 2) + w.back();',
+            '    };',
+            '    vector<int> out;',
+            '    for (const string& w : words) {',
+            '        string a = abbr(w);',
+            '        bool unique = true;',
+            '        for (const string& d : dictionary)',
+            '            if (d != w && abbr(d) == a) { unique = false; break; }',
+            '        out.push_back(unique ? 1 : 0);',
+            '    }',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function isUnique(dictionary, words) {',
+            '  const abbr = (w) =>',
+            '    w.length < 3 ? w : w[0] + (w.length - 2) + w[w.length - 1];',
+            '',
+            '  return words.map((w) => {',
+            '    const a = abbr(w);',
+            '    for (const d of dictionary) {',
+            '      if (d !== w && abbr(d) === a) return 0;',
+            '    }',
+            '    return 1;',
+            '  });',
+            '}',
+          ],
+        },
+      },
+
+      run([dictionary, words]: [string[], string[]], c) {
+        const abbr = (w: string) => (w.length < 3 ? w : w[0] + (w.length - 2) + w[w.length - 1])
+        return words.map((w) => {
+          const a = abbr(w)
+          for (const d of dictionary) {
+            c.ops++
+            if (d !== w && abbr(d) === a) return 0
+          }
+          return 1
+        })
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'abbr-count',
       label: 'Count distinct dictionary words per abbreviation',
       kind: 'optimal',
       time: 'O(d + q)',
       space: 'O(d)',
       blurb:
-        'Build the abbreviation index once, counting only distinct words so a duplicated entry does not look like a clash. A query is then unique when its abbreviation is unseen, or when exactly one word owns it and that word is the query itself.',
+        'Abbreviate the dictionary once instead of once per query. Build an index from abbreviation to the number of distinct words that share it — distinct, so a duplicated entry does not look like a clash. A query is then unique when its abbreviation is unseen, or when exactly one word owns it and that word is the query itself. Each query is two lookups.',
       code: {
         cpp: {
           lines: [
