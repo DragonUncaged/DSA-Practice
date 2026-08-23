@@ -40,6 +40,8 @@ export const minimumUniqueWordAbbreviation: Problem = {
       expect: 'a4',
       note: 'a shorter dictionary word cannot clash at all',
     },
+    { args: ['abcde', ['abcdf', 'xbcde']], expect: 'a3e', note: 'two words that differ at opposite ends' },
+    { args: ['aaaaa', ['aaaab', 'aaaba', 'aabaa', 'abaaa', 'baaaa']], expect: 'aaaaa', note: 'every position must be kept' },
   ],
   demo: ['apple', ['blade']],
   starter: {
@@ -55,13 +57,136 @@ export const minimumUniqueWordAbbreviation: Problem = {
 
   solutions: [
     {
+      id: 'generate-and-check',
+      label: 'Generate every abbreviation, shortest first, and test each against the dictionary',
+      kind: 'brute',
+      time: 'O(2^m * (m log m + d * L))',
+      space: 'O(2^m * m)',
+      blurb:
+        'List every abbreviation of `target` with the Generalized Abbreviation recursion, sort them by length and then alphabetically, and return the first one that Valid Word Abbreviation rejects for every dictionary word. Correct, and it materialises all `2^m` strings and re-walks each dictionary word for every candidate.',
+      code: {
+        cpp: {
+          lines: [
+            'static bool validAbbr(const string& word, const string& abbr) {',
+            '    size_t i = 0, j = 0;',
+            '    while (i < word.size() && j < abbr.size()) {',
+            '        if (isdigit(abbr[j])) {',
+            "            if (abbr[j] == '0') return false;",
+            '            int n = 0;',
+            '            while (j < abbr.size() && isdigit(abbr[j])) n = n * 10 + (abbr[j++] - \'0\');',
+            '            i += n;',
+            '        } else if (word[i] != abbr[j]) return false;',
+            '        else { ++i; ++j; }',
+            '    }',
+            '    return i == word.size() && j == abbr.size();',
+            '}',
+            '',
+            'string minAbbreviation(string target, vector<string>& dictionary) {',
+            '    int m = target.size();',
+            '    vector<pair<int, string>> all;  // (abbreviation length, text)',
+            '    function<void(int, string, int, bool)> walk = [&](int i, string acc, int len, bool afterNumber) {',
+            '        if (i == m) { all.push_back({len, acc}); return; }',
+            '        walk(i + 1, acc + target[i], len + 1, false);',
+            '        if (afterNumber) return;',
+            '        for (int k = 1; i + k <= m; ++k) walk(i + k, acc + to_string(k), len + 1, true);',
+            '    };',
+            '    walk(0, "", 0, false);',
+            '    sort(all.begin(), all.end());',
+            '    for (auto& [len, abbr] : all) {',
+            '        bool clash = false;',
+            '        for (const string& w : dictionary) if (validAbbr(w, abbr)) { clash = true; break; }',
+            '        if (!clash) return abbr;',
+            '    }',
+            '    return target;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function minAbbreviation(target, dictionary) {',
+            '  const validAbbr = (word, abbr) => {',
+            '    let i = 0, j = 0;',
+            '    while (i < word.length && j < abbr.length) {',
+            "      if (abbr[j] >= '0' && abbr[j] <= '9') {",
+            "        if (abbr[j] === '0') return false;",
+            '        let n = 0;',
+            "        while (j < abbr.length && abbr[j] >= '0' && abbr[j] <= '9') n = n * 10 + Number(abbr[j++]);",
+            '        i += n;',
+            '      } else if (word[i] !== abbr[j]) return false;',
+            '      else { i++; j++; }',
+            '    }',
+            '    return i === word.length && j === abbr.length;',
+            '  };',
+            '',
+            '  const m = target.length;',
+            '  const all = []; // [abbreviation length, text]',
+            '  const walk = (i, acc, len, afterNumber) => {',
+            '    if (i === m) { all.push([len, acc]); return; }',
+            '    walk(i + 1, acc + target[i], len + 1, false);',
+            '    if (afterNumber) return;',
+            '    for (let k = 1; i + k <= m; k++) walk(i + k, acc + k, len + 1, true);',
+            '  };',
+            "  walk(0, '', 0, false);",
+            '  all.sort((a, b) => a[0] - b[0] || (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0));',
+            '',
+            '  for (const [, abbr] of all) {',
+            '    if (!dictionary.some((w) => validAbbr(w, abbr))) return abbr;',
+            '  }',
+            '  return target;',
+            '}',
+          ],
+        },
+      },
+
+      run([target, dictionary]: [string, string[]], c) {
+        if (target.length > 14) throw new Error('too slow')
+        const validAbbr = (word: string, abbr: string) => {
+          let i = 0
+          let j = 0
+          while (i < word.length && j < abbr.length) {
+            c.ops++
+            if (abbr[j] >= '0' && abbr[j] <= '9') {
+              if (abbr[j] === '0') return false
+              let n = 0
+              while (j < abbr.length && abbr[j] >= '0' && abbr[j] <= '9') n = n * 10 + Number(abbr[j++])
+              i += n
+            } else if (word[i] !== abbr[j]) return false
+            else {
+              i++
+              j++
+            }
+          }
+          return i === word.length && j === abbr.length
+        }
+        const m = target.length
+        const all: [number, string][] = []
+        const walk = (i: number, acc: string, len: number, afterNumber: boolean) => {
+          c.ops++
+          if (i === m) {
+            all.push([len, acc])
+            return
+          }
+          walk(i + 1, acc + target[i], len + 1, false)
+          if (afterNumber) return
+          for (let k = 1; i + k <= m; k++) walk(i + k, acc + k, len + 1, true)
+        }
+        walk(0, '', 0, false)
+        all.sort((a, b) => a[0] - b[0] || (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0))
+        for (const [, abbr] of all) {
+          if (!dictionary.some((w) => validAbbr(w, abbr))) return abbr
+        }
+        return target
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'bitmask',
       label: 'One bit per kept letter',
       kind: 'optimal',
       time: 'O(2^m * m)',
       space: 'O(n)',
       blurb:
-        'An abbreviation is fully described by which letters it keeps, so it is a bitmask over `target`. A dictionary word of the same length is only ruled out when the mask keeps a position where the two words differ — reduce each word to that difference mask once, and a candidate is safe when it intersects every one of them. Words of a different length can never collide.',
+        'The strings never need building to be compared. An abbreviation is fully described by which letters it keeps, so it is a bitmask over `target`. A dictionary word of the same length is only ruled out when the mask keeps a position where the two words differ — reduce each word to that difference mask once, and a candidate is safe when it intersects every one of them, a bitwise AND per word. Words of a different length can never collide, and only the winning mask is rendered.',
       code: {
         cpp: {
           lines: [

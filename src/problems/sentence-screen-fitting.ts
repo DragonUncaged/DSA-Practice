@@ -32,7 +32,11 @@ export const sentenceScreenFitting: Problem = {
     { args: [['abc'], 1, 2], expect: 0, note: 'the word is wider than the screen' },
     { args: [['a', 'b'], 1, 3], expect: 1 },
     { args: [['a'], 10000, 1], expect: 10000, note: 'one letter per row' },
+    { args: [['ab', 'cd'], 1, 20000], expect: 3333, note: 'a very wide row holds many copies: six columns each' },
+    { args: [['abcdefghij'], 3, 10], expect: 3, note: 'the widest word exactly fills the row' },
+    { args: [['a', 'bb', 'ccc'], 2, 3], expect: 0, note: 'no row ever reaches the end' },
   ],
+  scale: (n) => [['ab', 'cde', 'f'], n, 7],
   demo: [['a', 'bcd', 'e'], 3, 6],
   starter: {
     js: `function wordsTyping(sentence, rows, cols) {
@@ -47,13 +51,73 @@ export const sentenceScreenFitting: Problem = {
 
   solutions: [
     {
+      id: 'simulate-words',
+      label: 'Place the words one at a time, row by row',
+      kind: 'brute',
+      time: 'O(rows * cols)',
+      space: 'O(1)',
+      blurb:
+        'Fill each row greedily: while the next word fits, write it and a space, wrapping back to the first word and counting a copy whenever the sentence runs out. Correct, and exactly how the screen would be typed — every word on every row is handled individually.',
+      code: {
+        cpp: {
+          lines: [
+            'int wordsTyping(vector<string>& sentence, int rows, int cols) {',
+            '    int idx = 0, copies = 0, n = sentence.size();',
+            '    for (int r = 0; r < rows; ++r) {',
+            '        int width = 0;',
+            '        while (width + (int)sentence[idx].size() <= cols) {',
+            '            width += sentence[idx].size() + 1;',
+            '            if (++idx == n) { idx = 0; ++copies; }',
+            '        }',
+            '    }',
+            '    return copies;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function wordsTyping(sentence, rows, cols) {',
+            '  let idx = 0;',
+            '  let copies = 0;',
+            '  for (let r = 0; r < rows; r++) {',
+            '    let width = 0;',
+            '    while (width + sentence[idx].length <= cols) {',
+            '      width += sentence[idx].length + 1;',
+            '      if (++idx === sentence.length) { idx = 0; copies++; }',
+            '    }',
+            '  }',
+            '  return copies;',
+            '}',
+          ],
+        },
+      },
+
+      run([sentence, rows, cols]: [string[], number, number], c) {
+        let idx = 0
+        let copies = 0
+        for (let r = 0; r < rows; r++) {
+          let width = 0
+          while (width + sentence[idx].length <= cols) {
+            c.ops++
+            width += sentence[idx].length + 1
+            if (++idx === sentence.length) {
+              idx = 0
+              copies++
+            }
+          }
+        }
+        return copies
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'cursor-in-loop',
       label: 'Advance one cursor through the repeating sentence',
-      kind: 'optimal',
-      time: 'O(rows * cols)',
+      kind: 'better',
+      time: 'O(rows * L)',
       space: 'O(n)',
       blurb:
-        'Join the words into one string that ends with a space and treat it as endless. Each row advances the cursor by `cols`: if it lands on a space, step past it, otherwise walk back to the start of the word it cut in half. The cursor divided by the sentence length is how many full copies were written.',
+        "Rather than placing words, jump a whole row at a time. Join the words into one string that ends with a space and treat it as endless. Each row advances the cursor by `cols`: if it lands on a space, step past it, otherwise walk back to the start of the word it cut in half — at most one word's length. The cursor divided by the sentence length is how many full copies were written.",
       code: {
         cpp: {
           lines: [
@@ -113,6 +177,97 @@ export const sentenceScreenFitting: Problem = {
           }
         }
         return Math.floor(at / len)
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
+      id: 'per-start-table',
+      label: 'Precompute what a row does from each starting word',
+      kind: 'optimal',
+      time: 'O(n * cols + rows)',
+      space: 'O(n)',
+      blurb:
+        'A row\'s behaviour depends only on which word it starts with, and there are just `n` words. Work out once, for each starting word, where the next row begins and how many copies the row completes; then every row of the screen is a single table lookup. The rows no longer cost anything proportional to their width.',
+      code: {
+        cpp: {
+          lines: [
+            'int wordsTyping(vector<string>& sentence, int rows, int cols) {',
+            '    int n = sentence.size();',
+            '    vector<int> nextOf(n), doneOf(n);',
+            '    for (int i = 0; i < n; ++i) {',
+            '        int width = 0, idx = i, done = 0;',
+            '        while (width + (int)sentence[idx].size() <= cols) {',
+            '            width += sentence[idx].size() + 1;',
+            '            if (++idx == n) { idx = 0; ++done; }',
+            '        }',
+            '        nextOf[i] = idx;',
+            '        doneOf[i] = done;',
+            '    }',
+            '    int idx = 0, copies = 0;',
+            '    for (int r = 0; r < rows; ++r) {',
+            '        copies += doneOf[idx];',
+            '        idx = nextOf[idx];',
+            '    }',
+            '    return copies;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function wordsTyping(sentence, rows, cols) {',
+            '  const n = sentence.length;',
+            '  // a row starting at word i ends at word nextOf[i] and completes doneOf[i] copies',
+            '  const nextOf = new Array(n);',
+            '  const doneOf = new Array(n);',
+            '  for (let i = 0; i < n; i++) {',
+            '    let width = 0, idx = i, done = 0;',
+            '    while (width + sentence[idx].length <= cols) {',
+            '      width += sentence[idx].length + 1;',
+            '      if (++idx === n) { idx = 0; done++; }',
+            '    }',
+            '    nextOf[i] = idx;',
+            '    doneOf[i] = done;',
+            '  }',
+            '',
+            '  let idx = 0;',
+            '  let copies = 0;',
+            '  for (let r = 0; r < rows; r++) {',
+            '    copies += doneOf[idx];',
+            '    idx = nextOf[idx];',
+            '  }',
+            '  return copies;',
+            '}',
+          ],
+        },
+      },
+
+      run([sentence, rows, cols]: [string[], number, number], c) {
+        const n = sentence.length
+        const nextOf = new Array<number>(n)
+        const doneOf = new Array<number>(n)
+        for (let i = 0; i < n; i++) {
+          let width = 0
+          let idx = i
+          let done = 0
+          while (width + sentence[idx].length <= cols) {
+            c.ops++
+            width += sentence[idx].length + 1
+            if (++idx === n) {
+              idx = 0
+              done++
+            }
+          }
+          nextOf[i] = idx
+          doneOf[i] = done
+        }
+        let idx = 0
+        let copies = 0
+        for (let r = 0; r < rows; r++) {
+          c.ops++
+          copies += doneOf[idx]
+          idx = nextOf[idx]
+        }
+        return copies
       },
     },
   ],

@@ -32,7 +32,10 @@ export const rangeAddition: Problem = {
     { args: [3, []], expect: [0, 0, 0], note: 'no updates' },
     { args: [1, [[0, 0, 5]]], expect: [5], note: 'single cell' },
     { args: [4, [[0, 3, 1], [0, 3, 1]]], expect: [2, 2, 2, 2], note: 'two full-width updates' },
+    { args: [3, [[0, 2, 1000], [1, 1, -1000]]], expect: [1000, 0, 1000], note: 'the extreme increments cancel in the middle' },
+    { args: [5, [[4, 4, 7]]], expect: [0, 0, 0, 0, 7], note: 'an update ending at the last index' },
   ],
+  scale: (n) => [n, Array.from({ length: n >> 2 }, (_, i) => [i % (n >> 1), (n >> 1) + (i % (n >> 1)), 1])],
   demo: [5, [[1, 3, 2], [2, 4, 3], [0, 2, -2]]],
   starter: {
     js: `function getModifiedArray(length, updates) {
@@ -47,13 +50,57 @@ export const rangeAddition: Problem = {
 
   solutions: [
     {
+      id: 'cell-by-cell',
+      label: 'Apply each update cell by cell',
+      kind: 'brute',
+      time: 'O(n * u)',
+      space: 'O(1)',
+      blurb:
+        'For every update, loop from `start` to `end` and add `inc` to each cell. Correct and literal, but a wide range costs a pass over most of the array, and ten thousand of them add up to a billion writes.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<int> getModifiedArray(int length, vector<vector<int>>& updates) {',
+            '    vector<int> out(length, 0);',
+            '    for (auto& u : updates)',
+            '        for (int i = u[0]; i <= u[1]; ++i) out[i] += u[2];',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function getModifiedArray(length, updates) {',
+            '  const out = new Array(length).fill(0);',
+            '  for (const [start, end, inc] of updates) {',
+            '    for (let i = start; i <= end; i++) out[i] += inc;',
+            '  }',
+            '  return out;',
+            '}',
+          ],
+        },
+      },
+
+      run([length, updates]: [number, number[][]], c) {
+        const out = new Array<number>(length).fill(0)
+        for (const [start, end, inc] of updates) {
+          for (let i = start; i <= end; i++) {
+            c.ops++
+            out[i] += inc
+          }
+        }
+        return out
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'difference-array',
       label: 'Record the edges, then sweep once',
       kind: 'optimal',
       time: 'O(n + u)',
       space: 'O(n)',
       blurb:
-        'Writing each range cell by cell is `O(n)` per update. Instead record only where the increment starts and where it stops: `+inc` at `start` and `-inc` just past `end`. A running sum over that difference array reconstructs every value in one pass.',
+        'Writing each range cell by cell is `O(n)` per update. Instead record only where the increment starts and where it stops: `+inc` at `start` and `-inc` just past `end`. A running sum over that difference array reconstructs every value in one pass, so each update costs two writes no matter how wide it is.',
       code: {
         cpp: {
           lines: [

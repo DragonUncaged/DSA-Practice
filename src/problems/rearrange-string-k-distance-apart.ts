@@ -29,6 +29,9 @@ export const rearrangeStringKDistanceApart: Problem = {
     { args: ['a', 1], expect: 'a', note: 'single character' },
     { args: ['aa', 2], expect: '', note: 'no room for the second a' },
     { args: ['aabb', 0], expect: 'abab', note: 'k = 0 puts no constraint on the order' },
+    { args: ['abcdef', 6], expect: 'abcdef', note: 'k equal to the length, all distinct' },
+    { args: ['aaaa', 1], expect: 'aaaa', note: 'k = 1 allows neighbours to match' },
+    { args: ['aabbcc', 4], expect: '', note: 'blocks of four cannot be filled from three letters twice' },
   ],
   demo: ['aabbcc', 3],
   starter: {
@@ -50,7 +53,7 @@ export const rearrangeStringKDistanceApart: Problem = {
       time: 'O(n log 26)',
       space: 'O(26)',
       blurb:
-        'Inside any window of `k` consecutive positions every character is distinct, so build the answer one such block at a time. Spending the most frequent characters first is what stops one letter from piling up at the end; if a block cannot be filled with distinct characters, no arrangement exists.',
+        'A heap-based greedy with a cooling queue is the other well-known solution, but it is the same algorithm with a different container, and any other valid arrangement would fail the pinned answers — so this single pass is the one shown. Inside any window of `k` consecutive positions every character is distinct, so build the answer one such block at a time. Spending the most frequent characters first is what stops one letter from piling up at the end; if a block cannot be filled with distinct characters, no arrangement exists.',
       code: {
         cpp: {
           lines: [

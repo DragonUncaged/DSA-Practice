@@ -25,7 +25,22 @@ export const bombEnemy: Problem = {
     { args: [[['E']]], expect: 0, note: 'no empty cell to bomb from' },
     { args: [[['0', 'E']]], expect: 1 },
     { args: [[['E', 'W', '0', 'E']]], expect: 1, note: 'the wall blocks the left enemy' },
+    { args: [[['0', '0', '0'], ['0', '0', '0']]], expect: 0, note: 'no enemies at all' },
+    {
+      args: [[['E', 'E', 'E'], ['E', '0', 'E'], ['E', 'E', 'E']]],
+      expect: 4,
+      note: 'the centre sees one enemy in each direction',
+    },
+    {
+      args: [[['0', 'W', 'E'], ['W', '0', 'W'], ['E', 'W', '0']]],
+      expect: 0,
+      note: 'every empty cell is boxed in by walls',
+    },
   ],
+  scale: (n) => {
+    const side = Math.max(2, Math.round(Math.sqrt(n)))
+    return [Array.from({ length: side }, (_, r) => Array.from({ length: side }, (_, c) => ((r + c) % 3 === 0 ? 'E' : '0')))]
+  },
   demo: [[['0', 'E', '0', '0'], ['E', '0', 'W', 'E'], ['0', 'E', '0', '0']]],
   starter: {
     js: `function maxKilledEnemies(grid) {
@@ -40,13 +55,103 @@ export const bombEnemy: Problem = {
 
   solutions: [
     {
+      id: 'scan-per-cell',
+      label: 'Scan the row and column from every empty cell',
+      kind: 'brute',
+      time: 'O(m * n * (m + n))',
+      space: 'O(1)',
+      blurb:
+        'From each empty cell, walk left, right, up and down until a wall or the border, counting enemies, and keep the best total. Correct and direct, but neighbouring cells in the same wall-free stretch count exactly the same enemies over and over.',
+      code: {
+        cpp: {
+          lines: [
+            'int maxKilledEnemies(vector<vector<char>>& grid) {',
+            '    int m = grid.size(), n = grid[0].size(), best = 0;',
+            '    const int dr[4] = {1, -1, 0, 0}, dc[4] = {0, 0, 1, -1};',
+            '    for (int i = 0; i < m; ++i) for (int j = 0; j < n; ++j) {',
+            "        if (grid[i][j] != '0') continue;",
+            '        int hits = 0;',
+            '        for (int d = 0; d < 4; ++d) {',
+            '            int r = i + dr[d], c = j + dc[d];',
+            "            while (r >= 0 && c >= 0 && r < m && c < n && grid[r][c] != 'W') {",
+            "                if (grid[r][c] == 'E') ++hits;",
+            '                r += dr[d]; c += dc[d];',
+            '            }',
+            '        }',
+            '        best = max(best, hits);',
+            '    }',
+            '    return best;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function maxKilledEnemies(grid) {',
+            '  const m = grid.length;',
+            '  const n = grid[0].length;',
+            '  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];',
+            '  let best = 0;',
+            '  for (let i = 0; i < m; i++) {',
+            '    for (let j = 0; j < n; j++) {',
+            "      if (grid[i][j] !== '0') continue;",
+            '      let hits = 0;',
+            '      for (const [dr, dc] of dirs) {',
+            '        let r = i + dr;',
+            '        let c = j + dc;',
+            "        while (r >= 0 && c >= 0 && r < m && c < n && grid[r][c] !== 'W') {",
+            "          if (grid[r][c] === 'E') hits++;",
+            '          r += dr;',
+            '          c += dc;',
+            '        }',
+            '      }',
+            '      best = Math.max(best, hits);',
+            '    }',
+            '  }',
+            '  return best;',
+            '}',
+          ],
+        },
+      },
+
+      run([grid]: [string[][]], c) {
+        const m = grid.length
+        const n = grid[0].length
+        const dirs = [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ]
+        let best = 0
+        for (let i = 0; i < m; i++) {
+          for (let j = 0; j < n; j++) {
+            if (grid[i][j] !== '0') continue
+            let hits = 0
+            for (const [dr, dc] of dirs) {
+              let r = i + dr
+              let col = j + dc
+              while (r >= 0 && col >= 0 && r < m && col < n && grid[r][col] !== 'W') {
+                c.ops++
+                if (grid[r][col] === 'E') hits++
+                r += dr
+                col += dc
+              }
+            }
+            best = Math.max(best, hits)
+          }
+        }
+        return best
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'carry-segment-counts',
       label: 'Reuse the count until a wall resets it',
       kind: 'optimal',
       time: 'O(m * n)',
       space: 'O(n)',
       blurb:
-        'Every cell in the same wall-to-wall segment kills the same enemies, so the count only needs recomputing when a segment starts — at the border or just after a wall. Carry one row count and an array of column counts, and each cell is a lookup.',
+        'Every cell in the same wall-to-wall segment kills the same enemies, so the count only needs recomputing when a segment starts — at the border or just after a wall. Carry one row count and an array of column counts through a single sweep, and each cell becomes a lookup instead of four walks.',
       code: {
         cpp: {
           lines: [

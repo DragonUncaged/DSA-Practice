@@ -33,6 +33,10 @@ export const validWordAbbreviation: Problem = {
     { args: ['substitution', '12'], expect: true },
     { args: ['a', '1'], expect: true, note: 'shortest possible' },
     { args: ['apple', 'apple'], expect: true, note: 'nothing replaced' },
+    { args: ['apple', '6'], expect: false, note: 'the count overshoots the word' },
+    { args: ['apple', 'a3'], expect: false, note: 'the count stops short' },
+    { args: ['hi', '1i'], expect: true },
+    { args: ['hi', 'h1e'], expect: false, note: 'abbr runs past the word' },
   ],
   demo: ['internationalization', 'i12iz4n'],
   starter: {
@@ -48,13 +52,80 @@ export const validWordAbbreviation: Problem = {
 
   solutions: [
     {
+      id: 'enumerate-abbreviations',
+      label: 'Generate every abbreviation of the word and look for abbr',
+      kind: 'brute',
+      time: 'O(2^n * n)',
+      space: 'O(n)',
+      blurb:
+        'Every abbreviation of `word` is one choice per letter — keep it or fold it into a count — so generate them all, the Generalized Abbreviation way, and stop if one equals `abbr`. Correct, and exponential: a twenty-letter word has a million abbreviations, and the answer only ever needed one walk along `abbr`.',
+      code: {
+        cpp: {
+          lines: [
+            'bool validWordAbbreviation(string word, string abbr) {',
+            '    int n = word.size();',
+            '    bool found = false;',
+            '    // acc: the abbreviation so far; afterNumber: was the last piece a count?',
+            '    function<void(int, string, bool)> walk = [&](int i, string acc, bool afterNumber) {',
+            '        if (found || acc.size() > abbr.size()) return;',
+            '        if (i == n) { if (acc == abbr) found = true; return; }',
+            '        walk(i + 1, acc + word[i], false);',
+            '        if (afterNumber) return;',
+            '        for (int len = 1; i + len <= n; ++len) walk(i + len, acc + to_string(len), true);',
+            '    };',
+            '    walk(0, "", false);',
+            '    return found;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function validWordAbbreviation(word, abbr) {',
+            '  const n = word.length;',
+            '  let found = false;',
+            '  // acc: the abbreviation so far; afterNumber: was the last piece a count?',
+            '  const walk = (i, acc, afterNumber) => {',
+            '    if (found || acc.length > abbr.length) return;',
+            '    if (i === n) { if (acc === abbr) found = true; return; }',
+            '    walk(i + 1, acc + word[i], false);',
+            '    if (afterNumber) return;',
+            '    for (let len = 1; i + len <= n; len++) walk(i + len, acc + len, true);',
+            '  };',
+            "  walk(0, '', false);",
+            '  return found;',
+            '}',
+          ],
+        },
+      },
+
+      run([word, abbr]: [string, string], c) {
+        if (word.length > 16) throw new Error('too slow')
+        const n = word.length
+        let found = false
+        const walk = (i: number, acc: string, afterNumber: boolean) => {
+          c.ops++
+          if (found || acc.length > abbr.length) return
+          if (i === n) {
+            if (acc === abbr) found = true
+            return
+          }
+          walk(i + 1, acc + word[i], false)
+          if (afterNumber) return
+          for (let len = 1; i + len <= n; len++) walk(i + len, acc + len, true)
+        }
+        walk(0, '', false)
+        return found
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'two-cursors',
       label: 'Walk both strings together',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(1)',
       blurb:
-        'One cursor per string. A digit in `abbr` reads a whole number and skips that many letters of `word`; a letter has to match. A number starting with `0` is invalid outright, and both cursors must land exactly at the end for the abbreviation to fit.',
+        'There is no need to generate anything: `abbr` itself says how to walk `word`. One cursor per string. A digit in `abbr` reads a whole number and skips that many letters of `word`; a letter has to match. A number starting with `0` is invalid outright, and both cursors must land exactly at the end for the abbreviation to fit.',
       code: {
         cpp: {
           lines: [
