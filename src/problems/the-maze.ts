@@ -55,6 +55,8 @@ export const theMaze: Problem = {
       expect: false,
       note: 'the middle cell cannot be a resting place',
     },
+    { args: [[[0, 1], [0, 0]], [0, 0], [1, 1]], expect: true, note: 'down, then right' },
+    { args: [[[0, 0, 0], [1, 1, 0], [0, 0, 0]], [0, 0], [2, 0]], expect: true, note: 'around the wall in three rolls' },
   ],
   demo: [
     [[0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 1, 0], [1, 1, 0, 1, 1], [0, 0, 0, 0, 0]],
@@ -80,7 +82,7 @@ export const theMaze: Problem = {
       time: 'O(m * n * max(m, n))',
       space: 'O(m * n)',
       blurb:
-        'The ball cannot be steered mid-roll, so the only states worth exploring are the cells where it comes to rest. From each stop, roll in all four directions until a wall stops it and enqueue the four resting cells; visiting each stop once is enough.',
+        'Depth-first and breadth-first search over the same resting places are the same idea, and a cell-by-cell search would answer a different question — so this one search is the solution shown. The ball cannot be steered mid-roll, so the only states worth exploring are the cells where it comes to rest. From each stop, roll in all four directions until a wall stops it and enqueue the four resting cells; visiting each stop once is enough.',
       code: {
         cpp: {
           lines: [

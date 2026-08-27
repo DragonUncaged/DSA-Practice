@@ -19,6 +19,9 @@ export const encodeStringWithShortestLength: Problem = {
     { args: ['abab'], expect: 'abab', note: '2[ab] is one character longer' },
     { args: ['ababababab'], expect: '5[ab]' },
     { args: ['abbbabbbcabbbabbbc'], expect: '2[2[abbb]c]', note: 'nested encoding' },
+    { args: ['a'.repeat(150)], expect: '150[a]', note: 'the longest input' },
+    { args: ['aaaaabbbbb'], expect: '5[a]5[b]', note: 'two repeats side by side' },
+    { args: ['abcdefgh'], expect: 'abcdefgh', note: 'nothing repeats' },
   ],
   demo: ['abbbabbbcabbbabbbc'],
   starter: {
@@ -40,7 +43,7 @@ export const encodeStringWithShortestLength: Problem = {
       time: 'O(n^4)',
       space: 'O(n^2)',
       blurb:
-        'Solve every substring shortest-first and store the best encoding of each. A substring can either be a repetition — check each period that divides it and wrap the already-solved first block — or a split into two halves whose best encodings are simply concatenated. Both need only shorter substrings, which are already done.',
+        'Enumerating every bracketing is exponential, and any other tie-breaking would produce a different string from the pinned answers — so the interval DP is the one solution shown. Solve every substring shortest-first and store the best encoding of each. A substring can either be a repetition — check each period that divides it and wrap the already-solved first block — or a split into two halves whose best encodings are simply concatenated. Both need only shorter substrings, which are already done.',
       code: {
         cpp: {
           lines: [

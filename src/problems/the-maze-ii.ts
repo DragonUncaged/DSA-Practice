@@ -50,6 +50,12 @@ export const theMazeII: Problem = {
     },
     { args: [[[0, 0]], [0, 0], [0, 1]], expect: 1, note: 'one cell of travel' },
     { args: [[[0, 0, 0]], [0, 0], [0, 1]], expect: -1, note: 'no wall to stop against' },
+    { args: [[[0, 1], [0, 0]], [0, 0], [1, 1]], expect: 2, note: 'down, then right' },
+    {
+      args: [[[0, 0, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0], [0, 1, 1, 1]], [0, 0], [3, 0]],
+      expect: 9,
+      note: 'the only route zigzags the long way round',
+    },
   ],
   demo: [
     [[0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 1, 0], [1, 1, 0, 1, 1], [0, 0, 0, 0, 0]],
@@ -69,13 +75,121 @@ export const theMazeII: Problem = {
 
   solutions: [
     {
+      id: 'relax-with-a-queue',
+      label: 'Breadth-first search that keeps improving distances',
+      kind: 'brute',
+      time: 'O((m * n)^2 * max(m, n))',
+      space: 'O(m * n)',
+      blurb:
+        'Run the same search over resting places as The Maze, but remember the best distance to each stop and re-enqueue a stop whenever a shorter route to it turns up. Correct — every improvement propagates eventually — but with no ordering a stop can be pulled off the queue and re-expanded many times before its distance settles.',
+      code: {
+        cpp: {
+          lines: [
+            'int shortestDistance(vector<vector<int>>& maze, vector<int>& start, vector<int>& destination) {',
+            '    int m = maze.size(), n = maze[0].size();',
+            '    vector<vector<int>> best(m, vector<int>(n, INT_MAX));',
+            '    const int dr[4] = {1, -1, 0, 0}, dc[4] = {0, 0, 1, -1};',
+            '    best[start[0]][start[1]] = 0;',
+            '    queue<pair<int, int>> q;',
+            '    q.push({start[0], start[1]});',
+            '    while (!q.empty()) {',
+            '        auto [r, c] = q.front(); q.pop();',
+            '        for (int d = 0; d < 4; ++d) {',
+            '            int nr = r, nc = c, steps = 0;',
+            '            while (nr + dr[d] >= 0 && nr + dr[d] < m && nc + dc[d] >= 0 && nc + dc[d] < n &&',
+            '                   maze[nr + dr[d]][nc + dc[d]] == 0) { nr += dr[d]; nc += dc[d]; ++steps; }',
+            '            if (best[r][c] + steps < best[nr][nc]) {',
+            '                best[nr][nc] = best[r][c] + steps;',
+            '                q.push({nr, nc});',
+            '            }',
+            '        }',
+            '    }',
+            '    int d = best[destination[0]][destination[1]];',
+            '    return d == INT_MAX ? -1 : d;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function shortestDistance(maze, start, destination) {',
+            '  const m = maze.length;',
+            '  const n = maze[0].length;',
+            '  const best = Array.from({ length: m }, () => new Array(n).fill(Infinity));',
+            '  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];',
+            '  best[start[0]][start[1]] = 0;',
+            '  const queue = [start];',
+            '',
+            '  for (let head = 0; head < queue.length; head++) {',
+            '    const [r, c] = queue[head];',
+            '    for (const [dr, dc] of dirs) {',
+            '      let nr = r;',
+            '      let nc = c;',
+            '      let steps = 0;',
+            '      while (',
+            '        nr + dr >= 0 && nr + dr < m && nc + dc >= 0 && nc + dc < n &&',
+            '        maze[nr + dr][nc + dc] === 0',
+            '      ) {',
+            '        nr += dr;',
+            '        nc += dc;',
+            '        steps++;',
+            '      }',
+            '      if (best[r][c] + steps < best[nr][nc]) {',
+            '        best[nr][nc] = best[r][c] + steps;',
+            '        queue.push([nr, nc]);',
+            '      }',
+            '    }',
+            '  }',
+            '  const d = best[destination[0]][destination[1]];',
+            '  return d === Infinity ? -1 : d;',
+            '}',
+          ],
+        },
+      },
+
+      run([maze, start, destination]: [number[][], number[], number[]], c) {
+        const m = maze.length
+        const n = maze[0].length
+        const best = Array.from({ length: m }, () => new Array<number>(n).fill(Infinity))
+        const dirs = [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ]
+        best[start[0]][start[1]] = 0
+        const queue: number[][] = [start]
+        for (let head = 0; head < queue.length; head++) {
+          const [r, col] = queue[head]
+          for (const [dr, dc] of dirs) {
+            let nr = r
+            let nc = col
+            let steps = 0
+            while (nr + dr >= 0 && nr + dr < m && nc + dc >= 0 && nc + dc < n && maze[nr + dr][nc + dc] === 0) {
+              c.ops++
+              nr += dr
+              nc += dc
+              steps++
+            }
+            c.ops++
+            if (best[r][col] + steps < best[nr][nc]) {
+              best[nr][nc] = best[r][col] + steps
+              queue.push([nr, nc])
+            }
+          }
+        }
+        const d = best[destination[0]][destination[1]]
+        return d === Infinity ? -1 : d
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'dijkstra',
       label: 'Dijkstra over resting places',
       kind: 'optimal',
       time: 'O(m * n * max(m, n) * log(m * n))',
       space: 'O(m * n)',
       blurb:
-        'A roll can cover many cells at once, so the edges have different weights and plain breadth-first search would not find the cheapest route. Keep the best known distance per resting cell and always expand the cheapest one first, exactly as Dijkstra does.',
+        "Order the queue and each stop settles the first time it is expanded. A roll can cover many cells at once, so the edges have different weights and plain breadth-first search cannot tell which route is cheapest; keep the best known distance per resting cell and always expand the cheapest one first, exactly as Dijkstra does. The destination's distance is final the moment it is popped.",
       code: {
         cpp: {
           lines: [

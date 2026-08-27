@@ -26,7 +26,12 @@ export const ternaryExpressionParser: Problem = {
     { args: ['T?1:0'], expect: '1' },
     { args: ['F?1:0'], expect: '0' },
     { args: ['T?T?T?1:2:3:4'], expect: '1', note: 'three levels deep' },
+    { args: ['F?F?F?1:2:3:4'], expect: '4', note: 'every condition fails' },
+    { args: ['T?F?1:2:3'], expect: '2', note: 'nested in the true branch' },
+    { args: ['F?1:T?F?2:3:4'], expect: '3', note: 'nested twice in the false branch' },
   ],
+  // a right-leaning chain: every level rescans the rest to find its colon
+  scale: (n) => ['F?1:'.repeat(Math.max(1, Math.floor(n / 4))) + '0'],
   demo: ['F?1:T?4:5'],
   starter: {
     js: `function parseTernary(expression) {
@@ -41,13 +46,83 @@ export const ternaryExpressionParser: Problem = {
 
   solutions: [
     {
+      id: 'recursive-descent',
+      label: 'Recurse on the two branches after finding the matching colon',
+      kind: 'brute',
+      time: 'O(n^2)',
+      space: 'O(n)',
+      blurb:
+        'Read the expression the way the grammar is written: a condition, a `?`, a true branch, the matching `:`, a false branch. Finding that colon means scanning forward while balancing nested `?` and `:` pairs, and every level of nesting rescans the rest of the string — quadratic on a long right-leaning chain.',
+      code: {
+        cpp: {
+          lines: [
+            'static string eval(const string& e, int l, int r) {',
+            '    if (l == r) return string(1, e[l]);',
+            '    int depth = 0, split = -1;',
+            '    for (int i = l + 2; i <= r; ++i) {',
+            "        if (e[i] == '?') ++depth;",
+            "        else if (e[i] == ':') { if (depth == 0) { split = i; break; } --depth; }",
+            '    }',
+            "    return e[l] == 'T' ? eval(e, l + 2, split - 1) : eval(e, split + 1, r);",
+            '}',
+            '',
+            'string parseTernary(string expression) {',
+            '    return eval(expression, 0, expression.size() - 1);',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function parseTernary(expression) {',
+            '  const evalRange = (l, r) => {',
+            '    if (l === r) return expression[l];',
+            '    let depth = 0;',
+            '    let split = -1;',
+            '    for (let i = l + 2; i <= r; i++) {',
+            "      if (expression[i] === '?') depth++;",
+            "      else if (expression[i] === ':') {",
+            '        if (depth === 0) { split = i; break; }',
+            '        depth--;',
+            '      }',
+            '    }',
+            "    return expression[l] === 'T' ? evalRange(l + 2, split - 1) : evalRange(split + 1, r);",
+            '  };',
+            '  return evalRange(0, expression.length - 1);',
+            '}',
+          ],
+        },
+      },
+
+      run([expression]: [string], c) {
+        const evalRange = (l: number, r: number): string => {
+          if (l === r) return expression[l]
+          let depth = 0
+          let split = -1
+          for (let i = l + 2; i <= r; i++) {
+            c.ops++
+            if (expression[i] === '?') depth++
+            else if (expression[i] === ':') {
+              if (depth === 0) {
+                split = i
+                break
+              }
+              depth--
+            }
+          }
+          return expression[l] === 'T' ? evalRange(l + 2, split - 1) : evalRange(split + 1, r)
+        }
+        return evalRange(0, expression.length - 1)
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'right-to-left-stack',
       label: 'Scan right to left with a stack',
       kind: 'optimal',
       time: 'O(n)',
       space: 'O(n)',
       blurb:
-        'Because the operator groups to the right, the innermost expression is the one furthest right — so read the string backwards. Every value goes on a stack, and a `?` pops the two branches it already has, reads the condition sitting just before it, and pushes the winner back.',
+        'No colon ever needs to be searched for. Because the operator groups to the right, the innermost expression is the one furthest right — so read the string backwards. Every value goes on a stack, and a `?` pops the two branches it already has, reads the condition sitting just before it, and pushes the winner back. One pass.',
       code: {
         cpp: {
           lines: [

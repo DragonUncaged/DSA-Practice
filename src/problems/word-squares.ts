@@ -39,6 +39,16 @@ export const wordSquares: Problem = {
     { args: [['a']], expect: [['a']], note: 'one letter, one square' },
     { args: [['ab', 'ba']], expect: [['ab', 'ba'], ['ba', 'ab']] },
     { args: [['ab', 'cd']], expect: [], note: 'no square at all' },
+    {
+      args: [['aa', 'ab', 'ba']],
+      expect: [['aa', 'aa'], ['aa', 'ab'], ['ab', 'ba'], ['ba', 'aa'], ['ba', 'ab']],
+      note: 'a word may be reused, and five squares fit',
+    },
+    {
+      args: [['abc', 'bca', 'cab', 'bbb']],
+      expect: [['abc', 'bca', 'cab'], ['bca', 'cab', 'abc'], ['cab', 'abc', 'bca'], ['bbb', 'bbb', 'bbb']],
+      note: 'three rotations of one word form a square from any start',
+    },
   ],
   demo: [['area', 'lead', 'wall', 'lady', 'ball']],
   starter: {
@@ -54,13 +64,184 @@ export const wordSquares: Problem = {
 
   solutions: [
     {
+      id: 'every-combination',
+      label: 'Fill every row with every word, then validate',
+      kind: 'brute',
+      time: 'O(n^L * L^2)',
+      space: 'O(L)',
+      blurb:
+        'Choose any word for each of the `L` rows — `n^L` combinations — and check afterwards whether row `k` reads the same as column `k` for every `k`. Correct, and blind: almost every combination is already doomed after its second row, yet it is completed and checked in full.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<vector<string>> wordSquares(vector<string>& words) {',
+            '    int L = words[0].size();',
+            '    vector<vector<string>> out;',
+            '    vector<string> square;',
+            '    auto valid = [&]() {',
+            '        for (int r = 0; r < L; ++r)',
+            '            for (int c = 0; c < L; ++c)',
+            '                if (square[r][c] != square[c][r]) return false;',
+            '        return true;',
+            '    };',
+            '    function<void(int)> fill = [&](int row) {',
+            '        if (row == L) { if (valid()) out.push_back(square); return; }',
+            '        for (const string& w : words) {',
+            '            square.push_back(w);',
+            '            fill(row + 1);',
+            '            square.pop_back();',
+            '        }',
+            '    };',
+            '    fill(0);',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function wordSquares(words) {',
+            '  const L = words[0].length;',
+            '  const out = [];',
+            '  const square = [];',
+            '  const valid = () => {',
+            '    for (let r = 0; r < L; r++) {',
+            '      for (let c = 0; c < L; c++) if (square[r][c] !== square[c][r]) return false;',
+            '    }',
+            '    return true;',
+            '  };',
+            '  const fill = (row) => {',
+            '    if (row === L) { if (valid()) out.push([...square]); return; }',
+            '    for (const w of words) {',
+            '      square.push(w);',
+            '      fill(row + 1);',
+            '      square.pop();',
+            '    }',
+            '  };',
+            '  fill(0);',
+            '  return out;',
+            '}',
+          ],
+        },
+      },
+
+      run([words]: [string[]], c) {
+        const L = words[0].length
+        if (Math.pow(words.length, L) > 2_000_000) throw new Error('too slow')
+        const out: string[][] = []
+        const square: string[] = []
+        const valid = () => {
+          for (let r = 0; r < L; r++) {
+            for (let col = 0; col < L; col++) {
+              c.ops++
+              if (square[r][col] !== square[col][r]) return false
+            }
+          }
+          return true
+        }
+        const fill = (row: number) => {
+          if (row === L) {
+            if (valid()) out.push([...square])
+            return
+          }
+          for (const w of words) {
+            c.ops++
+            square.push(w)
+            fill(row + 1)
+            square.pop()
+          }
+        }
+        fill(0)
+        return out
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
+      id: 'backtrack-scan',
+      label: 'Backtrack, scanning all words for the required prefix',
+      kind: 'better',
+      time: 'O(n * L * 26^L)',
+      space: 'O(L)',
+      blurb:
+        'Once the first `k` rows are chosen, column `k` already spells the first `k` letters of row `k`, so only words with that prefix can go there. Checking the prefix before recursing prunes the doomed branches early — but finding the candidates still means scanning all `n` words at every node of the search.',
+      code: {
+        cpp: {
+          lines: [
+            'vector<vector<string>> wordSquares(vector<string>& words) {',
+            '    int L = words[0].size();',
+            '    vector<vector<string>> out;',
+            '    vector<string> square;',
+            '    function<void(int)> build = [&](int row) {',
+            '        if (row == L) { out.push_back(square); return; }',
+            '        string prefix;',
+            '        for (int r = 0; r < row; ++r) prefix += square[r][row];',
+            '        for (const string& w : words) {',
+            '            if (w.compare(0, prefix.size(), prefix) != 0) continue;',
+            '            square.push_back(w);',
+            '            build(row + 1);',
+            '            square.pop_back();',
+            '        }',
+            '    };',
+            '    build(0);',
+            '    return out;',
+            '}',
+          ],
+        },
+        js: {
+          lines: [
+            'function wordSquares(words) {',
+            '  const L = words[0].length;',
+            '  const out = [];',
+            '  const square = [];',
+            '  const build = (row) => {',
+            '    if (row === L) { out.push([...square]); return; }',
+            "    let prefix = '';",
+            '    for (let r = 0; r < row; r++) prefix += square[r][row];',
+            '    for (const w of words) {',
+            '      if (!w.startsWith(prefix)) continue;',
+            '      square.push(w);',
+            '      build(row + 1);',
+            '      square.pop();',
+            '    }',
+            '  };',
+            '  build(0);',
+            '  return out;',
+            '}',
+          ],
+        },
+      },
+
+      run([words]: [string[]], c) {
+        const L = words[0].length
+        const out: string[][] = []
+        const square: string[] = []
+        const build = (row: number) => {
+          if (row === L) {
+            out.push([...square])
+            return
+          }
+          let prefix = ''
+          for (let r = 0; r < row; r++) prefix += square[r][row]
+          for (const w of words) {
+            c.ops++
+            if (!w.startsWith(prefix)) continue
+            square.push(w)
+            build(row + 1)
+            square.pop()
+          }
+        }
+        build(0)
+        return out
+      },
+    },
+    // -----------------------------------------------------------------------
+    {
       id: 'prefix-index',
       label: 'Build row by row against a prefix index',
       kind: 'optimal',
-      time: 'O(n * 26^L)',
+      time: 'O(n * L + 26^L * L)',
       space: 'O(n * L)',
       blurb:
-        'Once the first `k` rows are chosen, the letters they contribute to column `k` fix the prefix of row `k` — there is nothing to guess. Indexing every word by each of its prefixes turns "what can go here?" into one lookup, so the search only ever explores rows that can still work.',
+        'The scan for a prefix is the same question asked over and over, so answer it once. Indexing every word by each of its prefixes turns "what can go here?" into one hash lookup, and the search only ever explores rows that can still work — the same pruned tree as before, minus the linear scan at every node.',
       code: {
         cpp: {
           lines: [
