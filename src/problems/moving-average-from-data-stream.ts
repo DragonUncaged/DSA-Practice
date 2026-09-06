@@ -39,6 +39,18 @@ export const movingAverageFromDataStream: Problem = {
       args: [[1], [4], [-2], [0]],
       expect: [null, 4, -2, 0],
     },
+    {
+      // a window wider than the stream so far: the average is over what has arrived
+      ops: ['MovingAverage', 'next', 'next'],
+      args: [[1000], [100000], [-100000]],
+      expect: [null, 100000, 0],
+    },
+    {
+      // the extremes on both ends of the window
+      ops: ['MovingAverage', 'next', 'next', 'next', 'next'],
+      args: [[2], [-100000], [-100000], [100000], [100000]],
+      expect: [null, -100000, -100000, 0, 100000],
+    },
   ],
 
   starter: {
@@ -66,6 +78,76 @@ public:
   },
 
   solutions: [
+    {
+      id: 'resum-window',
+      label: 'Keep the window in an array and re-add it every call',
+      kind: 'brute',
+      time: 'O(size) per call',
+      space: 'O(size)',
+      blurb:
+        'Append each value to a list, drop the front once the list is longer than the window, and add up whatever is left to answer. Correct, and it does exactly what the statement says — but every call re-reads the whole window to recompute a total that changed by two numbers.',
+      code: {
+        cpp: {
+          lines: [
+            'class MovingAverage {',
+            '    vector<int> win;',
+            '    int cap;',
+            '',
+            'public:',
+            '    MovingAverage(int size) : cap(size) {}',
+            '',
+            '    double next(int val) {',
+            '        win.push_back(val);',
+            '        if ((int)win.size() > cap) win.erase(win.begin());',
+            '        long long sum = 0;',
+            '        for (int x : win) sum += x;',
+            '        return (double)sum / win.size();',
+            '    }',
+            '};',
+          ],
+        },
+        js: {
+          lines: [
+            'class MovingAverage {',
+            '  constructor(size) {',
+            '    this.cap = size;',
+            '    this.win = [];',
+            '  }',
+            '',
+            '  next(val) {',
+            '    this.win.push(val);',
+            '    if (this.win.length > this.cap) this.win.shift();',
+            '    let sum = 0;',
+            '    for (const x of this.win) sum += x;',
+            '    return sum / this.win.length;',
+            '  }',
+            '}',
+          ],
+        },
+      },
+
+      run([ops, args]: [string[], number[][]], c) {
+        const cap = args[0][0]
+        const win: number[] = []
+        const out: (number | null)[] = [null]
+        for (let i = 1; i < ops.length; i++) {
+          if (ops[i] !== 'next') {
+            out.push(null)
+            continue
+          }
+          win.push(args[i][0])
+          if (win.length > cap) win.shift()
+          let sum = 0
+          for (const x of win) {
+            c.ops++
+            sum += x
+          }
+          out.push(sum / win.length)
+        }
+        return out
+      },
+    },
+    // -----------------------------------------------------------------------
     {
       id: 'queue-sum',
       label: 'Running sum over a queue',
