@@ -33,9 +33,14 @@ containing `too slow` on an input it cannot finish, and `/selftest` counts that 
 A problem carrying `design` instead of `signature` is a design problem: the runner builds a class
 and dispatches method calls on it, driven by `designTests` (LeetCode's `ops`/`args`/`expect` call
 log) with a class skeleton for `starter` — see `src/problems/moving-average-from-data-stream.ts`,
-whose reference `run` takes `[ops, args]` and returns that case's result list.
+whose reference `run` takes `[ops, args]` and returns that case's result list. The generated C++
+driver passes constructor arguments as temporaries, so a design class takes them by value or
+`const&`, never `vector<T>&`. An API neither shape can express (a NestedInteger, an N-ary tree, a
+hidden Robot, a circular list) still gets tests as a function problem: the starter carries the
+provided scaffold plus a wrapper the tests call, and the statement says so — see
+`src/problems/nested-list-weight-sum.ts` and `src/problems/robot-room-cleaner.ts`.
 A problem with neither is statement-only — `hasPractice` decides, and the player shows the statement
-with no editor; use it only for an iterator or callback API neither shape can express.
+with no editor; use it only when even that wrapper shape cannot express the API.
 Practice compiles C++ on
 godbolt.org, so Run tests needs network for that language; JavaScript runs in a local Web Worker.
 
