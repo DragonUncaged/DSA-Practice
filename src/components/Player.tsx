@@ -13,6 +13,14 @@ import { Practice } from './Practice'
 import { ProblemSwitcher } from './ProblemSwitcher'
 import s from './Player.module.scss'
 
+/**
+ * The rung the header and rail describe as "optimal". Untraced problems list
+ * their solutions brute-first, so index 0 is the wrong answer there; traced
+ * problems keep the optimal at index 0 and fall through unchanged.
+ */
+const optimalOf = (problem: Problem) =>
+  problem.solutions?.find((x) => x.kind === 'optimal') ?? problem.solutions?.[0]
+
 type Tab = 'trace' | 'compare' | 'solutions' | 'statement' | 'practice'
 
 const TAB_LABEL: Record<Tab, string> = {
@@ -29,14 +37,14 @@ export function Player({ problem }: { problem: Problem }) {
   const traced = hasTrace(problem)
   const practice = hasPractice(problem) ? problem : null
   const [tab, setTab] = useState<Tab>(traced ? 'trace' : practice ? 'practice' : 'statement')
-  const [solutionId, setSolutionId] = useState(problem.solutions?.[0]?.id)
+  const [solutionId, setSolutionId] = useState(optimalOf(problem)?.id)
 
   const prefs = usePrefs()
   const progress = useProgress()
   const solved = progress[problem.id] === 'solved'
 
   const solution = useMemo(
-    () => problem.solutions?.find((x) => x.id === solutionId) ?? problem.solutions?.[0],
+    () => problem.solutions?.find((x) => x.id === solutionId) ?? optimalOf(problem),
     [problem, solutionId],
   )
 
@@ -379,7 +387,7 @@ function InfoRail({
   onCollapse: () => void
 }) {
   const sample = problem.tests?.[0]
-  const optimal = problem.solutions?.[0]
+  const optimal = optimalOf(problem)
   const guide = PATTERN_OF_PROBLEM[problem.id]
 
   return (
