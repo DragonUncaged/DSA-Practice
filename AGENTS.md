@@ -44,6 +44,15 @@ with no editor; use it only when even that wrapper shape cannot express the API.
 Practice compiles C++ on
 godbolt.org, so Run tests needs network for that language; JavaScript runs in a local Web Worker.
 
+## Routes
+
+`src/app/layout.tsx` owns the one `<main>` landmark for every route, so a page must never add its
+own. An unknown id belongs in a segment `not-found.tsx` reached by `notFound()` from the page, not
+in a 200 rendered by the client component. `src/app/error.tsx` and `src/app/p/[id]/error.tsx` catch
+route crashes; a renderer that throws is caught closer, by `VizBoundary` in `PlayerParts.tsx`, so the
+header and switcher survive. Text colours must clear 4.5:1 on the app surfaces - the ramp in
+`src/styles/_vars.scss` says which tokens are safe.
+
 ## Maintaining this file
 
 Keep this file for knowledge useful to almost every future agent session in this project.
