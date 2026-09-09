@@ -1,6 +1,7 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { Component, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import type { CodeBlock, Frame, Lang, Solution } from '@/lib/types'
 import type { RevealLevel } from '@/lib/store'
 import type { TracePlayer } from '@/lib/useTrace'
@@ -12,6 +13,32 @@ export const LANG_LABEL: Record<Lang, string> = { cpp: 'C++', js: 'JAVASCRIPT' }
 export const LANGS: Lang[] = ['cpp', 'js']
 
 // ---------------------------------------------------------------------------
+
+/**
+ * Keeps a crashing renderer inside the viz box. The route-level `error.tsx`
+ * would swallow the whole player - header, switcher and transport with it -
+ * for what is only ever one frame's view failing to draw, so the stage catches
+ * its own errors first and the rest of the page stays usable.
+ */
+class VizBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  render() {
+    if (this.state.failed) {
+      return (
+        <div className={s.emptyStage}>
+          <div>This frame could not be drawn.</div>
+          <div>Stepping to another frame usually recovers.</div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 export function Stage({ frame }: { frame: Frame | undefined }) {
   if (!frame) {
@@ -27,7 +54,10 @@ export function Stage({ frame }: { frame: Frame | undefined }) {
   return (
     <div className={s.stage}>
       <div className={s.viz}>
-        <Renderer view={frame.view} />
+        {/* Re-keyed per frame so stepping past a bad view clears the failure. */}
+        <VizBoundary key={`${frame.step}:${frame.ops}`}>
+          <Renderer view={frame.view} />
+        </VizBoundary>
       </div>
 
       <div className={s.readout}>

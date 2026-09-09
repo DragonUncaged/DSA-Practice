@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { byId } from '@/problems'
 import { Player } from '@/components/Player'
 
@@ -12,25 +12,9 @@ import { Player } from '@/components/Player'
 export function PlayerRoute({ id }: { id: string }) {
   const problem = byId(id)
 
-  if (!problem) {
-    return (
-      <main
-        style={{
-          display: 'grid',
-          placeItems: 'center',
-          gap: 14,
-          minHeight: '100dvh',
-          textAlign: 'center',
-          padding: 24,
-        }}
-      >
-        <p style={{ color: '#83878F' }}>No trace has been authored for this problem yet.</p>
-        <Link href="/practice" style={{ color: '#CDFF57' }}>
-          Back to the problem list
-        </Link>
-      </main>
-    )
-  }
+  // `page.tsx` already 404s on an unknown id; this is the client-side guard
+  // that narrows the type, and it renders the same `not-found.tsx`.
+  if (!problem) notFound()
 
   return <Player problem={problem} />
 }

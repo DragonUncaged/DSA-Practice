@@ -1,0 +1,18 @@
+@use 'styles/vars' as *;
+
+.wrap {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  min-height: 100dvh;
+  text-align: center;
+  padding: 24px;
+}
+
+.copy {
+  color: $fg-dim;
+}
+
+.link {
+  color: $lime;
+}

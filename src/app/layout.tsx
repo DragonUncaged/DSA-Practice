@@ -32,7 +32,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <StoreHydrator />
-        {children}
+        {/* The one `main` landmark for every route, so no page needs its own.
+            Unstyled on purpose - it must not introduce a box of its own. */}
+        <main>{children}</main>
       </body>
     </html>
   )

@@ -160,7 +160,7 @@ export function SelfTest() {
   }
 
   return (
-    <main style={{ padding: 28, fontFamily: 'var(--font-sans)' }}>
+    <div style={{ padding: 28, fontFamily: 'var(--font-sans)' }}>
       <h1 style={{ fontSize: 22, marginBottom: 6 }}>Self test</h1>
       <p style={{ color: bad.length ? '#FF7A59' : '#CDFF57', fontSize: 13, marginBottom: 20 }}>
         {bad.length === 0
@@ -217,6 +217,6 @@ export function SelfTest() {
           })}
         </tbody>
       </table>
-    </main>
+    </div>
   )
 }

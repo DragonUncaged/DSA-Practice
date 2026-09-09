@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { PROBLEMS, byId } from '@/problems'
 import { PlayerRoute } from './PlayerRoute'
 
@@ -22,5 +23,6 @@ export async function generateMetadata({
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  if (!byId(id)) notFound()
   return <PlayerRoute id={id} />
 }

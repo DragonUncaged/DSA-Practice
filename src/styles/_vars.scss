@@ -14,13 +14,17 @@ $ink-600: #22242a;
 $hair: rgba(255, 255, 255, 0.07);
 $hair-strong: rgba(255, 255, 255, 0.14);
 
-// text ramp, brightest first
+// Text ramp, brightest first. Every step down to $fg-ghost clears 4.5:1 on
+// surfaces up to $ink-750, so any of them is safe for the 10-11.5px eyebrow,
+// kicker, rail-title and label styles. Keep that floor when retuning: the ramp
+// bottoms out just above $fg-dim's own contrast, not at an arbitrary grey.
+// $fg-trace is decorative only - never use it for text.
 $fg: #e9eaee;
 $fg-soft: #b4b8c0;
 $fg-muted: #9a9ea7;
 $fg-dim: #83878f;
-$fg-faint: #6c7079;
-$fg-ghost: #55585f;
+$fg-faint: #7f838c;
+$fg-ghost: #7b7e85;
 $fg-trace: #3b3e44;
 
 // signal colours - `a` and `b` are the two-pointer pair everywhere in the app
