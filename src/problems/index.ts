@@ -1,4 +1,5 @@
 import type { Difficulty, DesignProblem, PracticeProblem, Problem } from '@/lib/types'
+import { toEntries, type SheetEntry } from './sheet'
 import { threeSum } from './3sum'
 import { fourSum } from './4sum'
 import { addAndSearchWord } from './add-and-search-word'
@@ -305,25 +306,10 @@ export const isDesign = (problem: Problem): problem is DesignProblem => problem.
 // The full sheet
 // ---------------------------------------------------------------------------
 
-export interface SheetEntry {
-  title: string
-  group: string
-  difficulty: Difficulty
-  /** Set when a trace exists; otherwise the row shows as not yet authored. */
-  problemId?: string
-  slug: string
-  /**
-   * Where an unbuilt row sends you. Tracks that know the real LeetCode slug
-   * set it; the rest fall back to the slugified title, which is best-effort.
-   */
-  leetcode?: string
-}
+export type { SheetEntry } from './sheet'
 
-const slugify = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+/** The id set every sheet row is checked against; see `./sheet`. */
+export const PROBLEM_IDS: ReadonlySet<string> = new Set(PROBLEMS.map((p) => p.id))
 
 type Row = [string, Difficulty]
 
@@ -458,19 +444,13 @@ const SHEET: [string, Row[]][] = [
 /** Traced problems are matched into the sheet by slug, so adding one lights up its row. */
 export const SHEET_GROUPS: { name: string; items: SheetEntry[] }[] = SHEET.map(([name, rows]) => ({
   name,
-  items: rows.map(([title, difficulty]) => {
-    const slug = slugify(title)
-    return {
-      title,
-      group: name,
-      difficulty,
-      slug,
-      problemId: PROBLEMS.find((p) => p.id === slug)?.id,
-    }
-  }),
+  items: toEntries(
+    name,
+    rows.map(([title, difficulty]) => ({ title, difficulty })),
+    PROBLEM_IDS,
+  ),
 }))
 
 export const ALL_ENTRIES: SheetEntry[] = SHEET_GROUPS.flatMap((g) => g.items)
 
 export const TOTAL = ALL_ENTRIES.length
-export const TRACED = ALL_ENTRIES.filter((e) => e.problemId).length

@@ -1,5 +1,6 @@
 import type { Difficulty } from '@/lib/types'
-import { PROBLEMS, type SheetEntry } from './index'
+import { PROBLEM_IDS } from './index'
+import { toEntries, type SheetEntry } from './sheet'
 
 /**
  * Company-wise tracks - the problems a given company is known to lean on.
@@ -103,21 +104,11 @@ const GOOGLE: CompanyTrack = {
 
 const COMPANIES: CompanyTrack[] = [GOOGLE]
 
-const slugify = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-
-const toEntries = (group: string, rows: Row[]): SheetEntry[] =>
-  rows.map(([title, difficulty]) => {
-    const slug = slugify(title)
-    return { title, group, difficulty, slug, problemId: PROBLEMS.find((p) => p.id === slug)?.id }
-  })
+const rows = (rs: Row[]) => rs.map(([title, difficulty]) => ({ title, difficulty }))
 
 const groupsOf = (c: CompanyTrack) => [
-  { name: 'Core', items: toEntries('Core', c.core) },
-  { name: 'Related', items: toEntries('Related', c.related) },
+  { name: 'Core', items: toEntries('Core', rows(c.core), PROBLEM_IDS) },
+  { name: 'Related', items: toEntries('Related', rows(c.related), PROBLEM_IDS) },
 ]
 
 /**

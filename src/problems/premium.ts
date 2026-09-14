@@ -1,5 +1,6 @@
 import type { Difficulty } from '@/lib/types'
-import { PROBLEMS, type SheetEntry } from './index'
+import { PROBLEM_IDS } from './index'
+import { toEntries, type SheetEntry } from './sheet'
 
 /**
  * LeetCode Premium - the 89 subscriber-only problems, taken from the folder
@@ -108,30 +109,18 @@ const PREMIUM: Row[] = [
   ['The Maze II', 'Medium', 'the-maze-ii'],
 ]
 
-const slugify = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-
 const DIFFS: Difficulty[] = ['Easy', 'Medium', 'Hard']
 
 /** Easy, Medium, Hard - the only grouping the source supports. */
 export const PREMIUM_GROUPS: { name: string; items: SheetEntry[] }[] = DIFFS.map((name) => ({
   name,
-  items: PREMIUM.filter(([, d]) => d === name).map(([title, difficulty, leetcodeSlug]) => {
-    const slug = slugify(title)
-    return {
+  items: toEntries(
+    name,
+    PREMIUM.filter(([, d]) => d === name).map(([title, difficulty, leetcodeSlug]) => ({
       title,
-      group: name,
       difficulty,
-      slug,
-      problemId: PROBLEMS.find((p) => p.id === slug)?.id,
       leetcode: `https://leetcode.com/problems/${leetcodeSlug}/`,
-    }
-  }),
+    })),
+    PROBLEM_IDS,
+  ),
 }))
-
-export const PREMIUM_ENTRIES: SheetEntry[] = PREMIUM_GROUPS.flatMap((g) => g.items)
-export const PREMIUM_TOTAL = PREMIUM_ENTRIES.length
-export const PREMIUM_TRACED = PREMIUM_ENTRIES.filter((e) => e.problemId).length

@@ -1,5 +1,6 @@
 import type { Difficulty } from '@/lib/types'
-import { PROBLEMS, type SheetEntry } from './index'
+import { PROBLEM_IDS } from './index'
+import { toEntries, type SheetEntry } from './sheet'
 
 /**
  * The SDE Sheet - 27 days of interview problems.
@@ -350,22 +351,20 @@ const SDE: [string, Row[]][] = [
   ],
 ]
 
-const slugify = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+/**
+ * The ids rows name outright, rather than by slug. `toEntries` ignores one
+ * that does not resolve (a typo would otherwise link at a problem that does
+ * not exist); the sheet test asserts every one of them still does.
+ */
+export const SDE_EXPLICIT_IDS: string[] = SDE.flatMap(([, rows]) =>
+  rows.map(([, , id]) => id).filter((id): id is string => id != null),
+)
 
 export const SDE_GROUPS: { name: string; items: SheetEntry[] }[] = SDE.map(([name, rows]) => ({
   name,
-  items: rows.map(([title, difficulty, id]) => {
-    const slug = slugify(title)
-    // explicit id wins; otherwise a slug match against the traced set lights it up
-    const problemId = id ?? PROBLEMS.find((p) => p.id === slug)?.id
-    return { title, group: name, difficulty, slug, problemId }
-  }),
+  items: toEntries(
+    name,
+    rows.map(([title, difficulty, id]) => ({ title, difficulty, id })),
+    PROBLEM_IDS,
+  ),
 }))
-
-export const SDE_ENTRIES: SheetEntry[] = SDE_GROUPS.flatMap((g) => g.items)
-export const SDE_TOTAL = SDE_ENTRIES.length
-export const SDE_TRACED = SDE_ENTRIES.filter((e) => e.problemId).length
