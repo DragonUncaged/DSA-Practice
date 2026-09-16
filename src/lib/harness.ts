@@ -97,12 +97,27 @@ static TreeNode* __toTree(const vector<string>& a) {
   return root;
 }
 
+// Results are read back as JSON, so a returned string carrying a quote or a
+// backslash has to be escaped on the way out or the whole case is unparseable.
+static string __esc(const string& s) {
+  string o;
+  for (unsigned char c : s) {
+    if (c == '"' || c == '\\\\') { o += '\\\\'; o += (char)c; }
+    else if (c == '\\n') o += "\\\\n";
+    else if (c == '\\r') o += "\\\\r";
+    else if (c == '\\t') o += "\\\\t";
+    else if (c < 0x20) { char b[8]; snprintf(b, sizeof b, "\\\\u%04x", c); o += b; }
+    else o += (char)c;
+  }
+  return o;
+}
+
 static void __p(int x) { cout << x; }
 static void __p(long long x) { cout << x; }
 static void __p(bool x) { cout << (x ? "true" : "false"); }
 static void __p(double x) { ostringstream o; o << setprecision(17) << x; cout << o.str(); }
-static void __p(char c) { cout << '"' << c << '"'; }
-static void __p(const string& s) { cout << '"' << s << '"'; }
+static void __p(char c) { cout << '"' << __esc(string(1, c)) << '"'; }
+static void __p(const string& s) { cout << '"' << __esc(s) << '"'; }
 template <class T> static void __p(const vector<T>& v) {
   cout << '[';
   for (size_t i = 0; i < v.size(); ++i) { if (i) cout << ','; __p(v[i]); }
@@ -136,6 +151,17 @@ static void __p(TreeNode* r) {
 
 const q = (s: string) => JSON.stringify(String(s))
 
+/** A single C++ char literal: a quote or a backslash cell must not close it. */
+const CHAR_ESCAPE: Record<string, string> = {
+  "'": "\\'",
+  '\\': '\\\\',
+  '\n': '\\n',
+  '\r': '\\r',
+  '\t': '\\t',
+  '\0': '\\0',
+}
+const cppChar = (c: string) => `'${CHAR_ESCAPE[c] ?? c}'`
+
 function cppLiteral(type: ParamType, v: unknown): string {
   switch (type) {
     case 'int':
@@ -168,7 +194,7 @@ function cppLiteral(type: ParamType, v: unknown): string {
       return `vector<vector<int>>{${(v as number[][]).map((r) => `{${r.join(',')}}`).join(',')}}`
     case 'char[][]':
       return `vector<vector<char>>{${(v as string[][])
-        .map((r) => `{${r.map((c) => `'${c}'`).join(',')}}`)
+        .map((r) => `{${r.map(cppChar).join(',')}}`)
         .join(',')}}`
     case 'list':
       return `__toList(vector<int>{${(v as number[]).join(',')}})`
@@ -403,15 +429,33 @@ const canon = (v: unknown): unknown => {
   return v
 }
 
+const byJson = (a: unknown, b: unknown) =>
+  JSON.stringify(a).localeCompare(JSON.stringify(b))
+
+/**
+ * `set`: nothing anywhere carries order, so every level is sorted. Right for a
+ * list of 3Sum triplets or anagram groups, where the group is a set too.
+ */
 const sortDeep = (v: unknown): unknown => {
   if (!Array.isArray(v)) return canon(v)
-  const inner = v.map(sortDeep)
-  return [...inner].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
+  return [...v.map(sortDeep)].sort(byJson)
 }
+
+/**
+ * `sorted`: only the outer list is unordered; each element keeps its own
+ * order. An interval is [start, end] and a cell is [row, col], so sorting
+ * inside them would pass answers that are simply wrong.
+ */
+const sortOuter = (v: unknown): unknown => {
+  if (!Array.isArray(v)) return canon(v)
+  return [...v.map(canon)].sort(byJson)
+}
+
+const NORM = { exact: canon, sorted: sortOuter, set: sortDeep } as const
 
 export function judge(actual: unknown, expected: unknown, mode: 'exact' | 'sorted' | 'set' = 'exact'): boolean {
   if (actual && typeof actual === 'object' && '__error' in (actual as object)) return false
-  const norm = mode === 'exact' ? canon : sortDeep
+  const norm = NORM[mode] ?? canon
   return JSON.stringify(norm(actual)) === JSON.stringify(norm(expected))
 }
 

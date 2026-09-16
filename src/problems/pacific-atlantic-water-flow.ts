@@ -21,7 +21,9 @@ export const pacificAtlanticWaterFlow: Problem = {
     'Rain falls on a height grid. Water flows to a neighbour of equal or lower height. The Pacific touches the top and left edges, the Atlantic the bottom and right. Return every cell from which water can reach both oceans.',
   constraints: ['1 <= m, n <= 200', '0 <= heights[i][j] <= 10^5'],
   signature: { fn: 'pacificAtlantic', params: [{ name: 'heights', type: 'int[][]' }], ret: 'int[][]' },
-  compare: 'set',
+  // The cells may come back in any order, but each one is an ordered [row,
+  // col] pair — 'set' would accept [col, row] for [row, col].
+  compare: 'sorted',
   tests: [
     {
       args: [
