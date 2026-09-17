@@ -10,12 +10,25 @@ const stripAnsi = (s: string) => s.replace(ANSI, '')
 const emit = (entries: { text: string }[] | undefined, out: (line: string) => void) =>
   (entries ?? []).forEach((e) => out(stripAnsi(e.text)))
 
+/** Long enough for a cold compiler, short enough that a hung request ends. */
+const TIMEOUT_MS = 30_000
+
 export async function runCpp(source: string, io: RunIO): Promise<number> {
   io.system(`Compiling with ${COMPILER.label} on godbolt.org...`)
 
-  let res: Response
+  // One request does compile + run, so everything that can go wrong with the
+  // network is handled in one place: a timeout, an unreachable host, a body
+  // that is not the JSON we asked for.
+  let data: {
+    buildResult?: { code?: number; stderr?: { text: string }[] }
+    timedOut?: boolean
+    stdout?: { text: string }[]
+    stderr?: { text: string }[]
+    code?: number
+  }
   try {
-    res = await fetch(`https://godbolt.org/api/compiler/${COMPILER.id}/compile`, {
+    const res = await fetch(`https://godbolt.org/api/compiler/${COMPILER.id}/compile`, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({
@@ -32,17 +45,33 @@ export async function runCpp(source: string, io: RunIO): Promise<number> {
         },
       }),
     })
-  } catch {
-    io.stderr('Could not reach the compile service (godbolt.org). Check your connection.')
+
+    if (res.status === 404) {
+      // The compiler id is pinned; if Compiler Explorer retires it, "try
+      // again" is the wrong advice — nothing about waiting will help.
+      io.stderr(`Compiler unavailable: godbolt.org no longer offers ${COMPILER.label} (${COMPILER.id}).`)
+      return 1
+    }
+    if (!res.ok) {
+      io.stderr(`Compile service returned HTTP ${res.status}. Try again in a moment.`)
+      return 1
+    }
+
+    try {
+      data = await res.json()
+    } catch {
+      io.stderr('The compile service returned a response we could not read. Try again in a moment.')
+      return 1
+    }
+  } catch (e) {
+    if ((e as Error)?.name === 'TimeoutError') {
+      io.stderr(`The compile service did not respond within ${TIMEOUT_MS / 1000}s. Try again in a moment.`)
+    } else {
+      io.stderr('Could not reach the compile service (godbolt.org). Check your connection.')
+    }
     return 1
   }
 
-  if (!res.ok) {
-    io.stderr(`Compile service returned HTTP ${res.status}. Try again in a moment.`)
-    return 1
-  }
-
-  const data = await res.json()
   const build = data.buildResult
 
   if (build && build.code !== 0) {

@@ -16,11 +16,6 @@ export interface RunResult {
   durationMs: number
 }
 
-export const LANG_NOTE: Record<Lang, string> = {
-  js: 'Runs in a sandboxed Web Worker in this tab.',
-  cpp: 'Compiled and executed remotely by Compiler Explorer (godbolt.org).',
-}
-
 export async function runCode(lang: Lang, source: string, io: RunIO): Promise<RunResult> {
   const started = performance.now()
   let exitCode = 0
