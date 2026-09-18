@@ -12,10 +12,45 @@ import { LANGS, LANG_LABEL } from './PlayerParts'
 import parts from './PlayerParts.module.scss'
 import s from './Practice.module.scss'
 
-const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
-  ssr: false,
-  loading: () => <div className={s.editorLoading}>loading editor...</div>,
-})
+/**
+ * Monaco itself is fetched from a CDN at runtime; pinning the path here keeps
+ * it on the same version as the `monaco-editor` package the types come from,
+ * instead of whatever the loader defaults to. Configured inside the dynamic
+ * import so it is set before the component can call `loader.init()`.
+ */
+const MONACO_VS = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.56.0/min/vs'
+
+const MonacoEditor = dynamic(
+  () =>
+    import('@monaco-editor/react').then((mod) => {
+      mod.loader.config({ paths: { vs: MONACO_VS } })
+      return mod.default
+    }),
+  { ssr: false, loading: () => <EditorLoading /> },
+)
+
+/** How long the editor may sit on "loading" before we admit it is not coming. */
+const EDITOR_TIMEOUT_MS = 15_000
+
+/** The CDN can simply not answer; say so rather than spinning forever. */
+function EditorLoading() {
+  const [slow, setSlow] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setSlow(true), EDITOR_TIMEOUT_MS)
+    return () => clearTimeout(t)
+  }, [])
+  if (!slow) return <div className={s.editorLoading}>loading editor...</div>
+  return (
+    <div className={s.editorLoading}>
+      <span>
+        The editor could not be loaded from the CDN.{' '}
+        <button className={s.ghostBtn} onClick={() => window.location.reload()}>
+          Retry
+        </button>
+      </span>
+    </div>
+  )
+}
 
 const MONACO_LANG: Record<Lang, string> = { cpp: 'cpp', js: 'javascript' }
 
@@ -97,6 +132,14 @@ function designCase(t: DesignTestCase, index: number, value: unknown): CaseResul
 }
 
 type Line = { kind: 'out' | 'err' | 'sys'; text: string }
+
+/**
+ * How much of the console is rendered. A program that prints in a loop can
+ * emit thousands of lines before the runner's own cap stops it, and one
+ * <div> per line is what actually costs the tab; the tail is the part anyone
+ * reads, and the count above it says what was left out.
+ */
+const CONSOLE_TAIL = 500
 
 /** A run that threw reports its message where the value would have been. */
 const gotText = (got: unknown): string =>
@@ -190,6 +233,8 @@ export function Practice({
 
   const [code, setCode] = useState<string>(() => getDraft(problem.id, lang) ?? problem.starter[lang])
   const [running, setRunning] = useState(false)
+  /** Identifies the run in flight; a switch mid-run retires it. */
+  const runId = useRef(0)
   const [results, setResults] = useState<CaseResult[] | null>(null)
   const [lines, setLines] = useState<Line[]>([])
 
@@ -204,7 +249,14 @@ export function Practice({
     setCode(getDraft(problem.id, lang) ?? problem.starter[lang])
     setResults(null)
     setLines([])
+    setRunning(false)
   }
+
+  // A run still in flight belongs to the pair we just left: retiring its id
+  // means its output and its verdict land nowhere.
+  useEffect(() => {
+    runId.current++
+  }, [problem.id, lang, hydrated])
 
   const onChange = useCallback(
     (value: string | undefined) => {
@@ -223,47 +275,77 @@ export function Practice({
   }, [clearDraft, problem, lang])
 
   const run = useCallback(async () => {
+    const id = ++runId.current
     setRunning(true)
     setResults(null)
+    setLines([])
+
+    // `collected` is the source of truth for the whole run; state gets one
+    // flush at the end, plus at most one repaint per frame while the program
+    // is still writing. Copying the array into state per line was O(n²) and
+    // was what actually froze the tab on a printing loop.
     const collected: Line[] = []
+    let frame = 0
+    const paint = () => {
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        if (runId.current === id) setLines(collected.slice())
+      })
+    }
     const push = (kind: Line['kind'], text: string) => {
       collected.push({ kind, text })
-      setLines([...collected])
+      paint()
     }
 
     const raw: string[] = []
     const io = {
-      stdout: (t: string) => raw.push(...t.split('\n')),
+      stdout: (t: string) => {
+        for (const line of t.split('\n')) raw.push(line)
+      },
       stderr: (t: string) => push('err', t),
       system: (t: string) => push('sys', t),
     }
 
-    // one editor, two runner shapes: a design problem is driven as a class,
-    // every other practice problem as a single function
-    const program = isDesign(problem)
-      ? buildDesignProgram(lang, code, problem.design, problem.designTests)
-      : buildProgram(lang, code, problem.signature, problem.tests)
-    const { exitCode } = await runCode(lang, program, io)
+    try {
+      // one editor, two runner shapes: a design problem is driven as a class,
+      // every other practice problem as a single function
+      const program = isDesign(problem)
+        ? buildDesignProgram(lang, code, problem.design, problem.designTests)
+        : buildProgram(lang, code, problem.signature, problem.tests)
+      const { exitCode } = await runCode(lang, program, io)
 
-    const { results: values, stdout } = partitionOutput(raw)
-    stdout.filter((l) => l.trim()).forEach((l) => push('out', l))
+      // The problem or language changed while this was running: everything
+      // below would describe the wrong pair.
+      if (runId.current !== id) return
 
-    if (exitCode === 0 || values.length) {
-      const cases: CaseResult[] = isDesign(problem)
-        ? problem.designTests.map((t, i) => designCase(t, i, i < values.length ? values[i] : undefined))
-        : problem.tests.map((t, i) => ({
-            index: i,
-            pass: i < values.length && judge(values[i], t.expect, problem.compare),
-            args: t.args,
-            got: i < values.length ? values[i] : undefined,
-            want: t.expect,
-            note: t.note,
-          }))
-      setResults(cases)
-      if (cases.length && cases.every((c) => c.pass)) setSolved(problem.id, 'solved')
+      const { results: values, stdout } = partitionOutput(raw)
+      for (const line of stdout) if (line.trim()) collected.push({ kind: 'out', text: line })
+      if (frame) cancelAnimationFrame(frame)
+      frame = 0
+      setLines(collected)
+
+      if (exitCode === 0 || values.length) {
+        const cases: CaseResult[] = isDesign(problem)
+          ? problem.designTests.map((t, i) =>
+              designCase(t, i, i < values.length ? values[i] : undefined),
+            )
+          : problem.tests.map((t, i) => ({
+              index: i,
+              pass: i < values.length && judge(values[i], t.expect, problem.compare),
+              args: t.args,
+              got: i < values.length ? values[i] : undefined,
+              want: t.expect,
+              note: t.note,
+            }))
+        setResults(cases)
+        if (cases.length && cases.every((c) => c.pass)) setSolved(problem.id, 'solved')
+      }
+    } finally {
+      // Whatever went wrong — a storage write, a runner throwing — the Run
+      // button comes back. Only this run may clear it.
+      if (runId.current === id) setRunning(false)
     }
-
-    setRunning(false)
   }, [code, lang, problem, setSolved])
 
   const caseCount = isDesign(problem) ? problem.designTests.length : problem.tests.length
@@ -295,6 +377,13 @@ export function Practice({
             </button>
           ))}
         </div>
+
+        {/* The browser cannot compile C++, so this code leaves the machine. */}
+        {lang === 'cpp' && (
+          <span className={s.langNote}>
+            C++ is compiled on Compiler Explorer (godbolt.org); your code is sent there to run.
+          </span>
+        )}
 
         <span className={s.spacer} />
 
@@ -501,7 +590,10 @@ export function Practice({
 
           {lines.length > 0 && (
             <div className={s.console}>
-              {lines.map((l, i) => (
+              {lines.length > CONSOLE_TAIL && (
+                <div className={s.sys}>{lines.length - CONSOLE_TAIL} earlier lines</div>
+              )}
+              {lines.slice(-CONSOLE_TAIL).map((l, i) => (
                 <div key={i} className={s[l.kind]}>
                   {l.text}
                 </div>
