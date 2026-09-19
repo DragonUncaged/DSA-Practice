@@ -12,10 +12,10 @@
  */
 
 import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware'
 import type { Lang } from './types'
 
-export type SolveState = 'solved' | 'attempted'
+export type SolveState = 'solved'
 
 /**
  * 0 = hidden, 1 = approach shown, 2 = lines appear as the trace executes them,
@@ -77,6 +77,43 @@ export const DEFAULT_PREFS: Prefs = {
 const EMPTY_STREAK: Streak = { last: null, count: 0, days: [] }
 
 const STORE_KEY = 'trace.v1'
+
+/**
+ * localStorage, wrapped so a failed write never escapes. Zustand's persist
+ * middleware writes inside every `set`, so an unhandled QuotaExceededError
+ * (a full origin, Safari private mode) would propagate out of `setDraft` on a
+ * keystroke or out of the async run that records a solve. Losing one save is
+ * the acceptable failure here; losing the app is not. Every access is lazy so
+ * importing this module outside a browser is safe.
+ */
+let warnedWriteFailure = false
+const safeStorage: StateStorage = {
+  getItem: (name) => {
+    try {
+      return globalThis.localStorage?.getItem(name) ?? null
+    } catch {
+      return null
+    }
+  },
+  setItem: (name, value) => {
+    try {
+      globalThis.localStorage?.setItem(name, value)
+    } catch (e) {
+      if (!warnedWriteFailure) {
+        warnedWriteFailure = true
+        console.warn('[trace] could not save to localStorage; progress will not persist.', e)
+      }
+    }
+  },
+  removeItem: (name) => {
+    try {
+      globalThis.localStorage?.removeItem(name)
+    } catch {
+      /* nothing to undo */
+    }
+  },
+}
+
 const draftKey = (problemId: string, lang: Lang) => `${problemId}:${lang}`
 
 const today = () => {
@@ -103,6 +140,66 @@ function touchedStreak(s: Streak): Streak {
   }
 }
 
+/**
+ * Bump together with `migrate` in the persist options below.
+ * 0 is the shape this app has always written.
+ */
+const STORE_VERSION = 0
+
+// --- persisted-blob validation ---------------------------------------------
+// A stored blob is text on someone's disk: it survives releases, other tabs
+// and hand edits. Anything that fails its check falls back to the default for
+// that field rather than reaching a component as the wrong type.
+
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v)
+
+const pick = <T,>(v: unknown, fallback: Record<string, T>, ok: (x: unknown) => x is T) =>
+  isObject(v)
+    ? Object.fromEntries(Object.entries(v).filter(([, x]) => ok(x)) as [string, T][])
+    : fallback
+
+const isSolveState = (v: unknown): v is SolveState => v === 'solved'
+const isRevealLevel = (v: unknown): v is RevealLevel => v === 0 || v === 1 || v === 2 || v === 3
+const isString = (v: unknown): v is string => typeof v === 'string'
+const isBool = (v: unknown): v is boolean => typeof v === 'boolean'
+
+const validProgress = (v: unknown, fallback: Record<string, SolveState>) =>
+  pick(v, fallback, isSolveState)
+const validReveal = (v: unknown, fallback: Record<string, RevealLevel>) =>
+  pick(v, fallback, isRevealLevel)
+const validStrings = (v: unknown, fallback: Record<string, string>) => pick(v, fallback, isString)
+const validFlags = (v: unknown, fallback: Record<string, boolean>) => pick(v, fallback, isBool)
+
+const validStreak = (v: unknown, fallback: Streak): Streak => {
+  if (!isObject(v)) return fallback
+  const last = typeof v.last === 'string' ? v.last : null
+  const count = typeof v.count === 'number' && Number.isFinite(v.count) ? v.count : 0
+  const days = Array.isArray(v.days) ? v.days.filter(isString) : []
+  return { last, count, days }
+}
+
+/** Every pref keeps its default unless the stored value is of the right shape. */
+function validPrefs(v: unknown, fallback: Prefs): Prefs {
+  if (!isObject(v)) return fallback
+  const num = (x: unknown, d: number) => (typeof x === 'number' && Number.isFinite(x) ? x : d)
+  const numOrNull = (x: unknown, d: number | null) =>
+    x === null ? null : typeof x === 'number' && Number.isFinite(x) ? x : d
+  const bool = (x: unknown, d: boolean) => (typeof x === 'boolean' ? x : d)
+  return {
+    lang: coerceLang(v.lang as Lang),
+    speed: num(v.speed, fallback.speed),
+    showState: bool(v.showState, fallback.showState),
+    showRail: bool(v.showRail, fallback.showRail),
+    codeH: numOrNull(v.codeH, fallback.codeH),
+    resultsW: numOrNull(v.resultsW, fallback.resultsW),
+    railW: numOrNull(v.railW, fallback.railW),
+    editorFontSize: num(v.editorFontSize, fallback.editorFontSize),
+    editorTabSize: numOrNull(v.editorTabSize, fallback.editorTabSize),
+    editorWordWrap: bool(v.editorWordWrap, fallback.editorWordWrap),
+  }
+}
+
 interface TraceState {
   /** False until the persisted state has been read back after mount. */
   hydrated: boolean
@@ -113,12 +210,11 @@ interface TraceState {
   reveal: Record<string, RevealLevel>
   assisted: Record<string, boolean>
 
-  setSolved(id: string, state: SolveState | null): void
+  setSolved(id: string, state: SolveState): void
   setDraft(problemId: string, lang: Lang, code: string): void
   clearDraft(problemId: string, lang: Lang): void
   setPrefs(p: Partial<Prefs>): void
   setRevealLevel(id: string, level: RevealLevel): void
-  resetAll(): void
 }
 
 type Persisted = Pick<
@@ -142,12 +238,10 @@ export const useTraceStore = create<TraceState>()(
        * 'solved' is the Practice runner, after every test case passes.
        */
       setSolved: (id, state) =>
-        set((s) => {
-          const progress = { ...s.progress }
-          if (state == null) delete progress[id]
-          else progress[id] = state
-          return { progress, streak: state === 'solved' ? touchedStreak(s.streak) : s.streak }
-        }),
+        set((s) => ({
+          progress: { ...s.progress, [id]: state },
+          streak: touchedStreak(s.streak),
+        })),
 
       setDraft: (problemId, lang, code) =>
         set((s) => ({ drafts: { ...s.drafts, [draftKey(problemId, lang)]: code } })),
@@ -167,20 +261,10 @@ export const useTraceStore = create<TraceState>()(
           reveal: { ...s.reveal, [id]: level },
           assisted: level === 3 ? { ...s.assisted, [id]: true } : s.assisted,
         })),
-
-      resetAll: () =>
-        set({
-          progress: {},
-          drafts: {},
-          streak: EMPTY_STREAK,
-          prefs: DEFAULT_PREFS,
-          reveal: {},
-          assisted: {},
-        }),
     }),
     {
       name: STORE_KEY,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeStorage),
       // Hydration is explicit (see hydrateStore) so SSG HTML and the
       // hydration render agree; skipping it here avoids mismatch warnings.
       skipHydration: true,
@@ -192,16 +276,24 @@ export const useTraceStore = create<TraceState>()(
         reveal: s.reveal,
         assisted: s.assisted,
       }),
+      // Written into every blob. Bump `version` and extend `migrate` together:
+      // a bump with no matching migration makes zustand discard the persisted
+      // state, which is every user's progress.
+      version: STORE_VERSION,
+      migrate: (persisted) => persisted as Persisted,
       // Deep-merge prefs so a stored blob from before a new pref existed
-      // still picks up that pref's default.
+      // still picks up that pref's default, and validate everything else: the
+      // blob is user-editable text that outlives any release that wrote it.
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<Persisted>
-        const prefs = { ...current.prefs, ...(p.prefs ?? {}) }
-        prefs.lang = coerceLang(prefs.lang)
+        const prefs = validPrefs(p.prefs, current.prefs)
         return {
           ...current,
-          ...p,
-          drafts: dropStaleDrafts(p.drafts ?? current.drafts),
+          progress: validProgress(p.progress, current.progress),
+          drafts: dropStaleDrafts(validStrings(p.drafts, current.drafts)),
+          streak: validStreak(p.streak, current.streak),
+          reveal: validReveal(p.reveal, current.reveal),
+          assisted: validFlags(p.assisted, current.assisted),
           prefs,
         }
       },
