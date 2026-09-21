@@ -141,6 +141,13 @@ type Line = { kind: 'out' | 'err' | 'sys'; text: string }
  */
 const CONSOLE_TAIL = 500
 
+/**
+ * Runner messages — a timeout, the truncation notice — are the whole point of
+ * the console when a program misbehaves, so they are kept even when the
+ * printing that buried them is not.
+ */
+const CONSOLE_NOTICES = 20
+
 /** A run that threw reports its message where the value would have been. */
 const gotText = (got: unknown): string =>
   got === undefined
@@ -349,6 +356,18 @@ export function Practice({
   }, [code, lang, problem, setSolved])
 
   const caseCount = isDesign(problem) ? problem.designTests.length : problem.tests.length
+
+  // What the console actually renders: kept notices, a count of what was
+  // dropped, and the tail.
+  const consoleView = useMemo(() => {
+    if (lines.length <= CONSOLE_TAIL) return { notices: [], hidden: 0, tail: lines }
+    const cut = lines.length - CONSOLE_TAIL
+    const notices = lines
+      .slice(0, cut)
+      .filter((l) => l.kind !== 'out')
+      .slice(-CONSOLE_NOTICES)
+    return { notices, hidden: cut - notices.length, tail: lines.slice(-CONSOLE_TAIL) }
+  }, [lines])
 
   const tally = useMemo(() => {
     if (!results) return null
@@ -590,10 +609,15 @@ export function Practice({
 
           {lines.length > 0 && (
             <div className={s.console}>
-              {lines.length > CONSOLE_TAIL && (
-                <div className={s.sys}>{lines.length - CONSOLE_TAIL} earlier lines</div>
+              {consoleView.notices.map((l, i) => (
+                <div key={`n${i}`} className={s[l.kind]}>
+                  {l.text}
+                </div>
+              ))}
+              {consoleView.hidden > 0 && (
+                <div className={s.sys}>{consoleView.hidden} earlier lines</div>
               )}
-              {lines.slice(-CONSOLE_TAIL).map((l, i) => (
+              {consoleView.tail.map((l, i) => (
                 <div key={i} className={s[l.kind]}>
                   {l.text}
                 </div>
