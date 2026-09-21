@@ -10,7 +10,10 @@ A track is a problem list rendered by the shared `src/components/Sheet.tsx`. Add
 module under `src/problems/`, an entry in Sheet's `TRACKS` map, a route that renders `<Sheet track=…/>`,
 and a `TopNav` link — see `src/problems/companies.ts` and `src/app/company/google/page.tsx` for the
 smallest complete example. Never fork `Sheet`; search, filters, progress and collapsible groups all
-live there. Progress is keyed by `problemId ?? slug`, so the same problem shares state across tracks.
+live there. Progress is keyed by `problemId ?? slug`, so the same problem shares state across tracks. Rows
+become entries through the one `slugify`/`toEntries` in `src/problems/sheet.ts`, handed
+`PROBLEM_IDS`; never re-implement either. An explicit row id that no longer resolves is ignored
+rather than linked, and `src/problems/sheet.test.ts` fails on it.
 A row without a trace is not dead: it opens on LeetCode, using `SheetEntry.leetcode` when the track
 knows the real slug (see `src/problems/premium.ts`) and otherwise the slugified title, which is
 best-effort and misses for titles we spell differently.
@@ -22,8 +25,9 @@ registered in `src/problems/index.ts`; `src/problems/3sum.ts` is the smallest co
 whole track registers through one per-track array instead, so parallel work rebases cleanly — see
 `src/problems/premium-index.ts`, spread into `PROBLEMS`. A
 sheet row goes live when a registered id equals the row's slugified title (or its explicit id). Write a
-solution and step map for every `Lang`, then serve a build and open `/selftest`: it checks frames,
-unmapped steps and the reference solution against its own tests. A problem whose solutions omit
+solution and step map for every `Lang`, then run `npm test` or open `/selftest` on a served build:
+both run `check()` from `src/lib/selfcheck.ts`, which checks frames, unmapped steps and the
+reference solution against its own tests. A problem whose solutions omit
 `trace` and `code[lang].map` is practice-only — `hasTrace` in `src/problems/index.ts` decides, the
 player hides Trace and Brute vs Optimal and opens on Practice, and `/selftest` labels the row and
 checks only its tests; `src/problems/plus-one.ts` is the smallest one. A problem with no trace shows
@@ -41,8 +45,19 @@ provided scaffold plus a wrapper the tests call, and the statement says so — s
 `src/problems/nested-list-weight-sum.ts` and `src/problems/robot-room-cleaner.ts`.
 A problem with neither is statement-only — `hasPractice` decides, and the player shows the statement
 with no editor; use it only when even that wrapper shape cannot express the API.
+Pick `compare` deliberately: `sorted` frees the order of the outer list only, `set` sorts every
+level, so a result whose elements are ordered pairs (an interval, an [r, c] cell) needs `sorted`.
 Practice compiles C++ on
-godbolt.org, so Run tests needs network for that language; JavaScript runs in a local Web Worker.
+godbolt.org, so Run tests needs network for that language; JavaScript runs in a local Web Worker,
+which caps its output at 5,000 lines.
+
+## Tests
+
+`npm test` is vitest over `src/**/*.test.ts` in a plain Node environment — the harness, the judge,
+the store and the authored data are all pure, and there is no DOM. Anything that needs a Worker,
+Monaco or godbolt.org is verified by hand against `next build && next start`; the audit's two
+standing checks are a printing infinite loop (the tab must stay responsive and show the truncation
+notice) and `/selftest` reporting every solution healthy.
 
 ## Routes
 
