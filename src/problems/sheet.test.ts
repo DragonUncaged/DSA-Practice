@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { PATTERNS } from '@/patterns'
-import { ALL_ENTRIES, PROBLEMS, PROBLEM_IDS, SHEET_GROUPS } from './index'
+import { PROBLEMS } from './index'
+import { ALL_ENTRIES, PROBLEM_IDS, SHEET_GROUPS } from './meta'
 import { COMPANY_GROUPS } from './companies'
 import { PREMIUM_GROUPS } from './premium'
 import { SDE_EXPLICIT_IDS, SDE_GROUPS } from './sde'

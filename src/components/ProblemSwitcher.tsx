@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ALL_ENTRIES, SHEET_GROUPS } from '@/problems'
+import { ALL_ENTRIES, SHEET_GROUPS } from '@/problems/meta'
 import { useProgress } from '@/lib/store'
 import s from './ProblemSwitcher.module.scss'
 

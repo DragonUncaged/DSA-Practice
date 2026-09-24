@@ -21,7 +21,8 @@ best-effort and misses for titles we spell differently.
 ## Problems
 
 A problem is one file under `src/problems/` exporting a `Problem` (type in `src/lib/types.ts`),
-registered in `src/problems/index.ts`; `src/problems/3sum.ts` is the smallest complete template. A
+registered in `src/problems/index.ts` and listed in `src/problems/meta.ts`; `src/problems/3sum.ts`
+is the smallest complete template. A
 whole track registers through one per-track array instead, so parallel work rebases cleanly — see
 `src/problems/premium-index.ts`, spread into `PROBLEMS`. A
 sheet row goes live when a registered id equals the row's slugified title (or its explicit id). Write a
@@ -50,6 +51,13 @@ level, so a result whose elements are ordered pairs (an interval, an [r, c] cell
 Practice compiles C++ on
 godbolt.org, so Run tests needs network for that language; JavaScript runs in a local Web Worker,
 which caps its output at 5,000 lines.
+
+`index.ts` is the heavy half — importing it pulls every problem module, traces and all — so only
+`/p/[id]` and `/selftest` may. `meta.ts` is the light half: id, title, group, pattern and
+difficulty per problem plus the Blind 75 table and `PROBLEM_IDS`, and it must never import
+`index.ts`. Home, `Sheet`, `ProblemSwitcher`, `PatternIntro` and every track module import from
+`meta.ts`, which keeps the problem-data chunk off those routes; `src/problems/meta.test.ts` fails
+if the two lists drift, so a new problem is added to both.
 
 ## Tests
 

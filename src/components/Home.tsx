@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useProgress, useStreak } from '@/lib/store'
 import { PATTERNS } from '@/patterns'
-import { ALL_ENTRIES, PROBLEMS, TOTAL } from '@/problems'
+import { ALL_ENTRIES, PROBLEM_META, TOTAL } from '@/problems/meta'
 import s from './Home.module.scss'
 
 export function Home() {
@@ -11,7 +11,7 @@ export function Home() {
   const streak = useStreak()
 
   const solved = ALL_ENTRIES.filter((e) => progress[e.problemId ?? e.slug] === 'solved').length
-  const next = PROBLEMS.find((p) => progress[p.id] !== 'solved') ?? PROBLEMS[0]
+  const next = PROBLEM_META.find((p) => progress[p.id] !== 'solved') ?? PROBLEM_META[0]
 
   return (
     <div className={s.page}>

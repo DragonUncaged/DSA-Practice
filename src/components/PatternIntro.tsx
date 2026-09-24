@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useProgress } from '@/lib/store'
 import type { Solution } from '@/lib/types'
 import { useTrace, useTraceKeys } from '@/lib/useTrace'
-import { byId } from '@/problems'
+import { metaById } from '@/problems/meta'
 import { patternById } from '@/patterns'
 import { StatePane, Stage, Transport } from './PlayerParts'
 import s from './PatternIntro.module.scss'
@@ -95,7 +95,7 @@ export function PatternIntro({ id }: { id: string }) {
             </span>
           </div>
           {pattern.ramp.map((id, i) => {
-            const problem = byId(id)
+            const problem = metaById(id)
             if (!problem) return null
             const done = progress[id] === 'solved'
             return (

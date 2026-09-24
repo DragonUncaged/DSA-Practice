@@ -1,5 +1,5 @@
 import type { Difficulty } from '@/lib/types'
-import { PROBLEM_IDS } from './index'
+import { PROBLEM_IDS } from './meta'
 import { toEntries, type SheetEntry } from './sheet'
 
 /**
