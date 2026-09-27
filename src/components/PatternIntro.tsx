@@ -28,7 +28,7 @@ export function PatternIntro({ id }: { id: string }) {
       time: '',
       space: '',
       blurb: pattern.tagline,
-      code: { py: pattern.pseudo, cpp: pattern.pseudo, js: pattern.pseudo },
+      code: { cpp: pattern.pseudo, js: pattern.pseudo },
       trace: (t) => pattern.trace(t),
       run: () => 0,
     }),
