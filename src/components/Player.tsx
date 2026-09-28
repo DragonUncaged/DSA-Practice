@@ -325,7 +325,7 @@ export function Player({ problem }: { problem: Problem }) {
             </>
           )}
 
-          {practice && tab === 'compare' && <CompareView problem={practice} lang={prefs.lang} />}
+          {practice && tab === 'compare' && <CompareView problem={practice} />}
           {practice && tab === 'practice' && (
             <Practice
               problem={practice}
