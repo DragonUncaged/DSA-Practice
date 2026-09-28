@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Tracer, type Frame, type Solution } from './types'
 
 /** Base dwell time per frame at 1x. */
@@ -42,7 +42,6 @@ export function useTrace(solution: Solution | undefined, demo: unknown[]): Trace
   const [index, setIndexRaw] = useState(0)
   const [wantPlay, setWantPlay] = useState(false)
   const [speed, setSpeed] = useState(1)
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const total = frames.length
   const last = Math.max(0, total - 1)
@@ -97,7 +96,6 @@ export function useTrace(solution: Solution | undefined, demo: unknown[]): Trace
   useEffect(() => {
     if (!playing) return
     const id = setTimeout(() => setIndexRaw((i) => Math.min(last, i + 1)), BEAT_MS / speed)
-    timer.current = id
     return () => clearTimeout(id)
   }, [playing, clamped, last, speed])
 
