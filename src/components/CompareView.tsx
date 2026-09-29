@@ -119,7 +119,12 @@ export function CompareView({ problem }: { problem: PracticeProblem }) {
 
       <div className={parts.transport}>
         <div className={parts.controls}>
-          <button className={parts.btn} onClick={() => setI((k) => Math.max(0, k - 1))} disabled={i === 0}>
+          <button
+            className={parts.btn}
+            onClick={() => setI((k) => Math.max(0, k - 1))}
+            disabled={i === 0}
+            aria-label="Previous step"
+          >
             &#9664;
           </button>
           <button
@@ -130,6 +135,7 @@ export function CompareView({ problem }: { problem: PracticeProblem }) {
                 setWantPlay(true)
               } else setWantPlay((p) => !p)
             }}
+            aria-label={playing ? 'Pause' : 'Play'}
           >
             {playing ? '❚❚' : '▶'}
           </button>
@@ -137,6 +143,7 @@ export function CompareView({ problem }: { problem: PracticeProblem }) {
             className={parts.btn}
             onClick={() => setI((k) => Math.min(last, k + 1))}
             disabled={i >= last}
+            aria-label="Next step"
           >
             &#9654;
           </button>
