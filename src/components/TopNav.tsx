@@ -5,6 +5,15 @@ import { usePathname } from 'next/navigation'
 import { useStreak } from '@/lib/store'
 import s from './TopNav.module.scss'
 
+const LINKS: { href: string; label: string; active: (path: string) => boolean }[] = [
+  { href: '/', label: 'Home', active: (p) => p === '/' },
+  { href: '/patterns', label: 'Patterns', active: (p) => p.startsWith('/pattern') },
+  { href: '/practice', label: 'Blind 75', active: (p) => p.startsWith('/practice') },
+  { href: '/sde', label: 'SDE Sheet', active: (p) => p.startsWith('/sde') },
+  { href: '/premium', label: 'Premium', active: (p) => p.startsWith('/premium') },
+  { href: '/company/google', label: 'Google', active: (p) => p.startsWith('/company') },
+]
+
 export function TopNav() {
   const path = usePathname()
   const streak = useStreak()
@@ -17,30 +26,19 @@ export function TopNav() {
       </Link>
 
       <div className={s.links}>
-        <Link href="/" className={`${s.link} ${path === '/' ? s.on : ''}`}>
-          Home
-        </Link>
-        <Link
-          href="/patterns"
-          className={`${s.link} ${path.startsWith('/pattern') ? s.on : ''}`}
-        >
-          Patterns
-        </Link>
-        <Link href="/practice" className={`${s.link} ${path.startsWith('/practice') ? s.on : ''}`}>
-          Blind 75
-        </Link>
-        <Link href="/sde" className={`${s.link} ${path.startsWith('/sde') ? s.on : ''}`}>
-          SDE Sheet
-        </Link>
-        <Link href="/premium" className={`${s.link} ${path.startsWith('/premium') ? s.on : ''}`}>
-          Premium
-        </Link>
-        <Link
-          href="/company/google"
-          className={`${s.link} ${path.startsWith('/company') ? s.on : ''}`}
-        >
-          Google
-        </Link>
+        {LINKS.map(({ href, label, active }) => {
+          const on = active(path)
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`${s.link} ${on ? s.on : ''}`}
+              aria-current={on ? 'page' : undefined}
+            >
+              {label}
+            </Link>
+          )
+        })}
       </div>
 
       <span className={s.spacer} />
