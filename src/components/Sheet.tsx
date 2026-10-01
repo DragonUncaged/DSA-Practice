@@ -170,6 +170,7 @@ export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
             <button
               key={d}
               className={`${s.seg} ${diff === d ? s.on : ''}`}
+              aria-pressed={diff === d}
               onClick={() => setDiff(d)}
             >
               {d === 'all' ? 'All' : d}
@@ -179,6 +180,7 @@ export function Sheet({ track = 'blind75' }: { track?: TrackId }) {
 
         <button
           className={`${s.toggle} ${unsolvedOnly ? s.on : ''}`}
+          aria-pressed={unsolvedOnly}
           onClick={() => setUnsolvedOnly((v) => !v)}
         >
           <span className={s.dot} />

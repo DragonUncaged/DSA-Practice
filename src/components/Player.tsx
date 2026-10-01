@@ -220,6 +220,7 @@ export function Player({ problem }: { problem: Problem }) {
             <button
               key={t}
               className={`${s.tab} ${tab === t ? s.on : ''}`}
+              aria-pressed={tab === t}
               onClick={() => openTab(t)}
               title={
                 t === 'solutions'
@@ -234,6 +235,7 @@ export function Player({ problem }: { problem: Problem }) {
           {practice && (
             <button
               className={`${s.practiceTab} ${tab === 'practice' ? s.on : ''}`}
+              aria-pressed={tab === 'practice'}
               onClick={() => setTab('practice')}
               title="Solve the problem in the editor and run it against every test case"
             >
@@ -284,6 +286,7 @@ export function Player({ problem }: { problem: Problem }) {
                       <button
                         key={x.id}
                         className={`${s.pick} ${x.id === solution?.id ? s.on : ''}`}
+                        aria-pressed={x.id === solution?.id}
                         onClick={() => setSolutionId(x.id)}
                       >
                         {x.label}

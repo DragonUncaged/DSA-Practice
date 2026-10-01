@@ -174,6 +174,7 @@ export function Transport({ player }: { player: TracePlayer }) {
           <button
             key={v}
             className={`${s.seg} ${player.speed === v ? s.on : ''}`}
+            aria-pressed={player.speed === v}
             onClick={() => player.setSpeed(v)}
           >
             {v}x
@@ -280,7 +281,12 @@ export function LangPicker({ lang, onLang }: { lang: Lang; onLang: (l: Lang) => 
   return (
     <div className={s.segmented}>
       {LANGS.map((l) => (
-        <button key={l} className={`${s.seg} ${lang === l ? s.on : ''}`} onClick={() => onLang(l)}>
+        <button
+          key={l}
+          className={`${s.seg} ${lang === l ? s.on : ''}`}
+          aria-pressed={lang === l}
+          onClick={() => onLang(l)}
+        >
           {LANG_LABEL[l]}
         </button>
       ))}
@@ -342,6 +348,7 @@ export function CodePane({
               <button
                 key={o.level}
                 className={`${s.revealSeg} ${revealLevel === o.level ? s.on : ''}`}
+                aria-pressed={revealLevel === o.level}
                 title={o.hint}
                 onClick={() => onRevealLevel(o.level)}
               >

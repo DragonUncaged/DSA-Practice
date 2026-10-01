@@ -188,6 +188,7 @@ export function CompareView({ problem }: { problem: PracticeProblem }) {
             <button
               key={v}
               className={`${parts.seg} ${speed === v ? parts.on : ''}`}
+              aria-pressed={speed === v}
               onClick={() => setSpeed(v)}
             >
               {v}x
