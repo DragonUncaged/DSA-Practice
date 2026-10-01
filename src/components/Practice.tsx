@@ -8,8 +8,7 @@ import { getDraft, useHydrated, usePrefs, useTraceStore } from '@/lib/store'
 import { isDesign } from '@/problems'
 import type { DesignTestCase, Lang, PracticeProblem } from '@/lib/types'
 import { runCode } from '@/runners'
-import { LANGS, LANG_LABEL } from './PlayerParts'
-import parts from './PlayerParts.module.scss'
+import { LANG_LABEL, LangPicker } from './PlayerParts'
 import s from './Practice.module.scss'
 
 /**
@@ -385,17 +384,7 @@ export function Practice({
           Reset code
         </button>
 
-        <div className={parts.segmented}>
-          {LANGS.map((l) => (
-            <button
-              key={l}
-              className={`${parts.seg} ${lang === l ? parts.on : ''}`}
-              onClick={() => onLang(l)}
-            >
-              {LANG_LABEL[l]}
-            </button>
-          ))}
-        </div>
+        <LangPicker lang={lang} onLang={onLang} />
 
         {/* The browser cannot compile C++, so this code leaves the machine. */}
         {lang === 'cpp' && (
