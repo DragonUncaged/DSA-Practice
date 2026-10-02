@@ -39,7 +39,7 @@ export function SelfTest() {
 
       <table style={{ borderCollapse: 'collapse', width: '100%' }}>
         <thead>
-          <tr style={{ color: '#55585F', textAlign: 'left' }}>
+          <tr style={{ color: '#7B7E85', textAlign: 'left' }}>
             <th style={cell}>Problem</th>
             <th style={cell}>Solution</th>
             <th style={cell}>Frames</th>
@@ -73,7 +73,7 @@ export function SelfTest() {
                   {r.statementOnly ? '\u2014' : `${r.testsPassed}/${r.testsTotal}`}
                 </td>
                 <td style={cell}>{r.growth}</td>
-                <td style={{ ...cell, color: issues.length ? '#FF7A59' : '#3B3E44' }}>
+                <td style={{ ...cell, color: issues.length ? '#FF7A59' : '#7B7E85' }}>
                   {issues.length ? issues.join(' · ') : 'ok'}
                 </td>
               </tr>
