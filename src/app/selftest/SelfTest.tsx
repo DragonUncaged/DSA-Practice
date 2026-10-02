@@ -33,7 +33,8 @@ export function SelfTest() {
           ` ${practiceOnly} ${practiceOnly === 1 ? 'is' : 'are'} practice-only — tests checked, no trace to check.`}
         {design > 0 &&
           ` ${design} ${design === 1 ? 'is a design problem' : 'are design problems'} — design tests checked, no trace to check.`}
-        {statementOnly > 0 && ` ${statementOnly} are statement-only — nothing to run.`}
+        {statementOnly > 0 &&
+          ` ${statementOnly} ${statementOnly === 1 ? 'is' : 'are'} statement-only — nothing to run.`}
       </p>
 
       <table style={{ borderCollapse: 'collapse', width: '100%' }}>
