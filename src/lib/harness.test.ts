@@ -38,9 +38,9 @@ const JUDGE_CASES: JudgeCase[] = [
     want: true,
   },
   {
-    // M3: the whole promise of a green row. An interval is [start, end], so
-    // sorting inside it used to pass a submission that returned [end, start].
-    name: 'sorted: inner order still matters (M3 regression)',
+    // An interval is [start, end], so sorting inside it would pass a
+    // submission that returned [end, start].
+    name: 'sorted: inner order still matters',
     actual: [[6, 1], [8, 10]],
     expected: [[1, 6], [8, 10]],
     mode: 'sorted',
@@ -94,7 +94,7 @@ describe('judge', () => {
     })
   }
 
-  it('sorted and set are no longer the same function (M3 regression)', () => {
+  it('sorted and set judge inner order differently', () => {
     const actual = [[4, 0]]
     const expected = [[0, 4]]
     expect(judge(actual, expected, 'set')).toBe(true)
@@ -209,7 +209,7 @@ describe('buildProgram (js)', () => {
 })
 
 // ---------------------------------------------------------------------------
-// buildProgram — C++ (R10: literals and returned values must stay parseable)
+// buildProgram — C++: literals and returned values must stay parseable
 // ---------------------------------------------------------------------------
 
 describe('buildProgram (cpp)', () => {
