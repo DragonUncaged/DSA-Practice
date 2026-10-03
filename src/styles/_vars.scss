@@ -1,6 +1,5 @@
 // Shared design tokens. Modules pull these in with `@use 'styles/vars' as *;`
-// and may still declare their own local $variables on top, the same way the
-// pulse modules do.
+// and may still declare their own local $variables on top.
 
 // surfaces, darkest first
 $ink-950: #09090b;
