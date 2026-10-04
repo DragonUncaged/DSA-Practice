@@ -85,9 +85,9 @@ import { zigzagIterator } from './zigzag-iterator'
 
 /**
  * The LeetCode Premium track, in problem-number order. None of these carries a
- * trace: most are practice-only, and the design problems — a class, an
- * iterator, or a callback API that no single `ParamType` function can express —
- * are statement-only. `src/problems/premium.ts` lights up a row by matching its
+ * trace: most are practice-only function problems, the class-shaped ones are
+ * design problems, and the few whose API neither shape can express are
+ * statement-only. `src/problems/premium.ts` lights up a row by matching its
  * slugified title against these ids.
  *
  * Kept in its own file so the Premium track is one import in `index.ts`.

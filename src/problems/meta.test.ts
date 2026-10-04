@@ -7,7 +7,7 @@ import { PROBLEM_META } from './meta'
  * problem library into their bundles, which means it restates what `PROBLEMS`
  * already knows. Nothing in the type system ties the two together, so this is
  * the check: adding, removing, renaming or re-grouping a problem without
- * regenerating the table fails here.
+ * updating the table fails here.
  */
 describe('problem meta', () => {
   it('is exactly PROBLEMS, field for field and in order', () => {

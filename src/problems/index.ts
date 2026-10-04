@@ -137,13 +137,13 @@ import { twitchWords } from './twitch-words'
 // --- end Google company track ---------------------------------------------
 
 // --- LeetCode Premium ------------------------------------------------------
-// Authored as one block so this file stays easy to rebase while other tracks
-// land alongside it. Every entry is practice-only or statement-only.
+// The whole track comes in through one array; none of it carries a trace.
 import { PREMIUM_PROBLEMS } from './premium-index'
 
 /**
- * Every Blind 75 problem, each with a hand-authored trace, plus any
- * practice-only problem — one with tests and a reference solution but no trace.
+ * Every registered problem: the Blind 75, each with a hand-authored trace,
+ * then the other tracks' problems, most of which are practice-only — tests and
+ * reference solutions but no trace.
  */
 export const PROBLEMS: Problem[] = [
   // Array

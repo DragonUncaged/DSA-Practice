@@ -6,7 +6,7 @@ import { toEntries, type SheetEntry } from './sheet'
  *
  * Every page that lists problems — home, the sheets, the player's switcher,
  * a pattern's ramp — needs a title, a group and a difficulty, and nothing
- * else. Importing `./index` for that pulls all 207 problem modules, with
+ * else. Importing `./index` for that pulls every problem module, with
  * their traces, reference solutions and starter code, into the bundle of
  * every one of those routes; `./index` is deliberately the heavier half and
  * only `/p/[id]` and `/selftest` load it.
