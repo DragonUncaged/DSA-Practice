@@ -4,8 +4,8 @@
  * per-problem harness code.
  *
  * Layout of a generated program is always: preamble → user code → runner.
- * Putting user code after the preamble means a learner who defines their own
- * ListNode/TreeNode simply shadows ours instead of colliding with it.
+ * User code comes after the preamble so it can use ListNode and TreeNode
+ * without declaring them.
  */
 
 import type { DesignSpec, DesignTestCase, Lang, ParamType, Signature, TestCase } from './types'

@@ -1,7 +1,8 @@
 /**
- * Authoring-time growth check, used by /selftest only. It catches a solution
- * whose measured growth contradicts the Big-O printed next to it — the kind of
- * mistake that is invisible when reading the code.
+ * Authoring-time growth check, run by the self-check behind /selftest and
+ * `npm test`. It catches a solution whose measured growth contradicts the
+ * Big-O printed next to it — the kind of mistake that is invisible when
+ * reading the code.
  */
 
 import type { Counter, Problem, Solution } from './types'
