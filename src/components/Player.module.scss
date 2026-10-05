@@ -548,8 +548,8 @@
 }
 
 /* --- statement-only ------------------------------------------------------ */
-/* A design problem has no editor, so the main column carries the statement
-   itself rather than sitting empty behind a collapsible rail. */
+/* A statement-only problem has no editor, so the main column carries the
+   statement itself rather than sitting empty behind a collapsible rail. */
 .statementOnly {
   flex: 1;
   min-height: 0;
