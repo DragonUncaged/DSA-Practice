@@ -63,8 +63,8 @@ if the two lists drift, so a new problem is added to both.
 
 `npm test` is vitest over `src/**/*.test.ts` in a plain Node environment — the harness, the judge,
 the store and the authored data are all pure, and there is no DOM. Anything that needs a Worker,
-Monaco or godbolt.org is verified by hand against `next build && next start`; the audit's two
-standing checks are a printing infinite loop (the tab must stay responsive and show the truncation
+Monaco or godbolt.org is verified by hand against `next build && next start`; the two standing
+manual checks are a printing infinite loop (the tab must stay responsive and show the truncation
 notice) and `/selftest` reporting every solution healthy.
 
 ## Routes
