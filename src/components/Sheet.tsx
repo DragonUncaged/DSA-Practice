@@ -58,7 +58,7 @@ const TRACKS: Record<
 /**
  * Where an unbuilt row sends you. `slug` is already the slugified title, so the
  * fallback lands on LeetCode for most rows and misses for the few we spell
- * differently - still better than the dead row it replaces.
+ * differently.
  */
 const leetcodeUrl = (e: SheetEntry) => e.leetcode ?? `https://leetcode.com/problems/${e.slug}/`
 

@@ -7,8 +7,7 @@ import { toEntries, type SheetEntry } from './sheet'
  *
  * Rows carry an optional third element: the id of one of our traced problems.
  * A row with an id (or whose slugified title matches a trace) lights up and
- * links into the player; the rest are listed and light up as traces land,
- * exactly how the Blind 75 sheet grew.
+ * links into the player; the rest are listed and light up as traces land.
  */
 
 type Row = [string, Difficulty] | [string, Difficulty, string]
